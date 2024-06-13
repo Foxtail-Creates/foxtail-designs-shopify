@@ -1,9 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "04647ec21da57e20574c4c98d2ce4ce5"
-name = "foxtail-designs-shopify"
-handle = "foxtail-designs-shopify"
-application_url = "https://controversial-venue-win-default.trycloudflare.com"
+name = "foxtail-designs"
+handle = "foxtail-designs"
+application_url = "https://elliott-legislature-cycles-bracket.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://controversial-venue-win-default.trycloudflare.com/auth/callback",
-  "https://controversial-venue-win-default.trycloudflare.com/auth/shopify/callback",
-  "https://controversial-venue-win-default.trycloudflare.com/api/auth/callback"
+  "https://elliott-legislature-cycles-bracket.trycloudflare.com/auth/callback",
+  "https://elliott-legislature-cycles-bracket.trycloudflare.com/auth/shopify/callback",
+  "https://elliott-legislature-cycles-bracket.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
