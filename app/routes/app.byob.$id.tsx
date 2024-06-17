@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { json, redirect } from "@remix-run/node";
 import {
   useActionData,
@@ -10,37 +10,33 @@ import {
 import { authenticate } from "../shopify.server";
 import {
   Card,
-  Bleed,
-  Button,
   ChoiceList,
   Divider,
-  EmptyState,
   InlineStack,
-  InlineError,
   Layout,
   Page,
   Text,
   TextField,
-  Thumbnail,
   BlockStack,
   PageActions,
+  Tag,
+  Listbox,
+  EmptySearchResult,
+  Combobox,
+  AutoSelection,
+  ColorPicker,
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
 import db from "../db.server";
-// import { getQRCode, validateQRCode } from "../models/QRCode.server";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
 
-  if (params.id === "new") {
-    return json({
-      destination: "product",
-      title: "",
-    });
-  }
-
-  return json(await getQRCode(Number(params.id), admin.graphql));
+  return json({
+    destination: "product",
+    title: "",
+  });
 }
 
 export async function action({ request, params }) {
@@ -53,32 +49,47 @@ export async function action({ request, params }) {
     shop,
   };
 
-  if (data.action === "delete") {
-    await db.qRCode.delete({ where: { id: Number(params.id) } });
-    return redirect("/app");
-  }
-
-  const errors = validateQRCode(data);
-
   if (errors) {
     return json({ errors }, { status: 422 });
   }
-
-  const qrCode =
-    params.id === "new"
-      ? await db.qRCode.create({ data })
-      : await db.qRCode.update({ where: { id: Number(params.id) }, data });
-
-  return redirect(`/app/qrcodes/${qrCode.id}`);
 }
 
-export default function QRCodeForm() {
+export default function ByobCustomizationForm() {
   const errors = useActionData()?.errors || {};
 
-  const qrCode = useLoaderData();
-  const [formState, setFormState] = useState(qrCode);
-  const [cleanFormState, setCleanFormState] = useState(qrCode);
+  const byobCustomizer = useLoaderData();
+  const [formState, setFormState] = useState(byobCustomizer);
+  const [cleanFormState, setCleanFormState] = useState(byobCustomizer);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
+  // sizes
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(["size"]);
+  const handleSizesChange = useCallback(
+    (value: string[]) => setSelectedSizes(value),
+    [],
+  );
+  // palettes
+  const [color1, setColor1] = useState({
+    hue: 120,
+    brightness: 1,
+    saturation: 1,
+  });
+  const [color2, setColor2] = useState({
+    hue: 180,
+    brightness: 1,
+    saturation: 1,
+  });
+  const [color3, setColor3] = useState({
+    hue: 100,
+    brightness: 1,
+    saturation: 1,
+  });
+
+  // focal flowers
+  const [selectedFocalFlowers, setSelectedFocalFlowers] = useState<string[]>(
+    [],
+  );
+  const [value, setValue] = useState("");
+  const [suggestion, setSuggestion] = useState("");
 
   const nav = useNavigation();
   const isSaving =
@@ -87,27 +98,6 @@ export default function QRCodeForm() {
     nav.state === "submitting" && nav.formData?.get("action") === "delete";
 
   const navigate = useNavigate();
-
-  async function selectProduct() {
-    const products = await window.shopify.resourcePicker({
-      type: "product",
-      action: "select", // customized action verb, either 'select' or 'add',
-    });
-
-    if (products) {
-      const { images, id, variants, title, handle } = products[0];
-
-      setFormState({
-        ...formState,
-        productId: id,
-        productVariantId: variants[0].id,
-        productTitle: title,
-        productHandle: handle,
-        productAlt: images[0]?.altText,
-        productImage: images[0]?.originalSrc,
-      });
-    }
-  }
 
   const submit = useSubmit();
   function handleSave() {
@@ -123,9 +113,158 @@ export default function QRCodeForm() {
     submit(data, { method: "post" });
   }
 
+  const handleActiveOptionChange = useCallback(
+    (activeOption: string) => {
+      const activeOptionIsAction = activeOption === value;
+
+      if (
+        !activeOptionIsAction &&
+        !selectedFocalFlowers.includes(activeOption)
+      ) {
+        setSuggestion(activeOption);
+      } else {
+        setSuggestion("");
+      }
+    },
+    [value, selectedFocalFlowers],
+  );
+  const updateSelection = useCallback(
+    (selected: string) => {
+      const nextSelectedFocalFlowers = new Set([...selectedFocalFlowers]);
+
+      if (nextSelectedFocalFlowers.has(selected)) {
+        nextSelectedFocalFlowers.delete(selected);
+      } else {
+        nextSelectedFocalFlowers.add(selected);
+      }
+      setSelectedFocalFlowers([...nextSelectedFocalFlowers]);
+      setValue("");
+      setSuggestion("");
+    },
+    [selectedFocalFlowers],
+  );
+
+  const removeFocalFlower = useCallback(
+    (flower: string) => () => {
+      updateSelection(flower);
+    },
+    [updateSelection],
+  );
+
+  const getAllFocalFlowers = useCallback(() => {
+    const savedFocalFlowers = [
+      "Daffodil",
+      "Iris",
+      "Rose",
+      "Sunflower",
+      "Violet",
+    ];
+    return [...new Set([...savedFocalFlowers, ...selectedFocalFlowers].sort())];
+  }, [selectedFocalFlowers]);
+
+  const formatOptionText = useCallback(
+    (option: string) => {
+      const trimValue = value.trim().toLocaleLowerCase();
+      const matchIndex = option.toLocaleLowerCase().indexOf(trimValue);
+
+      if (!value || matchIndex === -1) return option;
+
+      const start = option.slice(0, matchIndex);
+      const highlight = option.slice(matchIndex, matchIndex + trimValue.length);
+      const end = option.slice(matchIndex + trimValue.length, option.length);
+
+      return (
+        <p>
+          {start}
+          <Text fontWeight="bold" as="span">
+            {highlight}
+          </Text>
+          {end}
+        </p>
+      );
+    },
+    [value],
+  );
+
+  const escapeSpecialRegExCharacters = useCallback(
+    (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    [],
+  );
+
+  const options = useMemo(() => {
+    let list;
+    const allFocalFlowers = getAllFocalFlowers();
+    const filterRegex = new RegExp(escapeSpecialRegExCharacters(value), "i");
+
+    if (value) {
+      list = allFocalFlowers.filter((flower) => flower.match(filterRegex));
+    } else {
+      list = allFocalFlowers;
+    }
+
+    return [...list];
+  }, [value, getAllFocalFlowers, escapeSpecialRegExCharacters]);
+
+  const verticalContentMarkup =
+    selectedFocalFlowers.length > 0 ? (
+      <InlineStack gap="100">
+        {/* <LegacyStack spacing="extraTight" alignment="center"> */}
+        {selectedFocalFlowers.map((tag) => (
+          <Tag key={`option-${tag}`} onRemove={removeFocalFlower(tag)}>
+            {tag}
+          </Tag>
+        ))}
+      </InlineStack>
+    ) : null;
+
+  const optionMarkup =
+    options.length > 0
+      ? options.map((option) => {
+          return (
+            <Listbox.Option
+              key={option}
+              value={option}
+              selected={selectedFocalFlowers.includes(option)}
+              accessibilityLabel={option}
+            >
+              <Listbox.TextOption
+                selected={selectedFocalFlowers.includes(option)}
+              >
+                {formatOptionText(option)}
+              </Listbox.TextOption>
+            </Listbox.Option>
+          );
+        })
+      : null;
+
+  const noResults = value && !getAllFocalFlowers().includes(value);
+
+  const actionMarkup = noResults ? (
+    <Listbox.Action value={value}>{`Add "${value}"`}</Listbox.Action>
+  ) : null;
+
+  const emptyStateMarkup = optionMarkup ? null : (
+    <EmptySearchResult
+      title=""
+      description={`No flowers found matching "${value}"`}
+    />
+  );
+
+  const listboxMarkup =
+    optionMarkup || actionMarkup || emptyStateMarkup ? (
+      <Listbox
+        autoSelection={AutoSelection.None}
+        onSelect={updateSelection}
+        onActiveOptionChange={handleActiveOptionChange}
+      >
+        {actionMarkup}
+        {optionMarkup}
+      </Listbox>
+    ) : null;
+
   return (
     <Page>
-      <ui-title-bar title={qrCode.id ? "Edit" : "Create"}>
+      <ui-title-bar title={byobCustomizer.id ? "Edit" : "Create"}>
         <button variant="breadcrumb" onClick={() => navigate("/app")}>
           BYOB Products
         </button>
@@ -136,11 +275,10 @@ export default function QRCodeForm() {
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
-                  Title
+                  Product Name
                 </Text>
                 <TextField
                   id="title"
-                  helpText="Only store staff can see this title"
                   label="title"
                   labelHidden
                   autoComplete="off"
@@ -154,103 +292,66 @@ export default function QRCodeForm() {
               <BlockStack gap="500">
                 <InlineStack align="space-between">
                   <Text as={"h2"} variant="headingLg">
-                    Product
+                    Customizations
                   </Text>
-                  {formState.productId ? (
-                    <Button variant="plain" onClick={selectProduct}>
-                      Change product
-                    </Button>
-                  ) : null}
                 </InlineStack>
-                {formState.productId ? (
-                  <InlineStack blockAlign="center" gap="500">
-                    <Thumbnail
-                      source={formState.productImage || ImageIcon}
-                      alt={formState.productAlt}
-                    />
-                    <Text as="span" variant="headingMd" fontWeight="semibold">
-                      {formState.productTitle}
-                    </Text>
-                  </InlineStack>
-                ) : (
-                  <BlockStack gap="200">
-                    <Button onClick={selectProduct} id="select-product">
-                      Select product
-                    </Button>
-                    {errors.productId ? (
-                      <InlineError
-                        message={errors.productId}
-                        fieldID="myFieldID"
-                      />
-                    ) : null}
-                  </BlockStack>
-                )}
-                <Bleed marginInlineStart="200" marginInlineEnd="200">
-                  <Divider />
-                </Bleed>
+                <Divider />
+                {/* <Bleed marginInlineStart="200" marginInlineEnd="200"></Bleed> */}
                 <InlineStack gap="500" align="space-between" blockAlign="start">
                   <ChoiceList
-                    title="Scan destination"
+                    title="Size Options"
+                    allowMultiple
                     choices={[
-                      { label: "Link to product page", value: "product" },
+                      { label: "Small", value: "small" },
                       {
-                        label: "Link to checkout page with product in the cart",
-                        value: "cart",
+                        label: "Medium",
+                        value: "medium",
+                      },
+                      {
+                        label: "Large",
+                        value: "large",
+                      },
+                      {
+                        label: "Extra-Large",
+                        value: "extra-large",
                       },
                     ]}
-                    selected={[formState.destination]}
-                    onChange={(destination) =>
-                      setFormState({
-                        ...formState,
-                        destination: destination[0],
-                      })
-                    }
+                    selected={selectedSizes}
+                    onChange={handleSizesChange}
                     error={errors.destination}
                   />
-                  {qrCode.destinationUrl ? (
-                    <Button
-                      variant="plain"
-                      url={qrCode.destinationUrl}
-                      target="_blank"
-                    >
-                      Go to destination URL
-                    </Button>
-                  ) : null}
                 </InlineStack>
+                <Divider />
+                <Text as="h6" variant="headingLg">
+                  {" "}
+                  Palette Color Options
+                </Text>
+                <InlineStack gap="500" align="start">
+                  <ColorPicker onChange={setColor1} color={color1} />
+                  <ColorPicker onChange={setColor2} color={color2} />
+                  <ColorPicker onChange={setColor3} color={color3} />
+                </InlineStack>
+                <Divider />
+                <Combobox
+                  allowMultiple
+                  preferredPosition="below"
+                  activator={
+                    <Combobox.TextField
+                      autoComplete="off"
+                      label="Focal flowers options"
+                      value={value}
+                      suggestion={suggestion}
+                      placeholder="Add focal flowers"
+                      verticalContent={verticalContentMarkup}
+                      onChange={setValue}
+                    />
+                  }
+                >
+                  {listboxMarkup}
+                </Combobox>
               </BlockStack>
             </Card>
           </BlockStack>
-        </Layout.Section>
-        <Layout.Section variant="oneThird">
-          <Card>
-            <Text as={"h2"} variant="headingLg">
-              BYOB Product
-            </Text>
-            {qrCode ? (
-              <EmptyState image={qrCode.image} imageContained={true} />
-            ) : (
-              <EmptyState image="">
-                Your BYOB Product will appear here after you save.
-              </EmptyState>
-            )}
-            <BlockStack gap="300">
-              <Button
-                disabled={!qrCode?.image}
-                url={qrCode?.image}
-                download
-                variant="primary"
-              >
-                Download
-              </Button>
-              <Button
-                disabled={!qrCode.id}
-                url={`/qrcodes/${qrCode.id}`}
-                target="_blank"
-              >
-                Go to public URL
-              </Button>
-            </BlockStack>
-          </Card>
         </Layout.Section>
         <Layout.Section>
           <PageActions
@@ -258,7 +359,11 @@ export default function QRCodeForm() {
               {
                 content: "Delete",
                 loading: isDeleting,
-                disabled: !qrCode.id || !qrCode || isSaving || isDeleting,
+                disabled:
+                  !byobCustomizer.id ||
+                  !byobCustomizer ||
+                  isSaving ||
+                  isDeleting,
                 destructive: true,
                 outline: true,
                 onAction: () =>

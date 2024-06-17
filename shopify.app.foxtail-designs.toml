@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://carrying-boards-expansion-miles.trycloudflare.com"
+application_url = "https://savage-repeat-governments-coordinates.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://carrying-boards-expansion-miles.trycloudflare.com/auth/callback",
-  "https://carrying-boards-expansion-miles.trycloudflare.com/auth/shopify/callback",
-  "https://carrying-boards-expansion-miles.trycloudflare.com/api/auth/callback"
+  "https://savage-repeat-governments-coordinates.trycloudflare.com/auth/callback",
+  "https://savage-repeat-governments-coordinates.trycloudflare.com/auth/shopify/callback",
+  "https://savage-repeat-governments-coordinates.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
