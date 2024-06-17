@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { json } from "@remix-run/node";
+import {json, redirect } from "@remix-run/node";
 import {
   useActionData,
   useLoaderData,
@@ -24,25 +24,65 @@ import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSect
 import { SizeSection } from "~/components/sizes/SizeSection";
 import { ByobCustomizer } from "~/types";
 
-export async function loader({ request, params }) {
-  // const { admin } = await authenticate.admin(request);
+import db from "../db.server";
+import { createStoreOptions, type StoreOptions } from "~/models/StoreSetting.server";
+import { Flower } from "@prisma/client";
 
-  // if (params.id === "new") {
-    return json({
-      destination: "product",
-      productName: "",
-      sizeOptions: [],
-      paletteColorOptions: [],
-      focalFlowerOptions: [],
-    });
+export async function loader({ request, params }) {
+  const { admin, session } = await authenticate.admin(request);
+  const response = await admin.graphql(
+    ` #graphql
+      query shopInfo {
+        shop {
+          metafield (namespace:"foxtail", key:"storeOptions1") {
+            id,
+            value
+          }
+          id
+        }
+      }`
+  );
+  const { data: { shop } } = await response.json();
+  var storeOptions: StoreOptions;
+
+  // create new metafield for the store
+  // if (shop.metafield == null || shop.metafield?.value == null) {
+    storeOptions = await createStoreOptions();
+    // TODO: new metafield definition for validation
+
+    // add new metafield instance,  sample id: "gid://shopify/Shop/63547637914" 
+    const metadataResponse = await admin.graphql(
+      ` #graphql
+        mutation setNewMetafield($shopId:ID!, $storeOptions:String!) { 
+          metafieldsSet( metafields:[{ownerId:$shopId,
+            namespace:"foxtail", key:"storeOptions1", type: "json", value:$storeOptions}]) {
+            userErrors {
+              message
+            }
+          }
+      }`,
+      { 
+        variables: { 
+          "shopId": shop.id,
+          "storeOptions": JSON.stringify(storeOptions)
+        }
+      }
+    );
+
+    // todo: error checking for response
+
+    
+  // } else {
+  //   storeOptions = JSON.parse(shop.metafield.value);
   // }
-  // return json({
-  //   destination: "product",
-  //   productName: "Saved Product",
-  //   sizeOptions: ["Small", "Medium", "Large"],
-  //   paletteColorOptions: [],
-  //   focalFlowerOptions: ["Daffodil"],
-  // });
+  return json({
+    destination: "product",
+    title: "",
+    productName: "",
+    sizeOptions: [],
+    paletteColorOptions: storeOptions.palettesAvailable,
+    focalFlowerOptions: storeOptions.flowersAvailable,
+  });
 }
 
 export async function action({ request, params }) {
@@ -61,6 +101,7 @@ export async function action({ request, params }) {
 }
 
 export default function ByobCustomizationForm() {
+
   const errors = useActionData()?.errors || {};
 
   const byobCustomizer: ByobCustomizer = useLoaderData();

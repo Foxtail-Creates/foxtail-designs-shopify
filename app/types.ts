@@ -1,3 +1,4 @@
+import { Flower } from "@prisma/client";
 import type { Dispatch, SetStateAction } from "react";
 
 export type ByobCustomizer = {
@@ -9,7 +10,7 @@ export type ByobCustomizer = {
 };
 
 export type FocalFlowersSectionProps = {
-  allFocalFlowerOptions: string[];
+  allFocalFlowerOptions: Flower[];
   formState: ByobCustomizer;
   setFormState: Dispatch<SetStateAction<ByobCustomizer>>;
 };

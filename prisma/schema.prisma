@@ -30,3 +30,19 @@ model Session {
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
 }
+
+model Flower {
+  id            Int     @id @default(autoincrement())
+  name          String
+  description   String
+  imageLink     String?
+}
+
+model Palette {
+  id            Int     @id @default(autoincrement())
+  name          String
+  color1        String
+  color2        String
+  color3        String
+  imageLink     String
+}

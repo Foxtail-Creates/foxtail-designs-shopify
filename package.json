@@ -4,6 +4,7 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "shopify app dev",
+    "ci-build": "npx tsc",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
@@ -16,7 +17,8 @@
     "shopify": "shopify",
     "prisma": "prisma",
     "graphql-codegen": "graphql-codegen",
-    "vite": "vite"
+    "vite": "vite",
+    "typecheck": "tsc"
   },
   "type": "module",
   "engines": {
