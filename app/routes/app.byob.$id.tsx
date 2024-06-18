@@ -1,5 +1,5 @@
-import { useCallback, useState, useMemo } from "react";
-import { json, redirect } from "@remix-run/node";
+import { useState } from "react";
+import { json } from "@remix-run/node";
 import {
   useActionData,
   useLoaderData,
@@ -10,25 +10,18 @@ import {
 import { authenticate } from "../shopify.server";
 import {
   Card,
-  ChoiceList,
   Divider,
-  InlineStack,
   Layout,
   Page,
   Text,
   TextField,
   BlockStack,
   PageActions,
-  Tag,
-  Listbox,
-  EmptySearchResult,
-  Combobox,
-  AutoSelection,
-  ColorPicker,
 } from "@shopify/polaris";
-import { ImageIcon } from "@shopify/polaris-icons";
 
-import db from "../db.server";
+import { PaletteSection } from "~/components/palettes/PaletteSection";
+import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
+import { SizeSection } from "~/components/sizes/SizeSection";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -61,35 +54,8 @@ export default function ByobCustomizationForm() {
   const [formState, setFormState] = useState(byobCustomizer);
   const [cleanFormState, setCleanFormState] = useState(byobCustomizer);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
-  // sizes
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(["size"]);
-  const handleSizesChange = useCallback(
-    (value: string[]) => setSelectedSizes(value),
-    [],
-  );
-  // palettes
-  const [color1, setColor1] = useState({
-    hue: 120,
-    brightness: 1,
-    saturation: 1,
-  });
-  const [color2, setColor2] = useState({
-    hue: 180,
-    brightness: 1,
-    saturation: 1,
-  });
-  const [color3, setColor3] = useState({
-    hue: 100,
-    brightness: 1,
-    saturation: 1,
-  });
 
-  // focal flowers
-  const [selectedFocalFlowers, setSelectedFocalFlowers] = useState<string[]>(
-    [],
-  );
-  const [value, setValue] = useState("");
-  const [suggestion, setSuggestion] = useState("");
+  const savedFocalFlowers = ["Daffodil", "Iris", "Rose", "Sunflower", "Violet"];
 
   const nav = useNavigation();
   const isSaving =
@@ -112,155 +78,6 @@ export default function ByobCustomizationForm() {
     setCleanFormState({ ...formState });
     submit(data, { method: "post" });
   }
-
-  const handleActiveOptionChange = useCallback(
-    (activeOption: string) => {
-      const activeOptionIsAction = activeOption === value;
-
-      if (
-        !activeOptionIsAction &&
-        !selectedFocalFlowers.includes(activeOption)
-      ) {
-        setSuggestion(activeOption);
-      } else {
-        setSuggestion("");
-      }
-    },
-    [value, selectedFocalFlowers],
-  );
-  const updateSelection = useCallback(
-    (selected: string) => {
-      const nextSelectedFocalFlowers = new Set([...selectedFocalFlowers]);
-
-      if (nextSelectedFocalFlowers.has(selected)) {
-        nextSelectedFocalFlowers.delete(selected);
-      } else {
-        nextSelectedFocalFlowers.add(selected);
-      }
-      setSelectedFocalFlowers([...nextSelectedFocalFlowers]);
-      setValue("");
-      setSuggestion("");
-    },
-    [selectedFocalFlowers],
-  );
-
-  const removeFocalFlower = useCallback(
-    (flower: string) => () => {
-      updateSelection(flower);
-    },
-    [updateSelection],
-  );
-
-  const getAllFocalFlowers = useCallback(() => {
-    const savedFocalFlowers = [
-      "Daffodil",
-      "Iris",
-      "Rose",
-      "Sunflower",
-      "Violet",
-    ];
-    return [...new Set([...savedFocalFlowers, ...selectedFocalFlowers].sort())];
-  }, [selectedFocalFlowers]);
-
-  const formatOptionText = useCallback(
-    (option: string) => {
-      const trimValue = value.trim().toLocaleLowerCase();
-      const matchIndex = option.toLocaleLowerCase().indexOf(trimValue);
-
-      if (!value || matchIndex === -1) return option;
-
-      const start = option.slice(0, matchIndex);
-      const highlight = option.slice(matchIndex, matchIndex + trimValue.length);
-      const end = option.slice(matchIndex + trimValue.length, option.length);
-
-      return (
-        <p>
-          {start}
-          <Text fontWeight="bold" as="span">
-            {highlight}
-          </Text>
-          {end}
-        </p>
-      );
-    },
-    [value],
-  );
-
-  const escapeSpecialRegExCharacters = useCallback(
-    (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-    [],
-  );
-
-  const options = useMemo(() => {
-    let list;
-    const allFocalFlowers = getAllFocalFlowers();
-    const filterRegex = new RegExp(escapeSpecialRegExCharacters(value), "i");
-
-    if (value) {
-      list = allFocalFlowers.filter((flower) => flower.match(filterRegex));
-    } else {
-      list = allFocalFlowers;
-    }
-
-    return [...list];
-  }, [value, getAllFocalFlowers, escapeSpecialRegExCharacters]);
-
-  const verticalContentMarkup =
-    selectedFocalFlowers.length > 0 ? (
-      <InlineStack gap="100">
-        {/* <LegacyStack spacing="extraTight" alignment="center"> */}
-        {selectedFocalFlowers.map((tag) => (
-          <Tag key={`option-${tag}`} onRemove={removeFocalFlower(tag)}>
-            {tag}
-          </Tag>
-        ))}
-      </InlineStack>
-    ) : null;
-
-  const optionMarkup =
-    options.length > 0
-      ? options.map((option) => {
-          return (
-            <Listbox.Option
-              key={option}
-              value={option}
-              selected={selectedFocalFlowers.includes(option)}
-              accessibilityLabel={option}
-            >
-              <Listbox.TextOption
-                selected={selectedFocalFlowers.includes(option)}
-              >
-                {formatOptionText(option)}
-              </Listbox.TextOption>
-            </Listbox.Option>
-          );
-        })
-      : null;
-
-  const noResults = value && !getAllFocalFlowers().includes(value);
-
-  const actionMarkup = noResults ? (
-    <Listbox.Action value={value}>{`Add "${value}"`}</Listbox.Action>
-  ) : null;
-
-  const emptyStateMarkup = optionMarkup ? null : (
-    <EmptySearchResult
-      title=""
-      description={`No flowers found matching "${value}"`}
-    />
-  );
-
-  const listboxMarkup =
-    optionMarkup || actionMarkup || emptyStateMarkup ? (
-      <Listbox
-        autoSelection={AutoSelection.None}
-        onSelect={updateSelection}
-        onActiveOptionChange={handleActiveOptionChange}
-      >
-        {actionMarkup}
-        {optionMarkup}
-      </Listbox>
-    ) : null;
 
   return (
     <Page>
@@ -290,65 +107,19 @@ export default function ByobCustomizationForm() {
             </Card>
             <Card>
               <BlockStack gap="500">
-                <InlineStack align="space-between">
-                  <Text as={"h2"} variant="headingLg">
-                    Customizations
-                  </Text>
-                </InlineStack>
-                <Divider />
-                {/* <Bleed marginInlineStart="200" marginInlineEnd="200"></Bleed> */}
-                <InlineStack gap="500" align="space-between" blockAlign="start">
-                  <ChoiceList
-                    title="Size Options"
-                    allowMultiple
-                    choices={[
-                      { label: "Small", value: "small" },
-                      {
-                        label: "Medium",
-                        value: "medium",
-                      },
-                      {
-                        label: "Large",
-                        value: "large",
-                      },
-                      {
-                        label: "Extra-Large",
-                        value: "extra-large",
-                      },
-                    ]}
-                    selected={selectedSizes}
-                    onChange={handleSizesChange}
-                    error={errors.destination}
-                  />
-                </InlineStack>
-                <Divider />
-                <Text as="h6" variant="headingLg">
-                  {" "}
-                  Palette Color Options
+                <Text as={"h2"} variant="headingLg">
+                  Customizations
                 </Text>
-                <InlineStack gap="500" align="start">
-                  <ColorPicker onChange={setColor1} color={color1} />
-                  <ColorPicker onChange={setColor2} color={color2} />
-                  <ColorPicker onChange={setColor3} color={color3} />
-                </InlineStack>
+                <Text as={"h3"} variant="bodyMd">
+                  Choose which product customizations are available to a
+                  customer. You can edit names and prices in the next page.
+                </Text>
                 <Divider />
-                <Combobox
-                  allowMultiple
-                  preferredPosition="below"
-                  activator={
-                    <Combobox.TextField
-                      autoComplete="off"
-                      label="Focal flowers options"
-                      value={value}
-                      suggestion={suggestion}
-                      placeholder="Add focal flowers"
-                      verticalContent={verticalContentMarkup}
-                      onChange={setValue}
-                    />
-                  }
-                >
-                  {listboxMarkup}
-                </Combobox>
+                <SizeSection />
+                <Divider />
+                <PaletteSection />
+                <Divider />
+                <FocalFlowersSection savedFocalFlowers={savedFocalFlowers} />
               </BlockStack>
             </Card>
           </BlockStack>

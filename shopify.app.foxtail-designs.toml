@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://savage-repeat-governments-coordinates.trycloudflare.com"
+application_url = "https://unexpected-mai-node-holland.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://savage-repeat-governments-coordinates.trycloudflare.com/auth/callback",
-  "https://savage-repeat-governments-coordinates.trycloudflare.com/auth/shopify/callback",
-  "https://savage-repeat-governments-coordinates.trycloudflare.com/api/auth/callback"
+  "https://unexpected-mai-node-holland.trycloudflare.com/auth/callback",
+  "https://unexpected-mai-node-holland.trycloudflare.com/auth/shopify/callback",
+  "https://unexpected-mai-node-holland.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
