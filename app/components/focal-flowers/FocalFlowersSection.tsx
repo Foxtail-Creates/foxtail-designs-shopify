@@ -8,12 +8,13 @@ import {
   Text,
 } from "@shopify/polaris";
 import { useCallback, useMemo, useState } from "react";
+import type { FocalFlowersSectionProps } from "~/types";
 
-type FocalFlowersSectionProps = {
-    savedFocalFlowers: string[];
-}
-
-export const FocalFlowersSection = ({savedFocalFlowers }: FocalFlowersSectionProps) => {
+export const FocalFlowersSection = ({
+  allFocalFlowerOptions: savedFocalFlowers,
+  setFormState,
+  formState,
+}: FocalFlowersSectionProps) => {
   const [selectedFocalFlowers, setSelectedFocalFlowers] = useState<string[]>(
     [],
   );
@@ -164,7 +165,9 @@ export const FocalFlowersSection = ({savedFocalFlowers }: FocalFlowersSectionPro
 
   return (
     <>
-    <Text as={"h3"} variant="headingMd">Focal flower options</Text>
+      <Text as={"h3"} variant="headingMd">
+        Focal flower options
+      </Text>
       <Combobox
         allowMultiple
         preferredPosition="below"

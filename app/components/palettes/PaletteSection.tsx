@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { InlineStack, Text, ColorPicker } from "@shopify/polaris";
+import { Box, InlineStack, Text, ColorPicker } from "@shopify/polaris";
+import type { PaletteSectionProps } from "~/types";
 
-export const PaletteSection = () => {
+export const PaletteSection = ({formState, setFormState}: PaletteSectionProps) => {
   const [color1, setColor1] = useState({
     hue: 120,
     brightness: 1,
@@ -23,6 +24,7 @@ export const PaletteSection = () => {
       <Text as="h3" variant="headingMd">
         Palette Color Options
       </Text>
+      <Box background="avatar-six-bg-fill"/>
       <InlineStack gap="500" align="start">
         <ColorPicker onChange={setColor1} color={color1} />
         <ColorPicker onChange={setColor2} color={color2} />

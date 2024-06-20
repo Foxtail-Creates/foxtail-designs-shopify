@@ -22,40 +22,53 @@ import {
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
+import { ByobCustomizer } from "~/types";
 
 export async function loader({ request, params }) {
-  const { admin } = await authenticate.admin(request);
+  // const { admin } = await authenticate.admin(request);
 
-  return json({
-    destination: "product",
-    title: "",
-  });
+  // if (params.id === "new") {
+    return json({
+      destination: "product",
+      productName: "",
+      sizeOptions: [],
+      paletteColorOptions: [],
+      focalFlowerOptions: [],
+    });
+  // }
+  // return json({
+  //   destination: "product",
+  //   productName: "Saved Product",
+  //   sizeOptions: ["Small", "Medium", "Large"],
+  //   paletteColorOptions: [],
+  //   focalFlowerOptions: ["Daffodil"],
+  // });
 }
 
 export async function action({ request, params }) {
-  const { session } = await authenticate.admin(request);
-  const { shop } = session;
+  // const { session } = await authenticate.admin(request);
+  // const { shop } = session;
 
-  /** @type {any} */
-  const data = {
-    ...Object.fromEntries(await request.formData()),
-    shop,
-  };
+  // /** @type {any} */
+  // const data = {
+  //   ...Object.fromEntries(await request.formData()),
+  //   shop,
+  // };
 
-  if (errors) {
-    return json({ errors }, { status: 422 });
-  }
+  // if (errors) {
+  //   return json({ errors }, { status: 422 });
+  // }
 }
 
 export default function ByobCustomizationForm() {
   const errors = useActionData()?.errors || {};
 
-  const byobCustomizer = useLoaderData();
+  const byobCustomizer: ByobCustomizer = useLoaderData();
   const [formState, setFormState] = useState(byobCustomizer);
   const [cleanFormState, setCleanFormState] = useState(byobCustomizer);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
 
-  const savedFocalFlowers = ["Daffodil", "Iris", "Rose", "Sunflower", "Violet"];
+  const allFocalFlowerOptions = ["Daffodil", "Iris", "Rose", "Sunflower", "Violet"];
 
   const nav = useNavigation();
   const isSaving =
@@ -68,20 +81,20 @@ export default function ByobCustomizationForm() {
   const submit = useSubmit();
   function handleSave() {
     const data = {
-      title: formState.title,
-      productId: formState.productId || "",
-      productVariantId: formState.productVariantId || "",
-      productHandle: formState.productHandle || "",
-      destination: formState.destination,
+      productName: formState.productName,
+      sizeOptions: formState.sizeOptions,
+      paletteColorOptions: formState.paletteColorOptions,
+      focalFlowerOptions: formState.focalFlowerOptions,
     };
 
     setCleanFormState({ ...formState });
-    submit(data, { method: "post" });
+    console.log("Saving form state: ", formState);
+    // submit(data, { method: "post" });
   }
 
   return (
     <Page>
-      <ui-title-bar title={byobCustomizer.id ? "Edit" : "Create"}>
+      <ui-title-bar title={byobCustomizer.productName !== "" ? "Edit" : "Create"}>
         <button variant="breadcrumb" onClick={() => navigate("/app")}>
           BYOB Products
         </button>
@@ -99,9 +112,11 @@ export default function ByobCustomizationForm() {
                   label="title"
                   labelHidden
                   autoComplete="off"
-                  value={formState.title}
-                  onChange={(title) => setFormState({ ...formState, title })}
-                  error={errors.title}
+                  value={formState.productName}
+                  onChange={(productName) =>
+                    setFormState({ ...formState, productName })
+                  }
+                  error={errors.productName}
                 />
               </BlockStack>
             </Card>
@@ -115,11 +130,21 @@ export default function ByobCustomizationForm() {
                   customer. You can edit names and prices in the next page.
                 </Text>
                 <Divider />
-                <SizeSection />
+                <SizeSection
+                  formState={formState}
+                  setFormState={setFormState}
+                />
                 <Divider />
-                <PaletteSection />
+                <PaletteSection
+                  formState={formState}
+                  setFormState={setFormState}
+                />
                 <Divider />
-                <FocalFlowersSection savedFocalFlowers={savedFocalFlowers} />
+                <FocalFlowersSection
+                  allFocalFlowerOptions={allFocalFlowerOptions}
+                  formState={formState}
+                  setFormState={setFormState}
+                />
               </BlockStack>
             </Card>
           </BlockStack>
@@ -131,7 +156,7 @@ export default function ByobCustomizationForm() {
                 content: "Delete",
                 loading: isDeleting,
                 disabled:
-                  !byobCustomizer.id ||
+                  !byobCustomizer.productName ||
                   !byobCustomizer ||
                   isSaving ||
                   isDeleting,

@@ -1,14 +1,7 @@
 import { ChoiceList, Text } from "@shopify/polaris";
-import { useState, useCallback } from "react";
+import type { SizeSectionProps } from "~/types";
 
-export const SizeSection = () => {
-  // sizes
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(["size"]);
-  const handleSizesChange = useCallback(
-    (value: string[]) => setSelectedSizes(value),
-    [],
-  );
-
+export const SizeSection = ({ formState, setFormState }: SizeSectionProps) => {
   return (
     <>
       <Text as={"h3"} variant="headingMd">
@@ -32,8 +25,8 @@ export const SizeSection = () => {
             value: "extra-large",
           },
         ]}
-        selected={selectedSizes}
-        onChange={handleSizesChange}
+        selected={formState.sizeOptions}
+        onChange={(value) => {setFormState((prev) => ({...prev, sizeOptions: value}))}}
       />
     </>
   );

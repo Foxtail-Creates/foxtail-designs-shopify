@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://unexpected-mai-node-holland.trycloudflare.com"
+application_url = "https://chronic-discovered-weekly-fighting.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://unexpected-mai-node-holland.trycloudflare.com/auth/callback",
-  "https://unexpected-mai-node-holland.trycloudflare.com/auth/shopify/callback",
-  "https://unexpected-mai-node-holland.trycloudflare.com/api/auth/callback"
+  "https://chronic-discovered-weekly-fighting.trycloudflare.com/auth/callback",
+  "https://chronic-discovered-weekly-fighting.trycloudflare.com/auth/shopify/callback",
+  "https://chronic-discovered-weekly-fighting.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
