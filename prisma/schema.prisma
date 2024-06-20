@@ -42,7 +42,8 @@ model Palette {
   id            Int     @id @default(autoincrement())
   name          String
   color1        String
-  color2        String
-  color3        String
+  color2        String?
+  color3        String?
+  description   String?
   imageLink     String
 }
