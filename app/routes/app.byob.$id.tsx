@@ -22,11 +22,13 @@ import {
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
-import { ByobCustomizer } from "~/types";
+import type { ByobCustomizer } from "~/types";
 
 import db from "../db.server";
 import { createStoreOptions, type StoreOptions } from "~/models/StoreSetting.server";
 import { Flower } from "@prisma/client";
+
+const allFocalFlowerOptions = ["Daffodil", "Iris", "Rose", "Sunflower", "Violet"];
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
@@ -83,21 +85,6 @@ export async function loader({ request, params }) {
   });
 }
 
-export async function action({ request, params }) {
-  // const { session } = await authenticate.admin(request);
-  // const { shop } = session;
-
-  // /** @type {any} */
-  // const data = {
-  //   ...Object.fromEntries(await request.formData()),
-  //   shop,
-  // };
-
-  // if (errors) {
-  //   return json({ errors }, { status: 422 });
-  // }
-}
-
 export default function ByobCustomizationForm() {
 
   const errors = useActionData()?.errors || {};
@@ -106,8 +93,6 @@ export default function ByobCustomizationForm() {
   const [formState, setFormState] = useState(byobCustomizer);
   const [cleanFormState, setCleanFormState] = useState(byobCustomizer);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
-
-  const allFocalFlowerOptions = ["Daffodil", "Iris", "Rose", "Sunflower", "Violet"];
 
   const nav = useNavigation();
   const isSaving =
