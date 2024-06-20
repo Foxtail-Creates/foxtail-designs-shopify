@@ -46,9 +46,8 @@ export async function loader({ request, params }) {
   var storeOptions: StoreOptions;
 
   // create new metafield for the store
-  // if (shop.metafield == null || shop.metafield?.value == null) {
+  if (shop.metafield == null || shop.metafield?.value == null) {
     storeOptions = await createStoreOptions();
-    // TODO: new metafield definition for validation
 
     // add new metafield instance,  sample id: "gid://shopify/Shop/63547637914" 
     const metadataResponse = await admin.graphql(
@@ -68,13 +67,12 @@ export async function loader({ request, params }) {
         }
       }
     );
-
     // todo: error checking for response
 
     
-  // } else {
-  //   storeOptions = JSON.parse(shop.metafield.value);
-  // }
+  } else {
+    storeOptions = JSON.parse(shop.metafield.value);
+  }
   return json({
     destination: "product",
     title: "",
