@@ -26,7 +26,9 @@ export const SizeSection = ({ formState, setFormState }: SizeSectionProps) => {
           },
         ]}
         selected={formState.sizeOptions}
-        onChange={(value) => {setFormState((prev) => ({...prev, sizeOptions: value}))}}
+        onChange={(value) => {
+          setFormState((prev) => ({ ...prev, sizeOptions: value }));
+        }}
       />
     </>
   );

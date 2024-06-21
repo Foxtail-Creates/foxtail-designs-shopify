@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {json, redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   useActionData,
   useLoaderData,
@@ -22,13 +22,14 @@ import {
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
-import type { ByobCustomizer } from "~/types";
+import type { ByobCustomizerForm, ByobCustomizerOptions } from "~/types";
 
-import db from "../db.server";
-import { createStoreOptions, type StoreOptions } from "~/models/StoreSetting.server";
-import { Flower } from "@prisma/client";
+import {
+  createStoreOptions,
+  type StoreOptions,
+} from "~/models/StoreSetting.server";
 
-const allFocalFlowerOptions = ["Daffodil", "Iris", "Rose", "Sunflower", "Violet"];
+import type { Flower, Palette } from "@prisma/client";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
@@ -42,16 +43,18 @@ export async function loader({ request, params }) {
           }
           id
         }
-      }`
+      }`,
   );
-  const { data: { shop } } = await response.json();
+  const {
+    data: { shop },
+  } = await response.json();
   var storeOptions: StoreOptions;
 
   // create new metafield for the store
   if (shop.metafield == null || shop.metafield?.value == null) {
     storeOptions = await createStoreOptions();
 
-    // add new metafield instance,  sample id: "gid://shopify/Shop/63547637914" 
+    // add new metafield instance,  sample id: "gid://shopify/Shop/63547637914"
     const metadataResponse = await admin.graphql(
       ` #graphql
         mutation setNewMetafield($shopId:ID!, $storeOptions:String!) { 
@@ -62,36 +65,48 @@ export async function loader({ request, params }) {
             }
           }
       }`,
-      { 
-        variables: { 
-          "shopId": shop.id,
-          "storeOptions": JSON.stringify(storeOptions)
-        }
-      }
+      {
+        variables: {
+          shopId: shop.id,
+          storeOptions: JSON.stringify(storeOptions),
+        },
+      },
     );
     // todo: error checking for response
-
-    
   } else {
     storeOptions = JSON.parse(shop.metafield.value);
   }
+
   return json({
     destination: "product",
     title: "",
     productName: "",
-    sizeOptions: [],
-    paletteColorOptions: storeOptions.palettesAvailable,
-    focalFlowerOptions: storeOptions.flowersAvailable,
+    sizeOptions: ["Small", "Medium", "Large", "Extra-Large"],
+    palettesAvailable: storeOptions.palettesAvailable,
+    palettesExcluded: storeOptions.palettesExcluded,
+    flowersAvailable: storeOptions.flowersAvailable,
+    flowersExcluded: storeOptions.flowersExcluded,
   });
 }
 
 export default function ByobCustomizationForm() {
-
   const errors = useActionData()?.errors || {};
 
-  const byobCustomizer: ByobCustomizer = useLoaderData();
-  const [formState, setFormState] = useState(byobCustomizer);
-  const [cleanFormState, setCleanFormState] = useState(byobCustomizer);
+  const byobCustomizer: ByobCustomizerOptions = useLoaderData();
+  const byobCustomizerForm: ByobCustomizerForm = {
+    destination: byobCustomizer.destination,
+    productName: byobCustomizer.productName,
+    sizeOptions: byobCustomizer.sizeOptions,
+    paletteColorOptions: byobCustomizer.palettesAvailable.map(
+      (palette) => palette.name,
+    ),
+    focalFlowerOptions: byobCustomizer.flowersAvailable.map(
+      (flower) => flower.name,
+    ),
+  };
+
+  const [formState, setFormState] = useState(byobCustomizerForm);
+  const [cleanFormState, setCleanFormState] = useState(byobCustomizerForm);
   const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
 
   const nav = useNavigation();
@@ -103,7 +118,10 @@ export default function ByobCustomizationForm() {
   const navigate = useNavigate();
 
   const submit = useSubmit();
-  function handleSave() {
+  // TODO: https://linear.app/foxtail-creates/issue/FOX-33/save-flower
+  // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
+  // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
+  function handleSaveAndNavigate() {
     const data = {
       productName: formState.productName,
       sizeOptions: formState.sizeOptions,
@@ -118,7 +136,9 @@ export default function ByobCustomizationForm() {
 
   return (
     <Page>
-      <ui-title-bar title={byobCustomizer.productName !== "" ? "Edit" : "Create"}>
+      <ui-title-bar
+        title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
+      >
         <button variant="breadcrumb" onClick={() => navigate("/app")}>
           BYOB Products
         </button>
@@ -154,18 +174,22 @@ export default function ByobCustomizationForm() {
                   customer. You can edit names and prices in the next page.
                 </Text>
                 <Divider />
+                {/* TODO: https://linear.app/foxtail-creates/issue/FOX-32/shopify-app-frontend-integrate-with-backend-apis */}
                 <SizeSection
                   formState={formState}
                   setFormState={setFormState}
                 />
                 <Divider />
+                {/* TODO: https://linear.app/foxtail-creates/issue/FOX-32/shopify-app-frontend-integrate-with-backend-apis */}
                 <PaletteSection
                   formState={formState}
                   setFormState={setFormState}
                 />
                 <Divider />
                 <FocalFlowersSection
-                  allFocalFlowerOptions={allFocalFlowerOptions}
+                  allFocalFlowerOptions={byobCustomizer.flowersAvailable
+                    .concat(byobCustomizer.flowersExcluded)
+                    .sort((a, b) => a.flowerName.localeCompare(b.flowerName))}
                   formState={formState}
                   setFormState={setFormState}
                 />
@@ -191,10 +215,10 @@ export default function ByobCustomizationForm() {
               },
             ]}
             primaryAction={{
-              content: "Save",
+              content: "Save and Continue",
               loading: isSaving,
               disabled: !isDirty || isSaving || isDeleting,
-              onAction: handleSave,
+              onAction: handleSaveAndNavigate,
             }}
           />
         </Layout.Section>

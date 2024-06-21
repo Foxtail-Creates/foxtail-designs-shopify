@@ -17,6 +17,9 @@ export const FocalFlowersSection = ({
 }: FocalFlowersSectionProps) => {
   const [value, setValue] = useState("");
   const [suggestion, setSuggestion] = useState("");
+  const allFocalFlowerNames = allFocalFlowerOptions.map(
+    (flower) => flower.name,
+  );
 
   const handleActiveOptionChange = useCallback(
     (activeOption: string) => {
@@ -62,8 +65,8 @@ export const FocalFlowersSection = ({
   );
 
   const getAllFocalFlowers = useCallback(() => {
-    return [...new Set(allFocalFlowerOptions.sort())];
-  }, [allFocalFlowerOptions]);
+    return [...new Set(allFocalFlowerNames.sort())];
+  }, [allFocalFlowerNames]);
 
   const formatOptionText = useCallback(
     (option: string) => {
