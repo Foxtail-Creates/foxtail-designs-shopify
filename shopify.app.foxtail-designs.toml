@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://earn-turns-debug-disaster.trycloudflare.com"
+application_url = "https://tracks-latter-armed-signatures.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://earn-turns-debug-disaster.trycloudflare.com/auth/callback",
-  "https://earn-turns-debug-disaster.trycloudflare.com/auth/shopify/callback",
-  "https://earn-turns-debug-disaster.trycloudflare.com/api/auth/callback"
+  "https://tracks-latter-armed-signatures.trycloudflare.com/auth/callback",
+  "https://tracks-latter-armed-signatures.trycloudflare.com/auth/shopify/callback",
+  "https://tracks-latter-armed-signatures.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

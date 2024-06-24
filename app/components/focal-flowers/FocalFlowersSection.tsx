@@ -11,15 +11,15 @@ import { useCallback, useMemo, useState } from "react";
 import type { FocalFlowersSectionProps } from "~/types";
 
 export const FocalFlowersSection = ({
-  allFocalFlowerOptions: savedFocalFlowers,
+  allFocalFlowerOptions,
   setFormState,
   formState,
 }: FocalFlowersSectionProps) => {
-  const [selectedFocalFlowers, setSelectedFocalFlowers] = useState<string[]>(
-    [],
-  );
   const [value, setValue] = useState("");
   const [suggestion, setSuggestion] = useState("");
+  const allFocalFlowerNames = allFocalFlowerOptions.map(
+    (flower) => flower.name,
+  );
 
   const handleActiveOptionChange = useCallback(
     (activeOption: string) => {
@@ -27,29 +27,34 @@ export const FocalFlowersSection = ({
 
       if (
         !activeOptionIsAction &&
-        !selectedFocalFlowers.includes(activeOption)
+        !formState.focalFlowerOptions.includes(activeOption)
       ) {
         setSuggestion(activeOption);
       } else {
         setSuggestion("");
       }
     },
-    [value, selectedFocalFlowers],
+    [value, formState.focalFlowerOptions],
   );
   const updateSelection = useCallback(
     (selected: string) => {
-      const nextSelectedFocalFlowers = new Set([...selectedFocalFlowers]);
+      const nextSelectedFocalFlowers = new Set([
+        ...formState.focalFlowerOptions,
+      ]);
 
       if (nextSelectedFocalFlowers.has(selected)) {
         nextSelectedFocalFlowers.delete(selected);
       } else {
         nextSelectedFocalFlowers.add(selected);
       }
-      setSelectedFocalFlowers([...nextSelectedFocalFlowers]);
+      setFormState({
+        ...formState,
+        focalFlowerOptions: Array.from(nextSelectedFocalFlowers),
+      });
       setValue("");
       setSuggestion("");
     },
-    [selectedFocalFlowers],
+    [formState, setFormState],
   );
 
   const removeFocalFlower = useCallback(
@@ -60,8 +65,8 @@ export const FocalFlowersSection = ({
   );
 
   const getAllFocalFlowers = useCallback(() => {
-    return [...new Set([...savedFocalFlowers, ...selectedFocalFlowers].sort())];
-  }, [savedFocalFlowers, selectedFocalFlowers]);
+    return [...new Set(allFocalFlowerNames.sort())];
+  }, [allFocalFlowerNames]);
 
   const formatOptionText = useCallback(
     (option: string) => {
@@ -107,10 +112,10 @@ export const FocalFlowersSection = ({
   }, [value, getAllFocalFlowers, escapeSpecialRegExCharacters]);
 
   const verticalContentMarkup =
-    selectedFocalFlowers.length > 0 ? (
+    formState.focalFlowerOptions.length > 0 ? (
       <InlineStack gap="100">
         {/* <LegacyStack spacing="extraTight" alignment="center"> */}
-        {selectedFocalFlowers.map((tag) => (
+        {formState.focalFlowerOptions.map((tag) => (
           <Tag key={`option-${tag}`} onRemove={removeFocalFlower(tag)}>
             {tag}
           </Tag>
@@ -125,11 +130,11 @@ export const FocalFlowersSection = ({
             <Listbox.Option
               key={option}
               value={option}
-              selected={selectedFocalFlowers.includes(option)}
+              selected={formState.focalFlowerOptions.includes(option)}
               accessibilityLabel={option}
             >
               <Listbox.TextOption
-                selected={selectedFocalFlowers.includes(option)}
+                selected={formState.focalFlowerOptions.includes(option)}
               >
                 {formatOptionText(option)}
               </Listbox.TextOption>
@@ -174,7 +179,7 @@ export const FocalFlowersSection = ({
         activator={
           <Combobox.TextField
             autoComplete="off"
-            label="Choose what focal flowers you want to offer."
+            label="Choose what focal flowers you want to offer. The customer will be allowed to choose one (1) focal flower for their bouquet."
             value={value}
             suggestion={suggestion}
             placeholder="Add focal flowers"

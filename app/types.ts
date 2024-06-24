@@ -1,7 +1,17 @@
-import { Flower } from "@prisma/client";
+import type { Flower, Palette } from "@prisma/client";
 import type { Dispatch, SetStateAction } from "react";
 
-export type ByobCustomizer = {
+export type ByobCustomizerOptions = {
+  destination: string;
+  productName: string;
+  sizeOptions: string[];
+  palettesAvailable: Palette[];
+  palettesExcluded: Palette[];
+  flowersAvailable: Flower[];
+  flowersExcluded: Flower[];
+};
+
+export type ByobCustomizerForm = {
   destination: string;
   productName: string;
   sizeOptions: string[];
@@ -11,16 +21,16 @@ export type ByobCustomizer = {
 
 export type FocalFlowersSectionProps = {
   allFocalFlowerOptions: Flower[];
-  formState: ByobCustomizer;
-  setFormState: Dispatch<SetStateAction<ByobCustomizer>>;
+  formState: ByobCustomizerForm;
+  setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
 };
 
 export type PaletteSectionProps = {
-  formState: ByobCustomizer;
-  setFormState: Dispatch<SetStateAction<ByobCustomizer>>;
+  formState: ByobCustomizerForm;
+  setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
 };
 
 export type SizeSectionProps = {
-  formState: ByobCustomizer;
-  setFormState: Dispatch<SetStateAction<ByobCustomizer>>;
+  formState: ByobCustomizerForm;
+  setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
 };
