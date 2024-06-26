@@ -30,11 +30,11 @@ import {
 } from "~/models/StoreSetting.server";
 
 import type { Flower, Palette } from "@prisma/client";
-import { FOXTAIL_NAMESPACE, CUSTOM_PRODUCT_KEY } from "./constants";
+import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_SELECTED_OPTIONS, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "./constants";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
-  let shop, product;
+  let shop, product, palettesSelected = [], flowersSelected = [];
 
   // find existing shop metadata if it exists
   const getShopMetadataResponse = await admin.graphql(
@@ -48,59 +48,68 @@ export async function loader({ request, params }) {
           id
         }
       }`,
-    {
-      variables: {
-        namespace: FOXTAIL_NAMESPACE,
-        key: CUSTOM_PRODUCT_KEY,
-      },
-    },
+      {
+        variables: {
+          namespace: FOXTAIL_NAMESPACE,
+          key: STORE_METADATA_CUSTOM_PRODUCT_KEY
+        }
+      }
   );
 
-  ({
-    data: { shop },
-  } = await getShopMetadataResponse.json());
-
+  ({ data: { shop }} = await getShopMetadataResponse.json());
+  
   // get all possible store options
   var allCustomOptions: StoreOptions = await createStoreOptions();
 
   var customProductId: String;
 
   if (shop.metafield != null && shop.metafield.value != null) {
-    // if custom product already exists, retrieve it
+    // if custom product already exists, retrieve it 
 
     customProductId = shop.metafield.value;
     const customProductResponse = await admin.graphql(
       ` #graphql
-          query getCustomProduct($id: ID!, $variantCount: Int!) { 
-            product(id:$id) {
+        query getCustomProduct($id: ID!, $variantCount: Int!, $namespace: String!, $key: String!) { 
+          product(id:$id) {
+            id
+            options {
               id
-              options {
-                id
-                optionValues {
-                  name
-                }
-              }
-              variantsCount {
-                count
-              }
-              variants(first:$variantCount) {
-                nodes {
-                  displayName
-                  id            
-                }
+              optionValues {
+                name
               }
             }
-        }`,
-      {
+            metafield(namespace: $namespace, key:$key) {
+              id
+              value
+            }
+            variantsCount {
+              count
+            }
+            variants(first:$variantCount) {
+              nodes {
+                displayName
+                id            
+              }
+            }
+          }
+      }`,
+      { 
         variables: {
           id: customProductId,
           variantCount: 100,
-        },
-      },
+          namespace: FOXTAIL_NAMESPACE,
+          key: PRODUCT_METADATA_SELECTED_OPTIONS
+        }
+      }
     );
     ({
       data: { product },
     } = await customProductResponse.json());
+
+    if (product.metafield != null && product.metafield.value != null) {
+      ({flowersSelected} = JSON.parse(product.metafield.value));
+    }
+
   } else {
     // otherwise create new custom product and add to store metadata
     const customProductResponse = await admin.graphql(
@@ -151,7 +160,7 @@ export async function loader({ request, params }) {
     // set shop metafield to point to new custom product id
     const setStoreMetafieldResponse = await admin.graphql(
       ` #graphql
-        mutation setNewMetafield($shopId: ID!, $productId: String!, $namespace: String!, $key: String!) {
+        mutation setNewShopMetafield($shopId: ID!, $productId: String!, $namespace: String!, $key: String!) {
           metafieldsSet(
             metafields: [{ownerId: $shopId, namespace: $namespace, key: $key, type: "string", value: $productId}]
           ) {
@@ -165,7 +174,7 @@ export async function loader({ request, params }) {
           shopId: shop.id,
           productId: customProductId,
           namespace: FOXTAIL_NAMESPACE,
-          key: CUSTOM_PRODUCT_KEY,
+          key: STORE_METADATA_CUSTOM_PRODUCT_KEY
         },
       },
     );
@@ -184,10 +193,53 @@ export async function loader({ request, params }) {
     customProduct: product,
     sizeOptions: ["Small", "Medium", "Large", "Extra-Large"],
     palettesAvailable: allCustomOptions.palettesAvailable,
-    palettesExcluded: allCustomOptions.palettesExcluded,
     flowersAvailable: allCustomOptions.flowersAvailable,
-    flowersExcluded: allCustomOptions.flowersExcluded,
+    palettesSelected: palettesSelected,
+    flowersSelected: flowersSelected
   });
+}
+
+export async function action({ request, params }) {
+  const { admin, session } = await authenticate.admin(request);
+  const { shop } = session;
+
+  /** @type {any} */
+  const data = {
+    ...Object.fromEntries(await request.formData()),
+    shop,
+  };
+
+  // todo: delete if data.action == "delete"
+  if (data.action === "delete") {
+    return(json({message: "Delete is not implemented"}, {status: 500}));
+  }
+
+  // todo: validation 
+
+  const selection = JSON.stringify({flowersSelected: data.focalFlowerOptions});
+  // set new product metadata
+  const setStoreMetafieldResponse = await admin.graphql(
+    ` #graphql
+      mutation setNewProductMetafield($productId: ID!, $namespace: String!, $key: String!, $value: String!) {
+        metafieldsSet(
+          metafields: [{ownerId: $productId, namespace: $namespace, key: $key, type: "json", value: $value}]
+        ) {
+          userErrors {
+            message
+          }
+        }
+    }`,
+    { 
+      variables: { 
+        productId: data.productId,
+        value: selection,
+        namespace: FOXTAIL_NAMESPACE,
+        key: PRODUCT_METADATA_SELECTED_OPTIONS
+      }
+    }
+  );
+
+  return redirect(`/app/additional`);
 }
 
 export default function ByobCustomizationForm() {
@@ -204,6 +256,7 @@ export default function ByobCustomizationForm() {
     focalFlowerOptions: byobCustomizer.flowersAvailable.map(
       (flower) => flower.name,
     ),
+    focalFlowerSelection: byobCustomizer.flowersSelected
   };
 
   const [formState, setFormState] = useState(byobCustomizerForm);
@@ -223,13 +276,14 @@ export default function ByobCustomizationForm() {
   function handleSaveAndNavigate() {
     const data = {
       productName: formState.productName,
+      productId: byobCustomizer.customProduct.id,
       sizeOptions: formState.sizeOptions,
       paletteColorOptions: formState.paletteColorOptions,
       focalFlowerOptions: formState.focalFlowerOptions,
     };
 
     console.log("Saving form state: ", formState);
-    // submit(data, { method: "post" });
+    submit(data, { method: "post" });
   }
 
   return (
@@ -287,9 +341,8 @@ export default function ByobCustomizationForm() {
                 />
                 <Divider />
                 <FocalFlowersSection
-                  allFocalFlowerOptions={byobCustomizer.flowersAvailable.concat(
-                    byobCustomizer.flowersExcluded,
-                  )}
+                  allFocalFlowerOptions={byobCustomizer.flowersAvailable
+                    .sort((a, b) => a.name.localeCompare(b.name))}
                   formState={formState}
                   setFormState={setFormState}
                 />

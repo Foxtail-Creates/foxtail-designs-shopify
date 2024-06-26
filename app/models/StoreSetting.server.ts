@@ -5,9 +5,7 @@ import { Prisma } from '@prisma/client'
 
 export type StoreOptions = {
     flowersAvailable: Flower[],
-    flowersExcluded: Flower[],
-    palettesAvailable: Palette[],
-    palettesExcluded: Palette[]
+    flowersExcluded: Flower[]
 }
 
 export async function createStoreOptions() {
@@ -16,15 +14,9 @@ export async function createStoreOptions() {
 
     // get palette options from database
     const palettes: Palette[] = await db.palette.findMany();
-    // for each palette, add to map. Make colors. 
-    // TODO: image link?
 
-    // TODO: get size options from database
     return {
         flowersAvailable: flowers,
-        flowersExcluded: [],
-        palettesAvailable: palettes,
-        palettesExcluded: []
+        palettesAvailable: palettes
     }
-
 }
