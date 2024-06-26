@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client'
 
 export type StoreOptions = {
     flowersAvailable: Flower[],
-    flowersExcluded: Flower[]
+    palettesAvailable: Palette[]
 }
 
 export async function createStoreOptions() {
