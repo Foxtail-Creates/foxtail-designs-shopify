@@ -8,9 +8,9 @@ export type ByobCustomizerOptions = {
   customProduct: Product;
   sizeOptions: string[];
   palettesAvailable: Palette[];
-  palettesExcluded: Palette[];
+  palettesSelected: string[];
   flowersAvailable: Flower[];
-  flowersExcluded: Flower[];
+  flowersSelected: string[];
 };
 
 export type ByobCustomizerForm = {
@@ -19,6 +19,7 @@ export type ByobCustomizerForm = {
   sizeOptions: string[];
   paletteColorOptions: string[];
   focalFlowerOptions: string[];
+  focalFlowerSelection: string[]
 };
 
 export type FocalFlowersSectionProps = {

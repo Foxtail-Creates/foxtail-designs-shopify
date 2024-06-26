@@ -31,23 +31,15 @@ import {
 
 import type { Flower, Palette } from "@prisma/client";
 import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_SELECTED_OPTIONS, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "./constants";
+import { GET_SHOP_METAFIELD_QUERY, SET_NEW_SHOP_METADATA_QUERY } from "./graphql/shopQueries";
+import { GET_CUSTOM_PRODUCT_QUERY, SET_PRODUCT_METAFIELD_QUERY } from "./graphql/productQueries";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
   let shop, product, palettesSelected = [], flowersSelected = [];
 
   // find existing shop metadata if it exists
-  const getShopMetadataResponse = await admin.graphql(
-    ` #graphql
-      query shopInfo($namespace: String!, $key: String!) {
-        shop {
-          metafield (namespace: $namespace, key: $key) {
-            id,
-            value
-          }
-          id
-        }
-      }`,
+  const getShopMetadataResponse = await admin.graphql(GET_SHOP_METAFIELD_QUERY,
       {
         variables: {
           namespace: FOXTAIL_NAMESPACE,
@@ -67,32 +59,7 @@ export async function loader({ request, params }) {
     // if custom product already exists, retrieve it 
 
     customProductId = shop.metafield.value;
-    const customProductResponse = await admin.graphql(
-      ` #graphql
-        query getCustomProduct($id: ID!, $variantCount: Int!, $namespace: String!, $key: String!) { 
-          product(id:$id) {
-            id
-            options {
-              id
-              optionValues {
-                name
-              }
-            }
-            metafield(namespace: $namespace, key:$key) {
-              id
-              value
-            }
-            variantsCount {
-              count
-            }
-            variants(first:$variantCount) {
-              nodes {
-                displayName
-                id            
-              }
-            }
-          }
-      }`,
+    const customProductResponse = await admin.graphql(GET_CUSTOM_PRODUCT_QUERY,
       { 
         variables: {
           id: customProductId,
@@ -112,37 +79,9 @@ export async function loader({ request, params }) {
 
   } else {
     // otherwise create new custom product and add to store metadata
-    const customProductResponse = await admin.graphql(
-      ` #graphql
-        mutation createNewCustomProduct($productName: String!, $productType: String!, $variantCount: Int!) {
-          productCreate(
-            input: {title: $productName, productType: $productType, status: DRAFT}
-          ) {
-            product {
-              id
-              options {
-                id
-                optionValues {
-                  name
-                }
-              }
-              variantsCount {
-                count
-              }
-              variants(first: $variantCount) {
-                nodes {
-                  displayName
-                  id
-                }
-              }
-            }
-            userErrors {
-              message
-            }
-          }
-      }`,
-      {
-        variables: {
+    const customProductResponse = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
+      { 
+        variables: { 
           productName: "Custom Bouquet",
           productType: "Custom Flowers",
           variantCount: 10,
@@ -157,20 +96,10 @@ export async function loader({ request, params }) {
     } = await customProductResponse.json());
     customProductId = product.id;
 
-    // set shop metafield to point to new custom product id
-    const setStoreMetafieldResponse = await admin.graphql(
-      ` #graphql
-        mutation setNewShopMetafield($shopId: ID!, $productId: String!, $namespace: String!, $key: String!) {
-          metafieldsSet(
-            metafields: [{ownerId: $shopId, namespace: $namespace, key: $key, type: "string", value: $productId}]
-          ) {
-            userErrors {
-              message
-            }
-          }
-      }`,
-      {
-        variables: {
+    // set shop metafield to point to new custom product id 
+    const setStoreMetafieldResponse = await admin.graphql(SET_NEW_SHOP_METADATA_QUERY,
+      { 
+        variables: { 
           shopId: shop.id,
           productId: customProductId,
           namespace: FOXTAIL_NAMESPACE,
@@ -188,7 +117,6 @@ export async function loader({ request, params }) {
 
   return json({
     destination: "product",
-    title: "",
     productName: "",
     customProduct: product,
     sizeOptions: ["Small", "Medium", "Large", "Extra-Large"],
@@ -218,17 +146,7 @@ export async function action({ request, params }) {
 
   const selection = JSON.stringify({flowersSelected: data.focalFlowerOptions});
   // set new product metadata
-  const setStoreMetafieldResponse = await admin.graphql(
-    ` #graphql
-      mutation setNewProductMetafield($productId: ID!, $namespace: String!, $key: String!, $value: String!) {
-        metafieldsSet(
-          metafields: [{ownerId: $productId, namespace: $namespace, key: $key, type: "json", value: $value}]
-        ) {
-          userErrors {
-            message
-          }
-        }
-    }`,
+  const setStoreMetafieldResponse = await admin.graphql(SET_PRODUCT_METAFIELD_QUERY,
     { 
       variables: { 
         productId: data.productId,
