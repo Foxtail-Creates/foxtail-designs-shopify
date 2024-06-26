@@ -26,11 +26,26 @@ export type FocalFlowersSectionProps = {
 };
 
 export type PaletteSectionProps = {
+  allPaletteOptions: Palette[];
   formState: ByobCustomizerForm;
   setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
 };
 
+export type PaletteChoiceProps = {
+  paletteName: string;
+  isChecked: boolean;
+  setIsChecked: (newChecked: boolean, selected: string) => void;
+  color1: string;
+  color2: string | null;
+  color3: string | null;
+};
+
+export type PaletteSquareInput = {
+  color: string;
+};
+
 export type SizeSectionProps = {
+  allSizeOptions: string[];
   formState: ByobCustomizerForm;
   setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
 };

@@ -49,7 +49,7 @@ export const FocalFlowersSection = ({
       }
       setFormState({
         ...formState,
-        focalFlowerOptions: Array.from(nextSelectedFocalFlowers),
+        focalFlowerOptions: Array.from(nextSelectedFocalFlowers).sort(),
       });
       setValue("");
       setSuggestion("");

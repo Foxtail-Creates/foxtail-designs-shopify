@@ -1,95 +1,110 @@
-import { InlineStack, Text, BlockStack, Checkbox } from "@shopify/polaris";
-import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
-import type { PaletteSectionProps } from "~/types";
+import {
+  InlineStack,
+  Text,
+  BlockStack,
+  Checkbox,
+  InlineGrid,
+} from "@shopify/polaris";
+import { useCallback } from "react";
+import type {
+  PaletteChoiceProps,
+  PaletteSectionProps,
+  PaletteSquareInput,
+} from "~/types";
 
-type PaletteColors = {
-  paletteName: string;
-  checkedPalette: boolean;
-  setCheckedPalette: Dispatch<SetStateAction<boolean>>;
-  color1: string;
-  color2: string | undefined;
-  color3: string | undefined;
-};
+const paletteSquareStyle = ({ color }: PaletteSquareInput) => ({
+  backgroundColor: color,
+  width: 50,
+  height: 50,
+  borderRadius: 5,
+});
 
-const Palette = ({
+const PaletteChoice = ({
   paletteName,
-  checkedPalette,
-  setCheckedPalette,
+  isChecked,
+  setIsChecked: setCheckedPalette,
   color1,
   color2,
   color3,
-}: PaletteColors) => {
+}: PaletteChoiceProps) => {
   return (
     <>
-      <InlineStack gap="500" align="start" blockAlign="center">
+      <InlineGrid gap="100" columns="5">
         <Checkbox
+          id={paletteName}
           label={paletteName}
-          checked={checkedPalette}
+          checked={isChecked}
           onChange={setCheckedPalette}
         />
-        <div style={{ borderWidth: 1, borderColor: "black" }}>
-          <InlineStack align="start" blockAlign="center">
+        <InlineStack align="start" blockAlign="center" gap="100">
+          <div
+            className="square-color1"
+            style={paletteSquareStyle({ color: color1 })}
+          />
+          {color2 && (
             <div
-              className="square"
-              style={{ backgroundColor: color1, width: 50, height: 50 }}
+              className="square-color2"
+              style={paletteSquareStyle({ color: color2 })}
             />
-            {color2 && (
-              <div
-                className="square"
-                style={{ backgroundColor: color2, width: 50, height: 50 }}
-              />
-            )}
-            {color3 && (
-              <div
-                className="square"
-                style={{ backgroundColor: color3, width: 50, height: 50 }}
-              />
-            )}
-          </InlineStack>
-        </div>
-      </InlineStack>
+          )}
+          {color3 && (
+            <div
+              className="square-color3"
+              style={paletteSquareStyle({ color: color3 })}
+            />
+          )}
+        </InlineStack>
+      </InlineGrid>
     </>
   );
 };
+
 export const PaletteSection = ({
+  allPaletteOptions,
   formState,
   setFormState,
 }: PaletteSectionProps) => {
-  const [checkedPalette1, setCheckedPalette1] = useState(false);
-  const [checkedPalette2, setCheckedPalette2] = useState(false);
-  const [checkedPalette3, setCheckedPalette3] = useState(false);
+  const sortedPalettes = allPaletteOptions.sort((a, b) =>
+    a.name < b.name ? -1 : 1,
+  );
+
+  const updateSelection = useCallback(
+    (newChecked: boolean, selected: string) => {
+      const nextSelectedPalettes = new Set([...formState.paletteColorOptions]);
+
+      if (newChecked) {
+        nextSelectedPalettes.add(selected);
+      } else {
+        nextSelectedPalettes.delete(selected);
+      }
+      setFormState({
+        ...formState,
+        paletteColorOptions: Array.from(nextSelectedPalettes).sort(),
+      });
+    },
+    [formState, setFormState],
+  );
 
   return (
     <>
       <Text as="h3" variant="headingMd">
         Palette Color Options
       </Text>
+      <Text as={"p"} variant="bodyMd">
+        Choose what color palettes you want to offer.
+      </Text>
       <BlockStack gap="500" align="start">
-        <Palette
-          paletteName="Palette1"
-          checkedPalette={checkedPalette1}
-          setCheckedPalette={setCheckedPalette1}
-          color1="black"
-          color2="green"
-          color3="#04ff89"
-        />
-        <Palette
-          paletteName="Palette2"
-          checkedPalette={checkedPalette2}
-          setCheckedPalette={setCheckedPalette2}
-          color1="#ff9ef1"
-          color2="#2f9ef2"
-          color3={undefined}
-        />
-        <Palette
-          paletteName="Palette3"
-          checkedPalette={checkedPalette3}
-          setCheckedPalette={setCheckedPalette3}
-          color1="#fa9ff1"
-          color2={undefined}
-          color3={undefined}
-        />
+        {sortedPalettes.map((palette) => (
+          <PaletteChoice
+            key={palette.name}
+            paletteName={palette.name}
+            isChecked={formState.paletteColorOptions.includes(palette.name)}
+            setIsChecked={updateSelection}
+            color1={palette.color1}
+            color2={palette.color2}
+            color3={palette.color3}
+          />
+        ))}
       </BlockStack>
     </>
   );

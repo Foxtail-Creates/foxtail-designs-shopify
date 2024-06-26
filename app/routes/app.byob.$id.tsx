@@ -48,30 +48,29 @@ export async function loader({ request, params }) {
           id
         }
       }`,
-      {
-        variables: {
-          namespace: FOXTAIL_NAMESPACE,
-          key: CUSTOM_PRODUCT_KEY
-        }
-      }
+    {
+      variables: {
+        namespace: FOXTAIL_NAMESPACE,
+        key: CUSTOM_PRODUCT_KEY,
+      },
+    },
   );
 
   ({
     data: { shop },
   } = await getShopMetadataResponse.json());
-  
-  
+
   // get all possible store options
   var allCustomOptions: StoreOptions = await createStoreOptions();
-  
+
   var customProductId: String;
 
   if (shop.metafield != null && shop.metafield.value != null) {
-      // if custom product already exists, retrieve it 
+    // if custom product already exists, retrieve it
 
-      customProductId = shop.metafield.value;
-      const customProductResponse = await admin.graphql(
-        ` #graphql
+    customProductId = shop.metafield.value;
+    const customProductResponse = await admin.graphql(
+      ` #graphql
           query getCustomProduct($id: ID!, $variantCount: Int!) { 
             product(id:$id) {
               id
@@ -92,17 +91,16 @@ export async function loader({ request, params }) {
               }
             }
         }`,
-        { 
-          variables: {
-            id: customProductId,
-            variantCount: 100
-          }
-        }
-      );
-      ({
-        data: { product },
-      } = await customProductResponse.json());
-
+      {
+        variables: {
+          id: customProductId,
+          variantCount: 100,
+        },
+      },
+    );
+    ({
+      data: { product },
+    } = await customProductResponse.json());
   } else {
     // otherwise create new custom product and add to store metadata
     const customProductResponse = await admin.graphql(
@@ -134,25 +132,23 @@ export async function loader({ request, params }) {
             }
           }
       }`,
-      { 
-        variables: { 
+      {
+        variables: {
           productName: "Custom Bouquet",
           productType: "Custom Flowers",
-          variantCount: 10
-        }
-      }
+          variantCount: 10,
+        },
+      },
     );
 
     ({
-      data: { 
-        productCreate: {
-          product 
-        }
-      }
+      data: {
+        productCreate: { product },
+      },
     } = await customProductResponse.json());
     customProductId = product.id;
 
-    // set shop metafield to point to new custom product id 
+    // set shop metafield to point to new custom product id
     const setStoreMetafieldResponse = await admin.graphql(
       ` #graphql
         mutation setNewMetafield($shopId: ID!, $productId: String!, $namespace: String!, $key: String!) {
@@ -164,21 +160,23 @@ export async function loader({ request, params }) {
             }
           }
       }`,
-      { 
-        variables: { 
+      {
+        variables: {
           shopId: shop.id,
           productId: customProductId,
           namespace: FOXTAIL_NAMESPACE,
-          key: CUSTOM_PRODUCT_KEY
+          key: CUSTOM_PRODUCT_KEY,
         },
       },
     );
-    const {data: {userErrors}} = await setStoreMetafieldResponse.json();
+    const {
+      data: { userErrors },
+    } = await setStoreMetafieldResponse.json();
     if (userErrors != null) {
       return json({ userErrors }, { status: 422 });
     }
   }
-  
+
   return json({
     destination: "product",
     title: "",
@@ -209,8 +207,6 @@ export default function ByobCustomizationForm() {
   };
 
   const [formState, setFormState] = useState(byobCustomizerForm);
-  const [cleanFormState, setCleanFormState] = useState(byobCustomizerForm);
-  const isDirty = JSON.stringify(formState) !== JSON.stringify(cleanFormState);
 
   const nav = useNavigation();
   const isSaving =
@@ -232,7 +228,6 @@ export default function ByobCustomizationForm() {
       focalFlowerOptions: formState.focalFlowerOptions,
     };
 
-    setCleanFormState({ ...formState });
     console.log("Saving form state: ", formState);
     // submit(data, { method: "post" });
   }
@@ -277,22 +272,24 @@ export default function ByobCustomizationForm() {
                   customer. You can edit names and prices in the next page.
                 </Text>
                 <Divider />
-                {/* TODO: https://linear.app/foxtail-creates/issue/FOX-32/shopify-app-frontend-integrate-with-backend-apis */}
                 <SizeSection
+                  allSizeOptions={byobCustomizer.sizeOptions}
                   formState={formState}
                   setFormState={setFormState}
                 />
                 <Divider />
-                {/* TODO: https://linear.app/foxtail-creates/issue/FOX-32/shopify-app-frontend-integrate-with-backend-apis */}
                 <PaletteSection
+                  allPaletteOptions={byobCustomizer.palettesAvailable.concat(
+                    byobCustomizer.palettesExcluded,
+                  )}
                   formState={formState}
                   setFormState={setFormState}
                 />
                 <Divider />
                 <FocalFlowersSection
-                  allFocalFlowerOptions={byobCustomizer.flowersAvailable
-                    .concat(byobCustomizer.flowersExcluded)
-                    .sort((a, b) => a.flowerName.localeCompare(b.flowerName))}
+                  allFocalFlowerOptions={byobCustomizer.flowersAvailable.concat(
+                    byobCustomizer.flowersExcluded,
+                  )}
                   formState={formState}
                   setFormState={setFormState}
                 />
@@ -320,7 +317,7 @@ export default function ByobCustomizationForm() {
             primaryAction={{
               content: "Save and Continue",
               loading: isSaving,
-              disabled: !isDirty || isSaving || isDeleting,
+              disabled: isSaving || isDeleting,
               onAction: handleSaveAndNavigate,
             }}
           />
