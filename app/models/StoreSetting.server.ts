@@ -1,5 +1,6 @@
 import db from "../db.server";
-import { Prisma, Flower, Palette } from '@prisma/client'
+import type { Flower, Palette } from '@prisma/client';
+import { Prisma } from '@prisma/client'
 
 
 export type StoreOptions = {
