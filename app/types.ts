@@ -34,10 +34,10 @@ export type PaletteSectionProps = {
 export type PaletteChoiceProps = {
   paletteName: string;
   isChecked: boolean;
-  setCheckedPalette: (newChecked: boolean, selected: string) => void;
+  setIsChecked: (newChecked: boolean, selected: string) => void;
   color1: string;
-  color2: string | undefined;
-  color3: string | undefined;
+  color2: string | null;
+  color3: string | null;
 };
 
 export type PaletteSquareInput = {

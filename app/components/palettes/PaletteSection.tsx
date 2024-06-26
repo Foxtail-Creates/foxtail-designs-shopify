@@ -22,7 +22,7 @@ const paletteSquareStyle = ({ color }: PaletteSquareInput) => ({
 const PaletteChoice = ({
   paletteName,
   isChecked,
-  setCheckedPalette,
+  setIsChecked: setCheckedPalette,
   color1,
   color2,
   color3,
@@ -99,7 +99,7 @@ export const PaletteSection = ({
             key={palette.name}
             paletteName={palette.name}
             isChecked={formState.paletteColorOptions.includes(palette.name)}
-            setCheckedPalette={updateSelection}
+            setIsChecked={updateSelection}
             color1={palette.color1}
             color2={palette.color2}
             color3={palette.color3}
