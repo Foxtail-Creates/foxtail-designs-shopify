@@ -251,9 +251,7 @@ export default function ByobCustomizationForm() {
                 />
                 <Divider />
                 <PaletteSection
-                  allPaletteOptions={byobCustomizer.palettesAvailable.concat(
-                    byobCustomizer.palettesExcluded,
-                  )}
+                  allPaletteOptions={byobCustomizer.palettesAvailable}
                   formState={formState}
                   setFormState={setFormState}
                 />
