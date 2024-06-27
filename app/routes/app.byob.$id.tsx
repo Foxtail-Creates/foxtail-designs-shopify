@@ -32,7 +32,7 @@ import {
 import type { Flower, Palette } from "@prisma/client";
 import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_SELECTED_OPTIONS, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "./constants";
 import { GET_SHOP_METAFIELD_QUERY, SET_NEW_SHOP_METADATA_QUERY } from "./graphql/shopQueries";
-import { GET_CUSTOM_PRODUCT_QUERY, SET_PRODUCT_METAFIELD_QUERY } from "./graphql/productQueries";
+import { GET_CUSTOM_PRODUCT_QUERY, SET_PRODUCT_METAFIELD_QUERY, CREATE_NEW_CUSTOM_PRODUCT_QUERY } from "./graphql/productQueries";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
