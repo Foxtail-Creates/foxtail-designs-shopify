@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://lasting-cell-characteristics-wanted.trycloudflare.com"
+application_url = "https://mounting-flooring-christmas-legislature.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://lasting-cell-characteristics-wanted.trycloudflare.com/auth/callback",
-  "https://lasting-cell-characteristics-wanted.trycloudflare.com/auth/shopify/callback",
-  "https://lasting-cell-characteristics-wanted.trycloudflare.com/api/auth/callback"
+  "https://mounting-flooring-christmas-legislature.trycloudflare.com/auth/callback",
+  "https://mounting-flooring-christmas-legislature.trycloudflare.com/auth/shopify/callback",
+  "https://mounting-flooring-christmas-legislature.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
