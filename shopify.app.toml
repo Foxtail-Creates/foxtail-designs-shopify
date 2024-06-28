@@ -3,7 +3,7 @@
 client_id = "04647ec21da57e20574c4c98d2ce4ce5"
 name = "foxtail-designs"
 handle = "foxtail-designs"
-application_url = "https://increases-awesome-college-amend.trycloudflare.com"
+application_url = "https://row-revolutionary-slight-compatibility.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://increases-awesome-college-amend.trycloudflare.com/auth/callback",
-  "https://increases-awesome-college-amend.trycloudflare.com/auth/shopify/callback",
-  "https://increases-awesome-college-amend.trycloudflare.com/api/auth/callback"
+  "https://row-revolutionary-slight-compatibility.trycloudflare.com/auth/callback",
+  "https://row-revolutionary-slight-compatibility.trycloudflare.com/auth/shopify/callback",
+  "https://row-revolutionary-slight-compatibility.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

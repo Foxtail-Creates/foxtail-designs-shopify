@@ -22,7 +22,14 @@ import {
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
-import type { ByobCustomizerForm, ByobCustomizerOptions } from "~/types";
+import { type ByobCustomizerForm, type ByobCustomizerOptions } from "~/types";
+
+import {
+  FOCAL_FLOWER_OPTIONS_KEY,
+  PALETTE_OPTIONS_KEY,
+  PRODUCT_NAME_KEY,
+  SIZE_OPTIONS_KEY,
+} from "~/constants";
 
 import {
   createStoreOptions,
@@ -31,6 +38,24 @@ import {
 
 import type { Flower, Palette } from "@prisma/client";
 import { FOXTAIL_NAMESPACE, CUSTOM_PRODUCT_KEY } from "./constants";
+
+export async function action({ request, params }) {
+  const { session } = await authenticate.admin(request);
+  const { shop } = session;
+  const formData: FormData = await request.formData();
+
+  const data: ByobCustomizerForm = {
+    destination: "product",
+    productName: formData.get(PRODUCT_NAME_KEY) as string,
+    sizeOptions: formData.getAll(SIZE_OPTIONS_KEY) as string[],
+    paletteColorOptions: formData.getAll(PALETTE_OPTIONS_KEY) as string[],
+    focalFlowerOptions: formData.getAll(FOCAL_FLOWER_OPTIONS_KEY) as string[],
+  };
+
+  console.log(data);
+
+  return redirect(`/app/byob/new`);
+}
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
@@ -220,16 +245,22 @@ export default function ByobCustomizationForm() {
   // TODO: https://linear.app/foxtail-creates/issue/FOX-33/save-flower
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
   // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
-  function handleSaveAndNavigate() {
-    const data = {
-      productName: formState.productName,
-      sizeOptions: formState.sizeOptions,
-      paletteColorOptions: formState.paletteColorOptions,
-      focalFlowerOptions: formState.focalFlowerOptions,
-    };
+  function submitFormData() {
+    const data = new FormData();
 
-    console.log("Saving form state: ", formState);
-    // submit(data, { method: "post" });
+    data.set(PRODUCT_NAME_KEY, formState.productName);
+
+    formState.paletteColorOptions.forEach((palette) => {
+      data.append(PALETTE_OPTIONS_KEY, palette);
+    });
+    formState.sizeOptions.forEach((size) => {
+      data.append(SIZE_OPTIONS_KEY, size);
+    });
+    formState.focalFlowerOptions.forEach((flower) => {
+      data.append(FOCAL_FLOWER_OPTIONS_KEY, flower);
+    });
+
+    submit(data, { method: "post" });
   }
 
   return (
@@ -299,6 +330,12 @@ export default function ByobCustomizationForm() {
         </Layout.Section>
         <Layout.Section>
           <PageActions
+            primaryAction={{
+              content: "Save and Continue",
+              loading: isSaving,
+              disabled: isSaving || isDeleting,
+              onAction: submitFormData,
+            }}
             secondaryActions={[
               {
                 content: "Delete",
@@ -314,12 +351,6 @@ export default function ByobCustomizationForm() {
                   submit({ action: "delete" }, { method: "post" }),
               },
             ]}
-            primaryAction={{
-              content: "Save and Continue",
-              loading: isSaving,
-              disabled: isSaving || isDeleting,
-              onAction: handleSaveAndNavigate,
-            }}
           />
         </Layout.Section>
       </Layout>
