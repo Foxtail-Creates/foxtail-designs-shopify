@@ -35,7 +35,7 @@ import { GET_CUSTOM_PRODUCT_QUERY, CREATE_NEW_CUSTOM_PRODUCT_QUERY } from "./gra
 import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
-  let shop, product, paletteOptionValues = [], flowerOptionValues = [];
+  let shop, product, palettesSelected = [], flowersSelected = [];
 
   // find existing shop metadata if it exists
   const getShopMetadataResponse = await admin.graphql(GET_SHOP_METAFIELD_QUERY,
@@ -46,83 +46,63 @@ export async function loader({ request, params }) {
         }
       }
   );
-
   ({ data: { shop }} = await getShopMetadataResponse.json());
   
   // get all possible store options
   var allCustomOptions: StoreOptions = await createStoreOptions();
 
-  var customProductId: String;
-
   if (shop.metafield != null && shop.metafield.value != null) {
     // if custom product already exists, retrieve it 
 
-    customProductId = shop.metafield.value;
     const customProductResponse = await admin.graphql(GET_CUSTOM_PRODUCT_QUERY,
       { 
         variables: {
-          id: customProductId,
+          id: shop.metafield.value,
         }
       }
     );
     ({
-      data: { product },
+      data: { product }
     } = await customProductResponse.json());
 
     const flowerOption = product.options.find(
       (option) => option.name === FLOWER_OPTION_NAME
     );
 
-    var optionValueNameToId: Map<string, string> = flowerOption.optionValues.reduce(function(map, optionValue) {
-      map[optionValue.name] = optionValue.id;
-      return map;
-    }, {});
-
-    flowerOptionValues = Object.keys(optionValueNameToId);
+    flowersSelected = flowerOption.optionValues.map(
+      (optionValue) => optionValue.name
+    );
   } else {
 
     // otherwise create new custom product and add to store metadata
     const [firstFlower, rest] = allCustomOptions.flowersAvailable;
-    if (firstFlower != null) {
-      flowerOptionValues = [firstFlower]
-    }
-    flowerOptionValues =  firstFlower != null ? [{"name": firstFlower.name}] : [];
-
-    const customProductResponse = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
+    flowersSelected =  firstFlower != null ? [{"name": firstFlower.name}] : [];
+    const customProductResponse: CreateNewCustomProductMutation = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
       { 
         variables: { 
           productName: "Custom Bouquet",
           productType: "Custom Flowers",
           flowerOptionName: FLOWER_OPTION_NAME,
           flowerPosition: FLOWER_POSITION,
-          flowerValues: flowerOptionValues.map(
-            (flower) => ({"name": firstFlower.name})
-          )
+          flowerValues: flowersSelected
         },
       },
     );
-    console.log(customProductResponse);
-    ({
-      data: {
-        productCreate: { product },
-      },
-    } = await customProductResponse.json());
-    customProductId = product.id;
+
+    ( { data: { productCreate: { product } } } = await customProductResponse.json());
 
     // set shop metafield to point to new custom product id 
     const setStoreMetafieldResponse = await admin.graphql(SET_NEW_SHOP_METADATA_QUERY,
       { 
         variables: { 
           shopId: shop.id,
-          productId: customProductId,
+          productId: product.id,
           namespace: FOXTAIL_NAMESPACE,
           key: STORE_METADATA_CUSTOM_PRODUCT_KEY
         },
       },
     );
-    const {
-      data: { userErrors },
-    } = await setStoreMetafieldResponse.json();
+    const { data: { metafieldsSet: { userErrors } } } = await setStoreMetafieldResponse.json();
     if (userErrors != null) {
       return json({ userErrors }, { status: 422 });
     }
@@ -135,8 +115,8 @@ export async function loader({ request, params }) {
     sizeOptions: ["Small", "Medium", "Large", "Extra-Large"],
     palettesAvailable: allCustomOptions.palettesAvailable,
     flowersAvailable: allCustomOptions.flowersAvailable,
-    palettesSelected: paletteOptionValues,
-    flowersSelected: flowerOptionValues
+    palettesSelected: palettesSelected,
+    flowersSelected: flowersSelected
   });
 }
 

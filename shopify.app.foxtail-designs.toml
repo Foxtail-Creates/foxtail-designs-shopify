@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://superior-assigned-resolved-blessed.trycloudflare.com"
+application_url = "https://acquisition-feed-ian-admissions.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://superior-assigned-resolved-blessed.trycloudflare.com/auth/callback",
-  "https://superior-assigned-resolved-blessed.trycloudflare.com/auth/shopify/callback",
-  "https://superior-assigned-resolved-blessed.trycloudflare.com/api/auth/callback"
+  "https://acquisition-feed-ian-admissions.trycloudflare.com/auth/callback",
+  "https://acquisition-feed-ian-admissions.trycloudflare.com/auth/shopify/callback",
+  "https://acquisition-feed-ian-admissions.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
