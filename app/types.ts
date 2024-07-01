@@ -17,9 +17,11 @@ export type ByobCustomizerForm = {
   destination: string;
   productName: string;
   sizeOptions: string[];
-  paletteColorOptions: string[];
-  focalFlowerOptions: string[];
-  focalFlowerSelection: string[]
+  allPaletteColorOptions: string[];
+  allFocalFlowerOptions: string[];
+  flowersSelected: string[]
+  flowerOptionValuesToRemove: string[];
+  flowerOptionValuesToAdd: string[];
 };
 
 export type FocalFlowersSectionProps = {
