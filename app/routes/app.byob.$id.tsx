@@ -29,11 +29,10 @@ import {
   type StoreOptions,
 } from "~/models/StoreSetting.server";
 
-import type { Flower, Palette } from "@prisma/client";
-import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_SELECTED_OPTIONS, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "./constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_SELECTED_OPTIONS, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "./constants";
 import { GET_SHOP_METAFIELD_QUERY, SET_NEW_SHOP_METADATA_QUERY } from "./graphql/shopQueries";
-import { GET_CUSTOM_PRODUCT_QUERY, SET_PRODUCT_METAFIELD_QUERY, CREATE_NEW_CUSTOM_PRODUCT_QUERY } from "./graphql/productQueries";
-
+import { GET_CUSTOM_PRODUCT_QUERY, CREATE_NEW_CUSTOM_PRODUCT_QUERY } from "./graphql/productQueries";
+import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
   let shop, product, palettesSelected = [], flowersSelected = [];
@@ -47,69 +46,63 @@ export async function loader({ request, params }) {
         }
       }
   );
-
   ({ data: { shop }} = await getShopMetadataResponse.json());
   
   // get all possible store options
   var allCustomOptions: StoreOptions = await createStoreOptions();
 
-  var customProductId: String;
-
   if (shop.metafield != null && shop.metafield.value != null) {
     // if custom product already exists, retrieve it 
 
-    customProductId = shop.metafield.value;
     const customProductResponse = await admin.graphql(GET_CUSTOM_PRODUCT_QUERY,
       { 
         variables: {
-          id: customProductId,
-          variantCount: 100,
-          namespace: FOXTAIL_NAMESPACE,
-          key: PRODUCT_METADATA_SELECTED_OPTIONS
+          id: shop.metafield.value,
         }
       }
     );
     ({
-      data: { product },
+      data: { product }
     } = await customProductResponse.json());
 
-    if (product.metafield != null && product.metafield.value != null) {
-      ({flowersSelected} = JSON.parse(product.metafield.value));
-    }
+    const flowerOption = product.options.find(
+      (option) => option.name === FLOWER_OPTION_NAME
+    );
 
+    flowersSelected = flowerOption.optionValues.map(
+      (optionValue) => optionValue.name
+    );
   } else {
+
     // otherwise create new custom product and add to store metadata
+    const [firstFlower, rest] = allCustomOptions.flowersAvailable;
+    flowersSelected =  firstFlower != null ? [{"name": firstFlower.name}] : [];
     const customProductResponse = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
       { 
         variables: { 
           productName: "Custom Bouquet",
           productType: "Custom Flowers",
-          variantCount: 10,
+          flowerOptionName: FLOWER_OPTION_NAME,
+          flowerPosition: FLOWER_POSITION,
+          flowerValues: flowersSelected
         },
       },
     );
 
-    ({
-      data: {
-        productCreate: { product },
-      },
-    } = await customProductResponse.json());
-    customProductId = product.id;
+    ( { data: { productCreate: { product } } } = await customProductResponse.json());
 
     // set shop metafield to point to new custom product id 
     const setStoreMetafieldResponse = await admin.graphql(SET_NEW_SHOP_METADATA_QUERY,
       { 
         variables: { 
           shopId: shop.id,
-          productId: customProductId,
+          productId: product.id,
           namespace: FOXTAIL_NAMESPACE,
           key: STORE_METADATA_CUSTOM_PRODUCT_KEY
         },
       },
     );
-    const {
-      data: { userErrors },
-    } = await setStoreMetafieldResponse.json();
+    const { data: { metafieldsSet: { userErrors } } } = await setStoreMetafieldResponse.json();
     if (userErrors != null) {
       return json({ userErrors }, { status: 422 });
     }
@@ -137,25 +130,51 @@ export async function action({ request, params }) {
     shop,
   };
 
+  const customProduct = JSON.parse(data.product);
+
   // todo: delete if data.action == "delete"
   if (data.action === "delete") {
     return(json({message: "Delete is not implemented"}, {status: 500}));
   }
 
-  // todo: validation 
+  const flowerOption = customProduct.options.find(
+      (option) => option.name === FLOWER_OPTION_NAME
+    );
 
-  const selection = JSON.stringify({flowersSelected: data.focalFlowerOptions});
-  // set new product metadata
-  const setStoreMetafieldResponse = await admin.graphql(SET_PRODUCT_METAFIELD_QUERY,
-    { 
-      variables: { 
-        productId: data.productId,
-        value: selection,
-        namespace: FOXTAIL_NAMESPACE,
-        key: PRODUCT_METADATA_SELECTED_OPTIONS
+  var optionValueNameToId: Map<string, string> = flowerOption.optionValues.reduce(function(map, optionValue) {
+    map.set(optionValue.name, optionValue.id);
+    return map;
+  }, new Map<string, string>());
+
+  var valueIdsToRemove: string[] = [];
+  const flowerOptionValuesToRemove: string[] = []; //Array.from(data.flowerOptionValuesToRemove);
+
+  flowerOptionValuesToRemove.forEach((flowerName: string) => {
+    if (optionValueNameToId.has(flowerName)) {
+      valueIdsToRemove.push(optionValueNameToId.get(flowerName));
+    }
+  });
+
+  const flowerOptionValuesToAdd = [{"name": "Lily"}];  // Array.from(data.flowerOptionValuesToAdd).map(  (flowerName) => ({"name": flowerName}) );
+
+  const updateProductOptionsAndVariantsResponse = await admin.graphql(UPDATE_PRODUCT_OPTION_AND_VARIANTS,
+    {
+      variables: {
+        productId: customProduct.id,
+        optionId: flowerOption.id,
+        newValues: flowerOptionValuesToAdd,
+        oldValues: valueIdsToRemove        
       }
     }
-  );
+  ); 
+
+  // todo: validation 
+
+  const { data: { product, userErrors } } = await updateProductOptionsAndVariantsResponse.json();
+   console.log(updateProductOptionsAndVariantsResponse);
+  if (userErrors != null) {
+    return json({ userErrors }, { status: 422 });
+  }  
 
   return redirect(`/app/additional`);
 }
@@ -168,13 +187,15 @@ export default function ByobCustomizationForm() {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
     sizeOptions: byobCustomizer.sizeOptions,
-    paletteColorOptions: byobCustomizer.palettesAvailable.map(
+    allPaletteColorOptions: byobCustomizer.palettesAvailable.map(
       (palette) => palette.name,
     ),
-    focalFlowerOptions: byobCustomizer.flowersAvailable.map(
+    allFocalFlowerOptions: byobCustomizer.flowersAvailable.map(
       (flower) => flower.name,
     ),
-    focalFlowerSelection: byobCustomizer.flowersSelected
+    flowersSelected: byobCustomizer.flowersSelected,
+    flowerOptionValuesToRemove: [],
+    flowerOptionValuesToAdd: []
   };
 
   const [formState, setFormState] = useState(byobCustomizerForm);
@@ -188,16 +209,17 @@ export default function ByobCustomizationForm() {
   const navigate = useNavigate();
 
   const submit = useSubmit();
-  // TODO: https://linear.app/foxtail-creates/issue/FOX-33/save-flower
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
   // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
   function handleSaveAndNavigate() {
     const data = {
       productName: formState.productName,
-      productId: byobCustomizer.customProduct.id,
+      product: JSON.stringify(byobCustomizer.customProduct),
       sizeOptions: formState.sizeOptions,
-      paletteColorOptions: formState.paletteColorOptions,
-      focalFlowerOptions: formState.focalFlowerOptions,
+      paletteColorOptions: formState.allPaletteColorOptions,
+      focalFlowerOptions: formState.allFocalFlowerOptions,
+      flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
+      flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd
     };
 
     console.log("Saving form state: ", formState);

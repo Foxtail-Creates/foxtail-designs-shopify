@@ -1,49 +1,33 @@
 export const GET_CUSTOM_PRODUCT_QUERY = `#graphql
-    query getCustomProduct($id: ID!, $variantCount: Int!, $namespace: String!, $key: String!) { 
+    query getCustomProduct($id: ID!) { 
       product(id:$id) {
         id
         options {
           id
-          optionValues {
           name
-          }
-        }
-        metafield(namespace: $namespace, key:$key) {
-          id
-          value
-        }
-        variantsCount {
-          count
-        }
-        variants(first:$variantCount) {
-          nodes {
-          displayName
-          id            
+          position
+          optionValues {
+            id
+            name
           }
         }
       }
     }`;
 
 export const CREATE_NEW_CUSTOM_PRODUCT_QUERY = `#graphql
-        mutation createNewCustomProduct($productName: String!, $productType: String!, $variantCount: Int!) {
+        mutation createNewCustomProduct($productName: String!, $productType: String!, $flowerOptionName: String!, $flowerPosition: Int!, $flowerValues: [OptionValueCreateInput!]) {
           productCreate(
-            input: {title: $productName, productType: $productType, status: DRAFT}
+            input: {title: $productName, productType: $productType, status: DRAFT, productOptions: [{name: $flowerOptionName, position: $flowerPosition, values: $flowerValues}]}
           ) {
             product {
               id
               options {
                 id
+                name
+                position
                 optionValues {
-                  name
-                }
-              }
-              variantsCount {
-                count
-              }
-              variants(first: $variantCount) {
-                nodes {
-                  displayName
                   id
+                  name
                 }
               }
             }

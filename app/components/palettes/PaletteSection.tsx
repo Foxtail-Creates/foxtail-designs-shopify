@@ -70,7 +70,7 @@ export const PaletteSection = ({
 
   const updateSelection = useCallback(
     (newChecked: boolean, selected: string) => {
-      const nextSelectedPalettes = new Set([...formState.paletteColorOptions]);
+      const nextSelectedPalettes = new Set([...formState.allPaletteColorOptions]);
 
       if (newChecked) {
         nextSelectedPalettes.add(selected);
@@ -79,7 +79,7 @@ export const PaletteSection = ({
       }
       setFormState({
         ...formState,
-        paletteColorOptions: Array.from(nextSelectedPalettes).sort(),
+        allPaletteColorOptions: Array.from(nextSelectedPalettes).sort(),
       });
     },
     [formState, setFormState],
@@ -98,7 +98,7 @@ export const PaletteSection = ({
           <PaletteChoice
             key={palette.name}
             paletteName={palette.name}
-            isChecked={formState.paletteColorOptions.includes(palette.name)}
+            isChecked={formState.allPaletteColorOptions.includes(palette.name)}
             setIsChecked={updateSelection}
             color1={palette.color1}
             color2={palette.color2}

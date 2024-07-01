@@ -12,6 +12,7 @@ import type { FocalFlowersSectionProps } from "~/types";
 
 export const FocalFlowersSection = ({
   allFocalFlowerOptions,
+  flowersSelected,
   setFormState,
   formState,
 }: FocalFlowersSectionProps) => {
@@ -27,29 +28,43 @@ export const FocalFlowersSection = ({
 
       if (
         !activeOptionIsAction &&
-        !formState.focalFlowerOptions.includes(activeOption)
+        !formState.flowersSelected.includes(activeOption)
       ) {
         setSuggestion(activeOption);
       } else {
         setSuggestion("");
       }
     },
-    [value, formState.focalFlowerOptions],
+    [value, formState.flowersSelected],
   );
   const updateSelection = useCallback(
     (selected: string) => {
       const nextSelectedFocalFlowers = new Set([
-        ...formState.focalFlowerOptions,
+        ...formState.flowersSelected,
+      ]);
+
+      const focalFlowersToDelete = new Set([
+        ...formState.flowerOptionValuesToRemove
+      ]);
+
+      const focalFlowersToAdd = new Set([
+        ...formState.flowerOptionValuesToAdd
       ]);
 
       if (nextSelectedFocalFlowers.has(selected)) {
         nextSelectedFocalFlowers.delete(selected);
+        focalFlowersToDelete.add(selected);
+        focalFlowersToAdd.delete(selected);
       } else {
         nextSelectedFocalFlowers.add(selected);
+        focalFlowersToAdd.add(selected);
+        focalFlowersToDelete.delete(selected);
       }
       setFormState({
         ...formState,
-        focalFlowerOptions: Array.from(nextSelectedFocalFlowers).sort(),
+        flowersSelected: Array.from(nextSelectedFocalFlowers).sort(),
+        flowerOptionValuesToRemove: Array.from(focalFlowersToDelete),
+        flowerOptionValuesToAdd: Array.from(focalFlowersToAdd)
       });
       setValue("");
       setSuggestion("");
@@ -112,10 +127,10 @@ export const FocalFlowersSection = ({
   }, [value, getAllFocalFlowers, escapeSpecialRegExCharacters]);
 
   const verticalContentMarkup =
-    formState.focalFlowerOptions.length > 0 ? (
+    formState.flowersSelected.length > 0 ? (
       <InlineStack gap="100">
         {/* <LegacyStack spacing="extraTight" alignment="center"> */}
-        {formState.focalFlowerOptions.map((tag) => (
+        {formState.flowersSelected.map((tag) => (
           <Tag key={`option-${tag}`} onRemove={removeFocalFlower(tag)}>
             {tag}
           </Tag>
@@ -130,11 +145,11 @@ export const FocalFlowersSection = ({
             <Listbox.Option
               key={option}
               value={option}
-              selected={formState.focalFlowerOptions.includes(option)}
+              selected={formState.flowersSelected.includes(option)}
               accessibilityLabel={option}
             >
               <Listbox.TextOption
-                selected={formState.focalFlowerOptions.includes(option)}
+                selected={formState.flowersSelected.includes(option)}
               >
                 {formatOptionText(option)}
               </Listbox.TextOption>
