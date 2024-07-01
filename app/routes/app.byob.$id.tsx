@@ -22,87 +22,121 @@ import {
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
-import type { ByobCustomizerForm, ByobCustomizerOptions } from "~/types";
+import type {
+  ByobCustomizerForm,
+  ByobCustomizerOptions,
+  SerializedForm,
+} from "~/types";
 
 import {
   createStoreOptions,
   type StoreOptions,
 } from "~/models/StoreSetting.server";
 
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_SELECTED_OPTIONS, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "./constants";
-import { GET_SHOP_METAFIELD_QUERY, SET_NEW_SHOP_METADATA_QUERY } from "./graphql/shopQueries";
-import { GET_CUSTOM_PRODUCT_QUERY, CREATE_NEW_CUSTOM_PRODUCT_QUERY } from "./graphql/productQueries";
+import {
+  FLOWER_OPTION_NAME,
+  FLOWER_POSITION,
+  FOXTAIL_NAMESPACE,
+  PRODUCT_METADATA_SELECTED_OPTIONS,
+  STORE_METADATA_CUSTOM_PRODUCT_KEY,
+} from "./constants";
+import {
+  GET_SHOP_METAFIELD_QUERY,
+  SET_NEW_SHOP_METADATA_QUERY,
+} from "./graphql/shopQueries";
+import {
+  GET_CUSTOM_PRODUCT_QUERY,
+  CREATE_NEW_CUSTOM_PRODUCT_QUERY,
+} from "./graphql/productQueries";
 import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
+
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
-  let shop, product, palettesSelected = [], flowersSelected = [];
+  let shop,
+    product,
+    palettesSelected = [],
+    flowersSelected = [];
 
   // find existing shop metadata if it exists
-  const getShopMetadataResponse = await admin.graphql(GET_SHOP_METAFIELD_QUERY,
-      {
-        variables: {
-          namespace: FOXTAIL_NAMESPACE,
-          key: STORE_METADATA_CUSTOM_PRODUCT_KEY
-        }
-      }
+  const getShopMetadataResponse = await admin.graphql(
+    GET_SHOP_METAFIELD_QUERY,
+    {
+      variables: {
+        namespace: FOXTAIL_NAMESPACE,
+        key: STORE_METADATA_CUSTOM_PRODUCT_KEY,
+      },
+    },
   );
-  ({ data: { shop }} = await getShopMetadataResponse.json());
-  
+  ({
+    data: { shop },
+  } = await getShopMetadataResponse.json());
+
   // get all possible store options
   var allCustomOptions: StoreOptions = await createStoreOptions();
 
   if (shop.metafield != null && shop.metafield.value != null) {
-    // if custom product already exists, retrieve it 
+    // if custom product already exists, retrieve it
 
-    const customProductResponse = await admin.graphql(GET_CUSTOM_PRODUCT_QUERY,
-      { 
+    const customProductResponse = await admin.graphql(
+      GET_CUSTOM_PRODUCT_QUERY,
+      {
         variables: {
           id: shop.metafield.value,
-        }
-      }
+        },
+      },
     );
     ({
-      data: { product }
+      data: { product },
     } = await customProductResponse.json());
 
     const flowerOption = product.options.find(
-      (option) => option.name === FLOWER_OPTION_NAME
+      (option) => option.name === FLOWER_OPTION_NAME,
     );
 
+    // TODO: handle case where flowerOption is null, (i.e. custom product exists but does not have "Focal Flower" as an option)
     flowersSelected = flowerOption.optionValues.map(
-      (optionValue) => optionValue.name
+      (optionValue) => optionValue.name,
     );
   } else {
-
     // otherwise create new custom product and add to store metadata
     const [firstFlower, rest] = allCustomOptions.flowersAvailable;
-    flowersSelected =  firstFlower != null ? [{"name": firstFlower.name}] : [];
-    const customProductResponse = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
-      { 
-        variables: { 
+    flowersSelected = firstFlower != null ? [{ name: firstFlower.name }] : [];
+    const customProductResponse = await admin.graphql(
+      CREATE_NEW_CUSTOM_PRODUCT_QUERY,
+      {
+        variables: {
           productName: "Custom Bouquet",
           productType: "Custom Flowers",
           flowerOptionName: FLOWER_OPTION_NAME,
           flowerPosition: FLOWER_POSITION,
-          flowerValues: flowersSelected
+          flowerValues: flowersSelected,
         },
       },
     );
 
-    ( { data: { productCreate: { product } } } = await customProductResponse.json());
+    ({
+      data: {
+        productCreate: { product },
+      },
+    } = await customProductResponse.json());
 
-    // set shop metafield to point to new custom product id 
-    const setStoreMetafieldResponse = await admin.graphql(SET_NEW_SHOP_METADATA_QUERY,
-      { 
-        variables: { 
+    // set shop metafield to point to new custom product id
+    const setStoreMetafieldResponse = await admin.graphql(
+      SET_NEW_SHOP_METADATA_QUERY,
+      {
+        variables: {
           shopId: shop.id,
           productId: product.id,
           namespace: FOXTAIL_NAMESPACE,
-          key: STORE_METADATA_CUSTOM_PRODUCT_KEY
+          key: STORE_METADATA_CUSTOM_PRODUCT_KEY,
         },
       },
     );
-    const { data: { metafieldsSet: { userErrors } } } = await setStoreMetafieldResponse.json();
+    const {
+      data: {
+        metafieldsSet: { userErrors },
+      },
+    } = await setStoreMetafieldResponse.json();
     if (userErrors != null) {
       return json({ userErrors }, { status: 422 });
     }
@@ -116,7 +150,7 @@ export async function loader({ request, params }) {
     palettesAvailable: allCustomOptions.palettesAvailable,
     flowersAvailable: allCustomOptions.flowersAvailable,
     palettesSelected: palettesSelected,
-    flowersSelected: flowersSelected
+    flowersSelected: flowersSelected,
   });
 }
 
@@ -124,30 +158,28 @@ export async function action({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
   const { shop } = session;
 
-  /** @type {any} */
-  const data = {
-    ...Object.fromEntries(await request.formData()),
-    shop,
-  };
+  const serializedData = await request.formData();
 
-  const customProduct = JSON.parse(data.product);
+  const data: SerializedForm = JSON.parse(serializedData.get("data"));
 
   // todo: delete if data.action == "delete"
-  if (data.action === "delete") {
-    return(json({message: "Delete is not implemented"}, {status: 500}));
-  }
+  // if (data.action === "delete") {
+  //   return json({ message: "Delete is not implemented" }, { status: 500 });
+  // }
 
-  const flowerOption = customProduct.options.find(
-      (option) => option.name === FLOWER_OPTION_NAME
-    );
+  const flowerOption = data.product.options.find(
+    (option) => option.name === FLOWER_OPTION_NAME,
+  );
 
-  var optionValueNameToId: Map<string, string> = flowerOption.optionValues.reduce(function(map, optionValue) {
-    map.set(optionValue.name, optionValue.id);
-    return map;
-  }, new Map<string, string>());
+  var optionValueNameToId: Map<string, string> = flowerOption
+    ? flowerOption.optionValues.reduce(function (map, optionValue) {
+        map.set(optionValue.name, optionValue.id);
+        return map;
+      }, new Map<string, string>())
+    : new Map<string, string>();
 
   var valueIdsToRemove: string[] = [];
-  const flowerOptionValuesToRemove: string[] = []; //Array.from(data.flowerOptionValuesToRemove);
+  const flowerOptionValuesToRemove: string[] = data.flowerOptionValuesToRemove;
 
   flowerOptionValuesToRemove.forEach((flowerName: string) => {
     if (optionValueNameToId.has(flowerName)) {
@@ -155,26 +187,36 @@ export async function action({ request, params }) {
     }
   });
 
-  const flowerOptionValuesToAdd = [{"name": "Lily"}];  // Array.from(data.flowerOptionValuesToAdd).map(  (flowerName) => ({"name": flowerName}) );
+  const flowerOptionValuesToAdd = data.flowerOptionValuesToAdd.map(
+    (flowerName: string) => ({ name: flowerName }),
+  );
 
-  const updateProductOptionsAndVariantsResponse = await admin.graphql(UPDATE_PRODUCT_OPTION_AND_VARIANTS,
-    {
-      variables: {
-        productId: customProduct.id,
-        optionId: flowerOption.id,
-        newValues: flowerOptionValuesToAdd,
-        oldValues: valueIdsToRemove        
-      }
+  // TODO: Fix handling when flowerOption is null
+  if (
+    flowerOptionValuesToRemove.length > 0 ||
+    flowerOptionValuesToAdd.length > 0
+  ) {
+    const updateProductOptionsAndVariantsResponse = await admin.graphql(
+      UPDATE_PRODUCT_OPTION_AND_VARIANTS,
+      {
+        variables: {
+          productId: data.product.id,
+          optionId: flowerOption.id,
+          newValues: flowerOptionValuesToAdd,
+          oldValues: valueIdsToRemove,
+        },
+      },
+    );
+
+    // todo: validation
+
+    const {
+      data: { product, userErrors },
+    } = await updateProductOptionsAndVariantsResponse.json();
+    if (userErrors != null) {
+      return json({ userErrors }, { status: 422 });
     }
-  ); 
-
-  // todo: validation 
-
-  const { data: { product, userErrors } } = await updateProductOptionsAndVariantsResponse.json();
-   console.log(updateProductOptionsAndVariantsResponse);
-  if (userErrors != null) {
-    return json({ userErrors }, { status: 422 });
-  }  
+  }
 
   return redirect(`/app/additional`);
 }
@@ -195,7 +237,7 @@ export default function ByobCustomizationForm() {
     ),
     flowersSelected: byobCustomizer.flowersSelected,
     flowerOptionValuesToRemove: [],
-    flowerOptionValuesToAdd: []
+    flowerOptionValuesToAdd: [],
   };
 
   const [formState, setFormState] = useState(byobCustomizerForm);
@@ -211,19 +253,21 @@ export default function ByobCustomizationForm() {
   const submit = useSubmit();
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
   // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
-  function handleSaveAndNavigate() {
-    const data = {
+
+  function submitFormData() {
+    const data: SerializedForm = {
       productName: formState.productName,
-      product: JSON.stringify(byobCustomizer.customProduct),
+      product: byobCustomizer.customProduct,
       sizeOptions: formState.sizeOptions,
-      paletteColorOptions: formState.allPaletteColorOptions,
-      focalFlowerOptions: formState.allFocalFlowerOptions,
+      allPaletteColorOptions: formState.allPaletteColorOptions,
+      allFocalFlowerOptions: formState.allFocalFlowerOptions,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
-      flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd
+      flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
     };
 
-    console.log("Saving form state: ", formState);
-    submit(data, { method: "post" });
+    const serializedData = JSON.stringify(data);
+
+    submit({ data: serializedData }, { method: "post" });
   }
 
   return (
@@ -279,8 +323,9 @@ export default function ByobCustomizationForm() {
                 />
                 <Divider />
                 <FocalFlowersSection
-                  allFocalFlowerOptions={byobCustomizer.flowersAvailable
-                    .sort((a, b) => a.name.localeCompare(b.name))}
+                  allFocalFlowerOptions={byobCustomizer.flowersAvailable.sort(
+                    (a, b) => a.name.localeCompare(b.name),
+                  )}
                   formState={formState}
                   setFormState={setFormState}
                 />
@@ -290,6 +335,12 @@ export default function ByobCustomizationForm() {
         </Layout.Section>
         <Layout.Section>
           <PageActions
+            primaryAction={{
+              content: "Save and Continue",
+              loading: isSaving,
+              disabled: isSaving || isDeleting,
+              onAction: submitFormData,
+            }}
             secondaryActions={[
               {
                 content: "Delete",
@@ -305,12 +356,6 @@ export default function ByobCustomizationForm() {
                   submit({ action: "delete" }, { method: "post" }),
               },
             ]}
-            primaryAction={{
-              content: "Save and Continue",
-              loading: isSaving,
-              disabled: isSaving || isDeleting,
-              onAction: handleSaveAndNavigate,
-            }}
           />
         </Layout.Section>
       </Layout>
