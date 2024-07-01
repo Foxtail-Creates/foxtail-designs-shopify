@@ -77,7 +77,7 @@ export async function loader({ request, params }) {
     // otherwise create new custom product and add to store metadata
     const [firstFlower, rest] = allCustomOptions.flowersAvailable;
     flowersSelected =  firstFlower != null ? [{"name": firstFlower.name}] : [];
-    const customProductResponse: CreateNewCustomProductMutation = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
+    const customProductResponse = await admin.graphql(CREATE_NEW_CUSTOM_PRODUCT_QUERY,
       { 
         variables: { 
           productName: "Custom Bouquet",
@@ -209,7 +209,6 @@ export default function ByobCustomizationForm() {
   const navigate = useNavigate();
 
   const submit = useSubmit();
-  // TODO: https://linear.app/foxtail-creates/issue/FOX-33/save-flower
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
   // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
   function handleSaveAndNavigate() {
