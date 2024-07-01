@@ -1,6 +1,6 @@
 import type { Flower, Palette } from "@prisma/client";
 import type { Dispatch, SetStateAction } from "react";
-import { Product } from "./types/admin.types";
+import type { Product } from "./types/admin.types";
 
 export type ByobCustomizerOptions = {
   destination: string;
@@ -23,6 +23,16 @@ export type ByobCustomizerForm = {
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
 };
+
+export type SerializedForm = {
+  productName: string;
+  product: Product;
+  sizeOptions: string[];
+  allPaletteColorOptions: string[];
+  allFocalFlowerOptions: string[];
+  flowerOptionValuesToRemove: string[];
+  flowerOptionValuesToAdd: string[];
+}
 
 export type FocalFlowersSectionProps = {
   allFocalFlowerOptions: Flower[];
