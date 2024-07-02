@@ -1,4 +1,5 @@
 import {
+  InlineError,
   InlineStack,
   Tag,
   Listbox,
@@ -8,13 +9,14 @@ import {
   Text,
 } from "@shopify/polaris";
 import { useCallback, useMemo, useState } from "react";
+import { FormErrors } from "~/errors";
 import type { FocalFlowersSectionProps } from "~/types";
 
 export const FocalFlowersSection = ({
   allFocalFlowerOptions,
-  flowersSelected,
   setFormState,
   formState,
+  errors
 }: FocalFlowersSectionProps) => {
   const [value, setValue] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -183,11 +185,18 @@ export const FocalFlowersSection = ({
       </Listbox>
     ) : null;
 
+  function inlineError(errors: FormErrors) {
+    return (errors != null && errors.flowers != null)
+    ? (<InlineError message={errors.flowers} fieldID="flowerId" />)
+    : null;
+  }
+
   return (
     <>
       <Text as={"h3"} variant="headingMd">
         Focal flower options
       </Text>
+      {inlineError(errors)}
       <Combobox
         allowMultiple
         preferredPosition="below"
