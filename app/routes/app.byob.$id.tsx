@@ -165,7 +165,7 @@ export async function action({ request, params }) {
   const data: SerializedForm = JSON.parse(serializedData.get("data"));
 
   if (data.flowersSelected.length == 0) {
-    errors.flowers = "Invalid flower selection. Select at least one focal flower";
+    errors.flowers = "Invalid flower selection. Select at least one focal flower to offer to customers.";
   }
 
   if (Object.keys(errors).length > 0) {
