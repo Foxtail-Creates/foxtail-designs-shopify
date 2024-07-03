@@ -33,15 +33,10 @@ export default function Index() {
 
   return (
     <Page>
-      {/* <ui-title-bar title="Build-Your-Own-Bouquet Product Customizer">
-        <button variant="primary" onClick={() => navigate("/app/byob/new")}>
-          Create a new BYOB Product
-        </button>
-      </ui-title-bar> */}
       <Layout>
         <Layout.Section>
           <Card padding="0">
-            <EmptyByobProductsState onAction={() => navigate("byob/new")} />
+            <EmptyByobProductsState onAction={() => navigate("bouquets/settings")} />
           </Card>
         </Layout.Section>
       </Layout>

@@ -72,7 +72,7 @@ export async function loader({ request, params }) {
   } = await getShopMetadataResponse.json());
 
   // get all possible store options
-  var allCustomOptions: StoreOptions = await createStoreOptions();
+  const allCustomOptions: StoreOptions = await createStoreOptions();
 
   if (shop.metafield != null && shop.metafield.value != null) {
     // if custom product already exists, retrieve it
@@ -94,9 +94,9 @@ export async function loader({ request, params }) {
     );
 
     // TODO: handle case where flowerOption is null, (i.e. custom product exists but does not have "Focal Flower" as an option)
-    flowersSelected = flowerOption.optionValues.map(
+    flowersSelected = flowerOption ? flowerOption.optionValues.map(
       (optionValue) => optionValue.name,
-    );
+    ) : [];
   } else {
     // otherwise create new custom product and add to store metadata
     const [firstFlower, rest] = allCustomOptions.flowersAvailable;
@@ -171,14 +171,14 @@ export async function action({ request, params }) {
     (option) => option.name === FLOWER_OPTION_NAME,
   );
 
-  var optionValueNameToId: Map<string, string> = flowerOption
+  const optionValueNameToId: Map<string, string> = flowerOption
     ? flowerOption.optionValues.reduce(function (map, optionValue) {
-        map.set(optionValue.name, optionValue.id);
-        return map;
-      }, new Map<string, string>())
+      map.set(optionValue.name, optionValue.id);
+      return map;
+    }, new Map<string, string>())
     : new Map<string, string>();
 
-  var valueIdsToRemove: string[] = [];
+  const valueIdsToRemove: string[] = [];
   const flowerOptionValuesToRemove: string[] = data.flowerOptionValuesToRemove;
 
   flowerOptionValuesToRemove.forEach((flowerName: string) => {
@@ -193,6 +193,7 @@ export async function action({ request, params }) {
 
   // TODO: Fix handling when flowerOption is null
   if (
+    flowerOption != undefined &&
     flowerOptionValuesToRemove.length > 0 ||
     flowerOptionValuesToAdd.length > 0
   ) {
@@ -218,7 +219,7 @@ export async function action({ request, params }) {
     }
   }
 
-  return redirect(`/app/additional`);
+  return redirect(`/app/bouquets/customize`);
 }
 
 export default function ByobCustomizationForm() {
@@ -251,8 +252,6 @@ export default function ByobCustomizationForm() {
   const navigate = useNavigate();
 
   const submit = useSubmit();
-  // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
-  // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
 
   function submitFormData() {
     const data: SerializedForm = {
@@ -273,10 +272,10 @@ export default function ByobCustomizationForm() {
   return (
     <Page>
       <ui-title-bar
-        title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
+        title={byobCustomizer.productName !== "" ? "Edit Settings" : "Create New BYOB Product"}
       >
         <button variant="breadcrumb" onClick={() => navigate("/app")}>
-          BYOB Products
+          Home
         </button>
       </ui-title-bar>
       <Layout>
