@@ -44,16 +44,6 @@ import {
 } from "../constants";
 
 import {
-<<<<<<< Updated upstream
-  GET_SHOP_METAFIELD_QUERY,
-  SET_NEW_SHOP_METADATA_QUERY,
-} from "./graphql/shopQueries";
-import {
-  GET_CUSTOM_PRODUCT_QUERY,
-  CREATE_NEW_CUSTOM_PRODUCT_QUERY,
-} from "./graphql/productQueries";
-import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
-=======
   GET_SHOP_METAFIELD_BY_KEY_QUERY,
   SET_SHOP_METAFIELDS_QUERY,
   CREATE_PRODUCT_WITH_OPTIONS_QUERY,
@@ -62,7 +52,6 @@ import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueri
 } from "../graphql";
 
 import { FormErrors } from "~/errors";
->>>>>>> Stashed changes
 
 
 export async function loader({ request, params }) {
