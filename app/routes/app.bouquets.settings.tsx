@@ -8,7 +8,6 @@ import {
   useNavigate,
 } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import {createAdminApiClient} from '@shopify/admin-api-client';
 import {
   Card,
   Divider,
@@ -56,18 +55,13 @@ import { FormErrors } from "~/errors";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
-  const client = createAdminApiClient( {
-    storeDomain: session.shop,
-    apiVersion: GRAPHQL_API_VERSION,
-    accessToken: session.accessToken
-  } );
   let shop,
     product,
     palettesSelected = [],
     flowersSelected = [];
   
   // find existing shop metadata if it exists
-  const {data : {shop}, errors, extensions} = await client.request(
+  const getShopMetadataResponse = await graphql.admin(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
     {
       variables: {
@@ -76,9 +70,9 @@ export async function loader({ request, params }) {
       },
     },
   );
-  // ({
-  //   data: { shop },
-  // } = await getShopMetadataResponse.json());
+  ({
+    data: { shop },
+  } = await getShopMetadataResponse.json());
 
   // get all possible store options
   const allCustomOptions: StoreOptions = await createStoreOptions();
