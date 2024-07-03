@@ -9,7 +9,7 @@ import {
   Text,
 } from "@shopify/polaris";
 import { useCallback, useMemo, useState } from "react";
-import { FormErrors } from "~/errors";
+import type { FormErrors } from "~/errors";
 import type { FocalFlowersSectionProps } from "~/types";
 
 export const FocalFlowersSection = ({

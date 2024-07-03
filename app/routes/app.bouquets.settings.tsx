@@ -7,7 +7,6 @@ import {
   useSubmit,
   useNavigate,
 } from "@remix-run/react";
-import { authenticate } from "../shopify.server";
 import {
   Card,
   Divider,
@@ -18,16 +17,16 @@ import {
   BlockStack,
   PageActions,
 } from "@shopify/polaris";
-
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
 import type {
-  ByobCustomizerForm,
+  BouquetSettingsForm,
   ByobCustomizerOptions,
   SerializedForm,
 } from "~/types";
-
+import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "../hooks/graphql/productOptionQueries";
+import { authenticate } from "../shopify.server";
 import {
   FLOWER_OPTION_NAME,
   FLOWER_POSITION
@@ -37,11 +36,10 @@ import {
   UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY
 } from "../server/graphql";
 
-import { FormErrors } from "~/errors";
+import type { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { createProductOptions } from "~/server/createProductOptions";
 import invariant from "tiny-invariant";
-
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -126,7 +124,10 @@ export async function action({ request, params }) {
 export default function ByobCustomizationForm() {
   const errors: FormErrors = useActionData()?.errors || {};
   const byobCustomizer: ByobCustomizerOptions = useLoaderData();
-  const byobCustomizerForm: ByobCustomizerForm = {
+
+  console.log(byobCustomizer)
+
+  const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
     sizeOptions: byobCustomizer.sizeOptions,

@@ -1,13 +1,10 @@
-import { useState } from "react";
-import { json, redirect } from "@remix-run/node";
+
 import {
-  useActionData,
   useLoaderData,
   useNavigation,
   useSubmit,
   useNavigate,
 } from "@remix-run/react";
-import { authenticate } from "../shopify.server";
 import {
   Card,
   Divider,
@@ -17,9 +14,18 @@ import {
   BlockStack,
   PageActions,
 } from "@shopify/polaris";
+import { useState } from "react";
+import { json, redirect } from "@remix-run/node";
+import type {
+  BouquetCustomizationForm,
+  BouquetCustomizationOptions,
+  ByobCustomizerOptions,
+  OptionValueCustomizations,
+} from "~/types";
+import { authenticate } from "../shopify.server";
 
-import { ByobCustomizerOptions } from "~/types";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
+import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -34,13 +40,40 @@ export async function action({ request, params }) {
   return redirect(`/app`);
 }
 
+const createValueCustomizationsObject = (optionValues: string[]) => {
+  console.log(optionValues)
+  if (!optionValues) {
+    return {};
+  }
+  return optionValues.reduce((acc: OptionValueCustomizations, value) => {
+    acc[value] = {
+      name: value,
+      price: 0, // TODO: get price from product variant
+    };
+    return acc;
+  }, {});
+};
+
 export default function ByobCustomizationForm() {
-  const errors = useActionData()?.errors || {};
+  // const errors = useActionData()?.errors || {};
 
-  const byobCustomizer = useLoaderData();
-  const byobCustomizerForm = {}
+  const formOptions: BouquetCustomizationOptions = useLoaderData();
+  const form: BouquetCustomizationForm = {
+    sizes: {
+      optionName: "Size",
+      optionValueCustomizations: createValueCustomizationsObject(formOptions.sizeOptions),
+    },
+    palettes: {
+      optionName: "Palette",
+      optionValueCustomizations: createValueCustomizationsObject(formOptions.palettesSelected),
+    },
+    flowers: {
+      optionName: "Focal Flower",
+      optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected),
+    }
+  }
 
-  const [formState, setFormState] = useState(byobCustomizerForm);
+  const [formState, setFormState] = useState(form);
 
   const nav = useNavigation();
   const isSaving =
@@ -81,6 +114,27 @@ export default function ByobCustomizationForm() {
                   Helper text ....
                 </Text>
                 <Divider />
+                <Text as={"h2"} variant="headingLg">
+                  Product Name
+                </Text>
+                <CustomizationSection
+                  setPrice={true}
+                  optionCustomizations={form.sizes}
+                  formState={formState}
+                  setFormState={setFormState}
+                />
+                <CustomizationSection
+                  setPrice={false}
+                  optionCustomizations={form.palettes}
+                  formState={formState}
+                  setFormState={setFormState}
+                />
+                <CustomizationSection
+                  setPrice={true}
+                  optionCustomizations={form.flowers}
+                  formState={formState}
+                  setFormState={setFormState}
+                />
               </BlockStack>
             </Card>
           </BlockStack>
@@ -98,7 +152,6 @@ export default function ByobCustomizationForm() {
                 content: "Delete",
                 loading: isDeleting,
                 disabled:
-                  !byobCustomizer ||
                   isSaving ||
                   isDeleting,
                 destructive: true,
