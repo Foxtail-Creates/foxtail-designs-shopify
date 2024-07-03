@@ -57,7 +57,7 @@ export async function loader({ request, params }) {
     product,
     palettesSelected = [],
     flowersSelected = [];
-
+  
   // find existing shop metadata if it exists
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_QUERY,

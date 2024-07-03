@@ -3,9 +3,9 @@ export const SET_NEW_SHOP_METADATA_QUERY = `#graphql
         metafieldsSet(
             metafields: [{ownerId: $shopId, namespace: $namespace, key: $key, type: "string", value: $productId}]
         ) {
-        userErrors {
-            message
-        }
+            userErrors {
+                message
+            }
         }
     }`
 
