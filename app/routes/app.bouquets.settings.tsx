@@ -47,7 +47,7 @@ import {
   SET_SHOP_METAFIELDS_QUERY,
   CREATE_PRODUCT_WITH_OPTIONS_QUERY,
   GET_PRODUCT_BY_ID_QUERY,
-  UPDATE_PRODUCT_OPTIONS_AND_VARIANTS_QUERY
+  UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY
 } from "../graphql";
 
 import { FormErrors } from "~/errors";
@@ -61,7 +61,7 @@ export async function loader({ request, params }) {
     flowersSelected = [];
   
   // find existing shop metadata if it exists
-  const getShopMetadataResponse = await graphql.admin(
+  const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
     {
       variables: {
@@ -208,8 +208,8 @@ export async function action({ request, params }) {
     flowerOptionValuesToRemove.length > 0 ||
     flowerOptionValuesToAdd.length > 0
   ) {
-    const updateProductOptionsAndVariantsResponse = await admin.graphql(
-      UPDATE_PRODUCT_OPTIONS_AND_VARIANTS_QUERY,
+    const updateProductOptionAndVariantsResponse = await admin.graphql(
+      UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
       {
         variables: {
           productId: data.product.id,
@@ -224,7 +224,7 @@ export async function action({ request, params }) {
 
     const {
       data: { product, userErrors },
-    } = await updateProductOptionsAndVariantsResponse.json();
+    } = await updateProductOptionAndVariantsResponse.json();
     if (userErrors != null) {
       return json({ userErrors }, { status: 422 });
     }
