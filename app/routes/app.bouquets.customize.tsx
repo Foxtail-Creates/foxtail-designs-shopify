@@ -22,14 +22,11 @@ import {
   FLOWER_OPTION_NAME,
   FOXTAIL_NAMESPACE,
   STORE_METADATA_CUSTOM_PRODUCT_KEY,
-} from "./constants";
+} from "../constants";
 import {
-  GET_SHOP_METAFIELD_QUERY,
-} from "./graphql/shopQueries";
-import {
-  GET_CUSTOM_PRODUCT_QUERY,
-} from "./graphql/productQueries";
-import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
+  GET_SHOP_METAFIELD_BY_KEY_QUERY,
+  GET_PRODUCT_BY_ID_QUERY,
+} from "../graphql";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
@@ -40,7 +37,7 @@ export async function loader({ request, params }) {
 
   // find existing shop metadata if it exists
   const getShopMetadataResponse = await admin.graphql(
-    GET_SHOP_METAFIELD_QUERY,
+    GET_SHOP_METAFIELD_BY_KEY_QUERY,
     {
       variables: {
         namespace: FOXTAIL_NAMESPACE,
@@ -58,7 +55,7 @@ export async function loader({ request, params }) {
   }
 
   const customProductResponse = await admin.graphql(
-    GET_CUSTOM_PRODUCT_QUERY,
+    GET_PRODUCT_BY_ID_QUERY,
     {
       variables: {
         id: shop.metafield.value,

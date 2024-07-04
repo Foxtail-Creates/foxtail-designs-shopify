@@ -37,19 +37,21 @@ import {
   FLOWER_OPTION_NAME,
   FLOWER_POSITION,
   FOXTAIL_NAMESPACE,
+  GRAPHQL_API_VERSION,
   PRODUCT_METADATA_SELECTED_OPTIONS,
   STORE_METADATA_CUSTOM_PRODUCT_KEY,
-} from "./constants";
+} from "../constants";
+
 import {
-  GET_SHOP_METAFIELD_QUERY,
-  SET_NEW_SHOP_METADATA_QUERY,
-} from "./graphql/shopQueries";
-import {
-  GET_CUSTOM_PRODUCT_QUERY,
-  CREATE_NEW_CUSTOM_PRODUCT_QUERY,
-} from "./graphql/productQueries";
-import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
+  GET_SHOP_METAFIELD_BY_KEY_QUERY,
+  SET_SHOP_METAFIELDS_QUERY,
+  CREATE_PRODUCT_WITH_OPTIONS_QUERY,
+  GET_PRODUCT_BY_ID_QUERY,
+  UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY
+} from "../graphql";
+
 import { FormErrors } from "~/errors";
+
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
@@ -57,10 +59,10 @@ export async function loader({ request, params }) {
     product,
     palettesSelected = [],
     flowersSelected = [];
-
+  
   // find existing shop metadata if it exists
   const getShopMetadataResponse = await admin.graphql(
-    GET_SHOP_METAFIELD_QUERY,
+    GET_SHOP_METAFIELD_BY_KEY_QUERY,
     {
       variables: {
         namespace: FOXTAIL_NAMESPACE,
@@ -79,7 +81,7 @@ export async function loader({ request, params }) {
     // if custom product already exists, retrieve it
 
     const customProductResponse = await admin.graphql(
-      GET_CUSTOM_PRODUCT_QUERY,
+      GET_PRODUCT_BY_ID_QUERY,
       {
         variables: {
           id: shop.metafield.value,
@@ -103,7 +105,7 @@ export async function loader({ request, params }) {
     const [firstFlower, rest] = allCustomOptions.flowersAvailable;
     flowersSelected = firstFlower != null ? [{ name: firstFlower.name }] : [];
     const customProductResponse = await admin.graphql(
-      CREATE_NEW_CUSTOM_PRODUCT_QUERY,
+      CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
         variables: {
           productName: "Custom Bouquet",
@@ -123,7 +125,7 @@ export async function loader({ request, params }) {
 
     // set shop metafield to point to new custom product id
     const setStoreMetafieldResponse = await admin.graphql(
-      SET_NEW_SHOP_METADATA_QUERY,
+      SET_SHOP_METAFIELDS_QUERY,
       {
         variables: {
           shopId: shop.id,
@@ -206,8 +208,8 @@ export async function action({ request, params }) {
     flowerOptionValuesToRemove.length > 0 ||
     flowerOptionValuesToAdd.length > 0
   ) {
-    const updateProductOptionsAndVariantsResponse = await admin.graphql(
-      UPDATE_PRODUCT_OPTION_AND_VARIANTS,
+    const updateProductOptionAndVariantsResponse = await admin.graphql(
+      UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
       {
         variables: {
           productId: data.product.id,
@@ -222,7 +224,7 @@ export async function action({ request, params }) {
 
     const {
       data: { product, userErrors },
-    } = await updateProductOptionsAndVariantsResponse.json();
+    } = await updateProductOptionAndVariantsResponse.json();
     if (userErrors != null) {
       return json({ userErrors }, { status: 422 });
     }
