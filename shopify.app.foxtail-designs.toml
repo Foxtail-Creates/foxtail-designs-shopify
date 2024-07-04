@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://acquisition-feed-ian-admissions.trycloudflare.com"
+application_url = "https://serum-operate-admissions-before.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://acquisition-feed-ian-admissions.trycloudflare.com/auth/callback",
-  "https://acquisition-feed-ian-admissions.trycloudflare.com/auth/shopify/callback",
-  "https://acquisition-feed-ian-admissions.trycloudflare.com/api/auth/callback"
+  "https://serum-operate-admissions-before.trycloudflare.com/auth/callback",
+  "https://serum-operate-admissions-before.trycloudflare.com/auth/shopify/callback",
+  "https://serum-operate-admissions-before.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

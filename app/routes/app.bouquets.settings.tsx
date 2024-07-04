@@ -49,6 +49,7 @@ import {
   CREATE_NEW_CUSTOM_PRODUCT_QUERY,
 } from "./graphql/productQueries";
 import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "./graphql/productOptionQueries";
+import { FormErrors } from "~/errors";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
@@ -150,7 +151,7 @@ export async function loader({ request, params }) {
     palettesAvailable: allCustomOptions.palettesAvailable,
     flowersAvailable: allCustomOptions.flowersAvailable,
     palettesSelected: palettesSelected,
-    flowersSelected: flowersSelected,
+    flowersSelected: flowersSelected
   });
 }
 
@@ -159,9 +160,17 @@ export async function action({ request, params }) {
   const { shop } = session;
 
   const serializedData = await request.formData();
+  const errors: FormErrors = {};
 
   const data: SerializedForm = JSON.parse(serializedData.get("data"));
 
+  if (data.flowersSelected.length == 0) {
+    errors.flowers = "Invalid flower selection. Select at least one focal flower to offer to customers.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return json({ errors });
+  }
   // todo: delete if data.action == "delete"
   // if (data.action === "delete") {
   //   return json({ message: "Delete is not implemented" }, { status: 500 });
@@ -223,8 +232,7 @@ export async function action({ request, params }) {
 }
 
 export default function ByobCustomizationForm() {
-  const errors = useActionData()?.errors || {};
-
+  const errors: FormErrors = useActionData()?.errors || {};
   const byobCustomizer: ByobCustomizerOptions = useLoaderData();
   const byobCustomizerForm: ByobCustomizerForm = {
     destination: byobCustomizer.destination,
@@ -260,6 +268,7 @@ export default function ByobCustomizationForm() {
       sizeOptions: formState.sizeOptions,
       allPaletteColorOptions: formState.allPaletteColorOptions,
       allFocalFlowerOptions: formState.allFocalFlowerOptions,
+      flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
     };
@@ -327,6 +336,7 @@ export default function ByobCustomizationForm() {
                   )}
                   formState={formState}
                   setFormState={setFormState}
+                  errors={errors}
                 />
               </BlockStack>
             </Card>
