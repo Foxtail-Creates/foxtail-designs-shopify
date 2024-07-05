@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://irrigation-int-luis-forum.trycloudflare.com"
+application_url = "https://bands-picking-recommend-neo.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://irrigation-int-luis-forum.trycloudflare.com/auth/callback",
-  "https://irrigation-int-luis-forum.trycloudflare.com/auth/shopify/callback",
-  "https://irrigation-int-luis-forum.trycloudflare.com/api/auth/callback"
+  "https://bands-picking-recommend-neo.trycloudflare.com/auth/callback",
+  "https://bands-picking-recommend-neo.trycloudflare.com/auth/shopify/callback",
+  "https://bands-picking-recommend-neo.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
