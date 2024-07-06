@@ -76,6 +76,7 @@ export type BouquetCustomizationOptions = {
 };
 
 export type BouquetCustomizationForm = {
+  productName: string,
   sizes: OptionCustomization;
   palettes: OptionCustomization;
   flowers: OptionCustomization;

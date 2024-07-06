@@ -1,23 +1,28 @@
-import { ChoiceList, TextField } from "@shopify/polaris";
+import { InlineGrid, Text, TextField } from "@shopify/polaris";
 import type { CustomizationProps, ValueCustomization } from "~/types";
 
-const CustomizationOptions = (setPrice: boolean, value: ValueCustomization) => {
+const CustomizationOptions = ({ setPrice, value }: { setPrice: boolean, value: ValueCustomization }) => {
   return (
     <>
-      <TextField
-        label={`Edit customization option name: ${value.name}`}
-        value={value.name}
-        onChange={() => { }
-        }
-        autoComplete="off"
-      />
-      {setPrice && (
+      <InlineGrid columns={['oneHalf', 'oneHalf']} gap="400">
         <TextField
-          label={`Edit customization option price: ${value.price}`}
-          value={value.price.toString()}
-          onChange={() => { }}
-          autoComplete="off"
-        />)}
+          label={`Edit option name: ${value.name}`}
+          value={value.name}
+          onChange={() => { }
+          }
+          autoComplete="on"
+          selectTextOnFocus={true}
+        />
+        {setPrice && (
+          <TextField
+            label={`Edit option price: $${value.price}`}
+            type="number"
+            value={value.price.toString()}
+            prefix="$"
+            onChange={() => { }}
+            autoComplete="off"
+          />)}
+      </InlineGrid>
     </>
   )
 }
@@ -31,16 +36,17 @@ export const CustomizationSection = ({
   return (
     <>
       <TextField
-        label={`Edit customizations name: ${optionCustomizations.optionName}`}
+        label={`Edit options category name: ${optionCustomizations.optionName}`}
         value={optionCustomizations.optionName}
         onChange={() => { }}
-        autoComplete="off"
+        autoComplete="on"
+        selectTextOnFocus={true}
       />
       {optionCustomizations.optionValueCustomizations &&
         Object
           .values(optionCustomizations.optionValueCustomizations)
           .map((value) => {
-            return CustomizationOptions(setPrice, value)
+            return <CustomizationOptions setPrice={setPrice} value={value} />
           })
       }
     </>

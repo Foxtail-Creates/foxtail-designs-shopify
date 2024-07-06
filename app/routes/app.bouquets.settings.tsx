@@ -93,8 +93,8 @@ export async function action({ request, params }) {
     createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowersSelected);
   } else if (
     flowerOption != undefined &&
-    flowerOptionValuesToRemove.length > 0 ||
-    data.flowerOptionValuesToAdd.length > 0
+    (flowerOptionValuesToRemove.length > 0 ||
+    data.flowerOptionValuesToAdd.length > 0)
   ) {
     const updateProductOptionAndVariantsResponse = await admin.graphql(
       UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
@@ -124,8 +124,6 @@ export async function action({ request, params }) {
 export default function ByobCustomizationForm() {
   const errors: FormErrors = useActionData()?.errors || {};
   const byobCustomizer: ByobCustomizerOptions = useLoaderData();
-
-  console.log(byobCustomizer)
 
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,

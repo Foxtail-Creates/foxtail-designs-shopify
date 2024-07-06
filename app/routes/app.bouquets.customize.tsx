@@ -13,6 +13,7 @@ import {
   Text,
   BlockStack,
   PageActions,
+  TextField,
 } from "@shopify/polaris";
 import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
@@ -41,7 +42,6 @@ export async function action({ request, params }) {
 }
 
 const createValueCustomizationsObject = (optionValues: string[]) => {
-  console.log(optionValues)
   if (!optionValues) {
     return {};
   }
@@ -59,6 +59,7 @@ export default function ByobCustomizationForm() {
 
   const formOptions: BouquetCustomizationOptions = useLoaderData();
   const form: BouquetCustomizationForm = {
+    productName: formOptions.productName,
     sizes: {
       optionName: "Size",
       optionValueCustomizations: createValueCustomizationsObject(formOptions.sizeOptions),
@@ -108,27 +109,34 @@ export default function ByobCustomizationForm() {
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
-                  Edit Customization Names and Prices
+                  Edit Names and Prices
                 </Text>
                 <Text as={"h3"} variant="bodyMd">
                   Helper text ....
                 </Text>
                 <Divider />
-                <Text as={"h2"} variant="headingLg">
-                  Product Name
-                </Text>
+                <TextField
+                  label={`Edit product name: ${form.productName}`}
+                  value={form.productName}
+                  onChange={() => { }}
+                  autoComplete="on"
+                  selectTextOnFocus={true}
+                />
+                <Divider />
                 <CustomizationSection
                   setPrice={true}
                   optionCustomizations={form.sizes}
                   formState={formState}
                   setFormState={setFormState}
                 />
+                <Divider />
                 <CustomizationSection
                   setPrice={false}
                   optionCustomizations={form.palettes}
                   formState={formState}
                   setFormState={setFormState}
                 />
+                <Divider />
                 <CustomizationSection
                   setPrice={true}
                   optionCustomizations={form.flowers}
