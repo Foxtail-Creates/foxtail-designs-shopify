@@ -191,6 +191,7 @@ export default function ByobCustomizationForm() {
                   label="title"
                   labelHidden
                   autoComplete="off"
+                  placeholder="Build Your Own Bouquet"
                   value={formState.productName}
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
@@ -205,7 +206,7 @@ export default function ByobCustomizationForm() {
                   Customizations
                 </Text>
                 <Text as={"h3"} variant="bodyMd">
-                  Choose which product customizations are available to a
+                  Choose which product options are available to a
                   customer. You can edit names and prices in the next page.
                 </Text>
                 <Divider />

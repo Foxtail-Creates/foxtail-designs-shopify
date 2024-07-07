@@ -13,7 +13,6 @@ import {
   Text,
   BlockStack,
   PageActions,
-  TextField,
 } from "@shopify/polaris";
 import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
@@ -59,7 +58,6 @@ export default function ByobCustomizationForm() {
 
   const formOptions: BouquetCustomizationOptions = useLoaderData();
   const form: BouquetCustomizationForm = {
-    productName: formOptions.productName,
     sizes: {
       optionName: "Size",
       optionValueCustomizations: createValueCustomizationsObject(formOptions.sizeOptions),
@@ -115,15 +113,8 @@ export default function ByobCustomizationForm() {
                   Helper text ....
                 </Text>
                 <Divider />
-                <TextField
-                  label={`Edit product name: ${form.productName}`}
-                  value={form.productName}
-                  onChange={() => { }}
-                  autoComplete="on"
-                  selectTextOnFocus={true}
-                />
-                <Divider />
                 <CustomizationSection
+                  optionKey="sizes"
                   setPrice={true}
                   optionCustomizations={form.sizes}
                   formState={formState}
@@ -131,6 +122,7 @@ export default function ByobCustomizationForm() {
                 />
                 <Divider />
                 <CustomizationSection
+                  optionKey="palettes"
                   setPrice={false}
                   optionCustomizations={form.palettes}
                   formState={formState}
@@ -138,6 +130,7 @@ export default function ByobCustomizationForm() {
                 />
                 <Divider />
                 <CustomizationSection
+                  optionKey="flowers"
                   setPrice={true}
                   optionCustomizations={form.flowers}
                   formState={formState}

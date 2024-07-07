@@ -1,7 +1,8 @@
 import { json } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { Card, EmptyState, Layout, Page } from "@shopify/polaris";
+import { BlockStack, Button, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
+import { FlowerIcon, PlusIcon } from "@shopify/polaris-icons";
 
 export async function loader({ request }) {
   const { admin, session } = await authenticate.admin(request);
@@ -11,22 +12,54 @@ export async function loader({ request }) {
   });
 }
 
-const EmptyByobProductsState = ({ onAction }) => (
-  <EmptyState
-    heading="Create a Build-Your-Own-Bouquet product"
-    action={{
-      content: "Create BYOB Product",
-      onAction,
-    }}
-    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-  >
-    <p>
-      Give customers the option to buy a custom arrangement! Select the
-      customizations you want to offer and generate all of the Shopify variants
-      with one click.
-    </p>
-  </EmptyState>
+const ByobProduct = ({ onAction }) => (
+  <Card roundedAbove="sm">
+    <BlockStack gap="200">
+      <InlineGrid columns="1fr auto">
+        <Text as="h2" variant="headingMd">
+          Build-Your-Own-Bouquet product
+        </Text>
+        <Button
+          onClick={onAction}
+          accessibilityLabel="Create or edit BYOB product"
+          icon={PlusIcon}
+        >
+          Create or Edit
+        </Button>
+      </InlineGrid>
+      <Text as="p" variant="bodyMd">
+        Give customers the option to buy a custom arrangement! Select the
+        customizations you want to offer and generate all of the Shopify variants
+        with one click.
+      </Text>
+    </BlockStack>
+  </Card>
 );
+
+const Foxtail = ({ onAction }) => (
+  <Card roundedAbove="sm">
+    <BlockStack gap="200">
+      <InlineGrid columns="1fr auto">
+        <Text as="h2" variant="headingMd">
+          Foxtail Designs
+        </Text>
+        <Button
+          onClick={onAction}
+          accessibilityLabel="Visit Foxtail Designs to learn more"
+          icon={FlowerIcon}
+        >
+          Learn more
+        </Button>
+      </InlineGrid>
+      <Text as="p" variant="bodyMd">
+        At Foxtail, we turn floral design ideas into visual images early on in the design process.
+        We’re building online tools to make it easier for clients and florists to understand what
+        an order will look like, from color palettes to shape and style.
+      </Text>
+    </BlockStack>
+  </Card>
+);
+
 
 export default function Index() {
   const navigate = useNavigate();
@@ -35,9 +68,10 @@ export default function Index() {
     <Page>
       <Layout>
         <Layout.Section>
-          <Card padding="0">
-            <EmptyByobProductsState onAction={() => navigate("bouquets/settings")} />
-          </Card>
+          <InlineGrid gap="300" columns={2}>
+            <ByobProduct onAction={() => navigate("bouquets/settings")} />
+            <Foxtail onAction={() => window.open("https://foxtailcreates.com/", '_blank').focus()} />
+          </InlineGrid>
         </Layout.Section>
       </Layout>
     </Page>

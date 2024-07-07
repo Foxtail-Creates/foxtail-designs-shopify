@@ -76,10 +76,7 @@ export type BouquetCustomizationOptions = {
 };
 
 export type BouquetCustomizationForm = {
-  productName: string,
-  sizes: OptionCustomization;
-  palettes: OptionCustomization;
-  flowers: OptionCustomization;
+  [key: string]: OptionCustomization;
 };
 
 export type OptionCustomization = {
@@ -99,6 +96,7 @@ export type ValueCustomization = {
 }
 
 export type CustomizationProps = {
+  optionKey: string;
   setPrice: boolean;
   optionCustomizations: OptionCustomization
   formState: BouquetCustomizationForm;

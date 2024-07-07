@@ -196,7 +196,6 @@ export const FocalFlowersSection = ({
       <Text as={"h3"} variant="headingMd">
         Focal flower options
       </Text>
-      {inlineError(errors)}
       <Combobox
         allowMultiple
         preferredPosition="below"
@@ -214,6 +213,7 @@ export const FocalFlowersSection = ({
       >
         {listboxMarkup}
       </Combobox>
+      {inlineError(errors)}
     </>
   );
 };
