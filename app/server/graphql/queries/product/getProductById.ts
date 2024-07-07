@@ -13,15 +13,3 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
         }
       }
     }`;
-
-
-export const getProductByIdLoader = (admin, shop) =>  { 
-  return admin.graphql(
-      GET_PRODUCT_BY_ID_QUERY,
-      {
-        variables: {
-          id: shop.metafield.value,
-        },
-      },
-  );
-};

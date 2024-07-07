@@ -35,25 +35,3 @@ export const BULK_CREATE_VARIANTS_QUERY = `#graphql
         }
     }
 `;
-
-// {
-//   "productId": "gid://shopify/Product/8287627870362",
-//   "variants": [
-//     {
-//       "optionValues": [
-//         {
-//           "name": "Daisy",
-//           "optionName": "focal flower"
-//         },
-//         {
-//           "name": "v1",
-//           "optionName": "new option with many values"
-//         },
-//         {
-//           "name": "name1",
-//           "optionName": "new option"
-//         }
-//       ]
-//     }
-//   ]
-// }

@@ -4,13 +4,18 @@ import type {
 } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY, CREATE_PRODUCT_WITH_OPTIONS_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY, SET_SHOP_METAFIELDS_QUERY } from "./graphql";
 import { StoreOptions, createStoreOptions } from "~/models/StoreSetting.server";
+import invariant from "tiny-invariant";
+import { createProductOptions } from "./createProductOptions";
 
-export async function getBYOBOptions(admin) :  Promise<ByobCustomizerOptions> { 
+export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   let palettesSelected: string[] = [], flowersSelected: string[] = [];
- // find existing shop metadata if it exists
- var allCustomOptions: StoreOptions = await createStoreOptions();
 
- const getShopMetadataResponse = await admin.graphql(
+  // find existing shop metadata if it exists
+  var allCustomOptions: StoreOptions = await createStoreOptions();
+  invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers in database. Contact Support for help.");
+  const [firstFlower,] = allCustomOptions.flowersAvailable;
+
+  const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
     {
       variables: {
@@ -21,6 +26,7 @@ export async function getBYOBOptions(admin) :  Promise<ByobCustomizerOptions> {
   );
   const shopMetadataBody = await getShopMetadataResponse.json();
   var customProductBody;
+
   if (shopMetadataBody.data?.shop.metafield?.value != null) {
     // if custom product already exists, retrieve it
     const customProductResponse = await admin.graphql(
@@ -36,13 +42,23 @@ export async function getBYOBOptions(admin) :  Promise<ByobCustomizerOptions> {
       (option) => option.name === FLOWER_OPTION_NAME,
     );
 
-    // TODO: handle case where flowerOption is null, (i.e. custom product exists but does not have "Focal Flower" as an option)
-    flowersSelected = flowerOption.optionValues.map(
-      (optionValue) => optionValue.name,
-    );
+    if (flowerOption == null) {
+      // create new product option and variants
+      await createProductOptions(
+        admin,
+        customProductBody.data?.product.id,
+        FLOWER_POSITION,
+        FLOWER_OPTION_NAME,
+        [firstFlower.name]
+      );
+      flowersSelected = [firstFlower.name];
+    } else {
+      flowersSelected = flowerOption.optionValues.map(
+        (optionValue) => optionValue.name,
+      );
+    }
   } else {
     // otherwise create new custom product and add to store metadata
-    const [firstFlower, ] = allCustomOptions.flowersAvailable;
     flowersSelected = firstFlower != null ? [firstFlower.name] : [];
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
@@ -72,9 +88,10 @@ export async function getBYOBOptions(admin) :  Promise<ByobCustomizerOptions> {
       },
     );
     const storeMetafieldBody = await setStoreMetafieldResponse.json();
-    // if (userErrors != null) {
-    //   return json({ userErrors }, { status: 422 });
-    // }
+    invariant(storeMetafieldBody.data.metafieldsSet.userErrors.length == 0,
+      "Error creating new product options. Contact Support for help."
+    );
+
   }
   const byobOptions: ByobCustomizerOptions = {
     destination: "product",

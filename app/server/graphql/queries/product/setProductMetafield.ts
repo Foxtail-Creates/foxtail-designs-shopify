@@ -5,6 +5,7 @@ export const SET_PRODUCT_METAFIELD_QUERY = `#graphql
         ) {
             userErrors {
               message
+              field
           }
         }
     }`;
