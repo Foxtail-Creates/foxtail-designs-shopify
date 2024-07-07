@@ -5,6 +5,7 @@ import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization }
 type CustomizationOptionsProps = {
   optionKey: string;
   optionValueKey: string;
+  setName: boolean;
   setPrice: boolean;
   value: ValueCustomization;
   formState: BouquetCustomizationForm,
@@ -12,15 +13,14 @@ type CustomizationOptionsProps = {
 };
 
 const CustomizationOptions = (props: CustomizationOptionsProps) => {
-  const { optionKey, optionValueKey, setPrice, value, formState, setFormState } = props;
-  console.log(optionKey, optionValueKey)
+  const { optionKey, optionValueKey, setPrice, setName, value, formState, setFormState } = props;
   return (
     <>
       <InlineGrid columns={['oneHalf', 'oneHalf']} gap="400">
-        <TextField
-          label={`Edit option name: ${value.name}`}
+        {setName && (<TextField
+          label={`Edit option name`}
+          placeholder={value.name}
           value={formState[optionKey].optionValueCustomizations[optionValueKey].name}
-          // TODO: Clean this up yikes
           onChange={(value) =>
             setFormState(
               {
@@ -40,11 +40,13 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
           selectTextOnFocus={true}
           autoComplete="off"
         />
+        )}
         {setPrice && (
           <TextField
-            label={`Edit option price: $${value.price}`}
+            label={`Edit option price`}
             type="number"
             prefix="$"
+            placeholder={value.price.toString()}
             value={formState[optionKey].optionValueCustomizations[optionValueKey].price.toString()}
             // TODO: Clean this up yikes
             onChange={(value) =>
@@ -65,6 +67,7 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
             }
             autoComplete="off"
           />)}
+          {value.connectedRight}
       </InlineGrid>
     </>
   )
@@ -73,14 +76,19 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
 export const CustomizationSection = ({
   optionKey,
   setPrice,
+  setName,
+  instructions,
   optionCustomizations,
   formState,
   setFormState,
 }: CustomizationProps) => {
   return (
     <>
+
+      {instructions}
       <TextField
-        label={`Edit options category name: ${optionCustomizations.optionName}`}
+        label={`Edit category name`}
+        placeholder={optionCustomizations.optionName}
         value={formState[optionKey].optionName}
         onChange={(value) =>
           setFormState({ ...formState, [optionKey]: { ...formState[optionKey], optionName: value } })
@@ -94,6 +102,7 @@ export const CustomizationSection = ({
           .map(([key, value]) => (
             <CustomizationOptions
               setPrice={setPrice}
+              setName={setName}
               value={value}
               optionKey={optionKey}
               optionValueKey={key}

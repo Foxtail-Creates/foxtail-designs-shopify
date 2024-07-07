@@ -11,6 +11,7 @@ import type {
   PaletteSectionProps,
   PaletteSquareInput,
 } from "~/types";
+import { Palette } from "./Palette";
 
 const paletteSquareStyle = ({ color }: PaletteSquareInput) => ({
   backgroundColor: color,
@@ -36,24 +37,7 @@ const PaletteChoice = ({
           checked={isChecked}
           onChange={setCheckedPalette}
         />
-        <InlineStack align="start" blockAlign="center" gap="100">
-          <div
-            className="square-color1"
-            style={paletteSquareStyle({ color: color1 })}
-          />
-          {color2 && (
-            <div
-              className="square-color2"
-              style={paletteSquareStyle({ color: color2 })}
-            />
-          )}
-          {color3 && (
-            <div
-              className="square-color3"
-              style={paletteSquareStyle({ color: color3 })}
-            />
-          )}
-        </InlineStack>
+        <Palette color1={color1} color2={color2} color3={color3} />
       </InlineGrid>
     </>
   );

@@ -9,6 +9,7 @@ import {
   Card,
   Divider,
   Layout,
+  List,
   Page,
   Text,
   BlockStack,
@@ -18,7 +19,6 @@ import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import type {
   BouquetCustomizationForm,
-  BouquetCustomizationOptions,
   ByobCustomizerOptions,
   OptionValueCustomizations,
 } from "~/types";
@@ -26,6 +26,8 @@ import { authenticate } from "../shopify.server";
 
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
+import { Palette } from "@prisma/client";
+import { Palette as PaletteComponent } from "~/components/palettes/Palette";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -48,6 +50,26 @@ const createValueCustomizationsObject = (optionValues: string[]) => {
     acc[value] = {
       name: value,
       price: 0, // TODO: get price from product variant
+      connectedRight: null
+    };
+    return acc;
+  }, {});
+};
+
+const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], optionValues: string[]) => {
+  if (!optionValues) {
+    return {};
+  }
+  return optionValues.reduce((acc: OptionValueCustomizations, value) => {
+    if (availablePalettes.find(palette => palette.name === value) === undefined) {
+      return acc
+    }
+    const palette = availablePalettes.find(palette => palette.name === value)!
+
+    acc[value] = {
+      name: value,
+      price: 0,
+      connectedRight: (<PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
     };
     return acc;
   }, {});
@@ -56,7 +78,8 @@ const createValueCustomizationsObject = (optionValues: string[]) => {
 export default function ByobCustomizationForm() {
   // const errors = useActionData()?.errors || {};
 
-  const formOptions: BouquetCustomizationOptions = useLoaderData();
+  const formOptions: ByobCustomizerOptions = useLoaderData();
+
   const form: BouquetCustomizationForm = {
     sizes: {
       optionName: "Size",
@@ -64,7 +87,10 @@ export default function ByobCustomizationForm() {
     },
     palettes: {
       optionName: "Palette",
-      optionValueCustomizations: createValueCustomizationsObject(formOptions.palettesSelected),
+      optionValueCustomizations: createPaletteValueCustomizationsObject(
+        formOptions.palettesAvailable,
+        formOptions.palettesSelected
+      ),
     },
     flowers: {
       optionName: "Focal Flower",
@@ -107,15 +133,27 @@ export default function ByobCustomizationForm() {
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
-                  Edit Names and Prices
+                  Edit Bouquet Option Names and Prices
                 </Text>
-                <Text as={"h3"} variant="bodyMd">
-                  Helper text ....
-                </Text>
-                <Divider />
                 <CustomizationSection
                   optionKey="sizes"
                   setPrice={true}
+                  setName={true}
+                  instructions={
+                    <>
+                      <Text as="h2" variant="headingMd">
+                        Sizes
+                      </Text>
+                      <List type="number">
+                        <List.Item>
+                          Customize the naming for your size options -- for example, rename 'Size' to 'Bouquet Size' and 'Small' to 'Petite'.
+                        </List.Item>
+                        <List.Item>
+                          Edit the prices for each bouquet size. This will be the base price for the product.
+                        </List.Item>
+                      </List>
+                    </>
+                  }
                   optionCustomizations={form.sizes}
                   formState={formState}
                   setFormState={setFormState}
@@ -124,6 +162,19 @@ export default function ByobCustomizationForm() {
                 <CustomizationSection
                   optionKey="palettes"
                   setPrice={false}
+                  setName={true}
+                  instructions={
+                    <>
+                      <Text as="h2" variant="headingMd">
+                        Palettes
+                      </Text>
+                      <List type="number">
+                        <List.Item>
+                          Customize the naming for your palette options - for example, rename 'Palette' to 'Color Scheme' and 'Pastel' to 'Soft'.
+                        </List.Item>
+                      </List>
+                    </>
+                  }
                   optionCustomizations={form.palettes}
                   formState={formState}
                   setFormState={setFormState}
@@ -132,6 +183,22 @@ export default function ByobCustomizationForm() {
                 <CustomizationSection
                   optionKey="flowers"
                   setPrice={true}
+                  setName={false}
+                  instructions={
+                    <>
+                      <Text as="h2" variant="headingMd">
+                        Focal Flowers
+                      </Text>
+                      <List type="number">
+                        <List.Item>
+                          Customize the naming for your focal flower options - for example, rename 'Focal Flower' to 'Main Flower'.
+                        </List.Item>
+                        <List.Item>
+                          Edit the add-on price for each focal flower. If the customer chooses a focal flower with an add-on price, this will be in addition to the base price for the product.
+                        </List.Item>
+                      </List>
+                    </>
+                  }
                   optionCustomizations={form.flowers}
                   formState={formState}
                   setFormState={setFormState}

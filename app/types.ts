@@ -1,5 +1,5 @@
 import type { Flower, Palette } from "@prisma/client";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
 
@@ -93,11 +93,14 @@ export type OptionValueCustomizations = {
 export type ValueCustomization = {
   name: string;
   price: number;
+  connectedRight: ReactElement | null;
 }
 
 export type CustomizationProps = {
   optionKey: string;
   setPrice: boolean;
+  setName: boolean;
+  instructions: ReactElement | null;
   optionCustomizations: OptionCustomization
   formState: BouquetCustomizationForm;
   setFormState: Dispatch<SetStateAction<BouquetCustomizationForm>>;

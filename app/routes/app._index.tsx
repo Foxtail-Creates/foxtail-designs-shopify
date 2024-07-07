@@ -2,7 +2,7 @@ import { json } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
-import { FlowerIcon, PlusIcon } from "@shopify/polaris-icons";
+import { EmailIcon, FlowerIcon, PlusIcon } from "@shopify/polaris-icons";
 
 export async function loader({ request }) {
   const { admin, session } = await authenticate.admin(request);
@@ -17,7 +17,7 @@ const ByobProduct = ({ onAction }) => (
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
         <Text as="h2" variant="headingMd">
-          Build-Your-Own-Bouquet product
+          Build-Your-Own-Bouquet Product
         </Text>
         <Button
           onClick={onAction}
@@ -60,6 +60,28 @@ const Foxtail = ({ onAction }) => (
   </Card>
 );
 
+const ContactUs = ({ onAction }) => (
+  <Card roundedAbove="sm">
+    <BlockStack gap="200">
+      <InlineGrid columns="1fr auto">
+        <Text as="h2" variant="headingMd">
+          Contact Us
+        </Text>
+        <Button
+          onClick={onAction}
+          accessibilityLabel="Email us with questions or feedback"
+          icon={EmailIcon}
+        >
+          Contact
+        </Button>
+      </InlineGrid>
+      <Text as="p" variant="bodyMd">
+        Run into an issue? Have questions? Send us an email and we will get back to you as soon as possible.
+      </Text>
+    </BlockStack>
+  </Card>
+);
+
 
 export default function Index() {
   const navigate = useNavigate();
@@ -70,7 +92,8 @@ export default function Index() {
         <Layout.Section>
           <InlineGrid gap="300" columns={2}>
             <ByobProduct onAction={() => navigate("bouquets/settings")} />
-            <Foxtail onAction={() => window.open("https://foxtailcreates.com/", '_blank').focus()} />
+            <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
+            <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
           </InlineGrid>
         </Layout.Section>
       </Layout>
