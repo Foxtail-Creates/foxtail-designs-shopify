@@ -29,17 +29,22 @@ import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "../hooks/graphql/productOpti
 import { authenticate } from "../shopify.server";
 import {
   FLOWER_OPTION_NAME,
-  FLOWER_POSITION
+  FLOWER_POSITION,
+  SIZE_OPTION_NAME,
+  SIZE_POSITION
 } from "../constants";
 
+<<<<<<< HEAD
 import {
   UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY
 } from "../server/graphql";
 
 import type { FormErrors } from "~/errors";
+=======
+import { FormErrors } from "~/errors";
+>>>>>>> 4a33190 (Save sizes and validate at least one size is selected)
 import { getBYOBOptions } from "~/server/getBYOBOptions";
-import { createProductOptions } from "~/server/createProductOptions";
-import invariant from "tiny-invariant";
+import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -59,6 +64,9 @@ export async function action({ request, params }) {
   if (data.flowersSelected.length == 0) {
     errors.flowers = "Invalid flower selection. Select at least one focal flower to offer to customers.";
   }
+  if (data.sizesSelected.length == 0) {
+    errors.sizes = "Invalid size selection. Select at least one size option to offer to customers.";
+  }
 
   if (Object.keys(errors).length > 0) {
     return json({ errors });
@@ -67,6 +75,7 @@ export async function action({ request, params }) {
   // if (data.action === "delete") {
   //   return json({ message: "Delete is not implemented" }, { status: 500 });
   // }
+<<<<<<< HEAD
 
   const flowerOption = data.product.options.find(
     (option) => option.name === FLOWER_OPTION_NAME,
@@ -117,6 +126,12 @@ export async function action({ request, params }) {
       "Error creating new product options. Contact Support for help."
     );
   }
+=======
+  await updateOptionsAndCreateVariants(admin, data.product, FLOWER_OPTION_NAME, FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+    data.flowersSelected);
+  await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+    data.sizesSelected);
+>>>>>>> 4a33190 (Save sizes and validate at least one size is selected)
 
   return redirect(`/app/bouquets/customize`);
 }
@@ -128,7 +143,11 @@ export default function ByobCustomizationForm() {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
-    sizeOptions: byobCustomizer.sizeOptions,
+    prevSizesSelected: byobCustomizer.sizesSelected,
+    sizesSelected: byobCustomizer.sizesSelected,
+    allSizeOptions: byobCustomizer.sizesAvailable,
+    sizeOptionValuesToAdd: [], 
+    sizeOptionValuesToRemove: [],
     allPaletteColorOptions: byobCustomizer.palettesAvailable.map(
       (palette) => palette.name,
     ),
@@ -156,7 +175,9 @@ export default function ByobCustomizationForm() {
     const data: SerializedForm = {
       productName: formState.productName,
       product: byobCustomizer.customProduct,
-      sizeOptions: formState.sizeOptions,
+      sizesSelected: formState.sizesSelected,
+      sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
+      sizeOptionValuesToRemove: formState.sizeOptionValuesToRemove,
       allPaletteColorOptions: formState.allPaletteColorOptions,
       allFocalFlowerOptions: formState.allFocalFlowerOptions,
       flowersSelected: formState.flowersSelected,
@@ -196,7 +217,7 @@ export default function ByobCustomizationForm() {
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
                   }
-                  error={errors.productName}
+                  // error={errors.productName}
                 />
               </BlockStack>
             </Card>
@@ -211,9 +232,10 @@ export default function ByobCustomizationForm() {
                 </Text>
                 <Divider />
                 <SizeSection
-                  allSizeOptions={byobCustomizer.sizeOptions}
+                  allSizesAvailable={byobCustomizer.sizesAvailable}
                   formState={formState}
                   setFormState={setFormState}
+                  errors={errors}
                 />
                 <Divider />
                 <PaletteSection

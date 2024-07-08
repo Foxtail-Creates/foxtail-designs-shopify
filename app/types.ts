@@ -7,7 +7,8 @@ export type ByobCustomizerOptions = {
   destination: string;
   productName: string;
   customProduct: Product;
-  sizeOptions: string[];
+  sizesAvailable: string[];
+  sizesSelected: string[];
   palettesAvailable: Palette[];
   palettesSelected: string[];
   flowersAvailable: Flower[];
@@ -17,7 +18,11 @@ export type ByobCustomizerOptions = {
 export type BouquetSettingsForm = {
   destination: string;
   productName: string;
-  sizeOptions: string[];
+  allSizeOptions: string[];
+  prevSizesSelected: string[];
+  sizesSelected: string[];
+  sizeOptionValuesToRemove: string[];
+  sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
   allFocalFlowerOptions: string[];
   flowersSelected: string[]
@@ -28,7 +33,9 @@ export type BouquetSettingsForm = {
 export type SerializedForm = {
   productName: string;
   product: Product;
-  sizeOptions: string[];
+  sizesSelected: string[];
+  sizeOptionValuesToRemove: string[];
+  sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
   allFocalFlowerOptions: string[];
   flowersSelected: string[];
@@ -62,9 +69,10 @@ export type PaletteSquareInput = {
 };
 
 export type SizeSectionProps = {
-  allSizeOptions: string[];
+  allSizesAvailable: string[];
   formState: BouquetSettingsForm;
   setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
+  errors: FormErrors;
 };
 
 export type BouquetCustomizationOptions = {
