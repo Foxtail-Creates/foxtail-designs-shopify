@@ -90,8 +90,8 @@ export async function action({ request, params }) {
   });
 
   if (flowerOption == null && data.flowerOptionValuesToAdd.length > 0) {
-    // if flower option is missing, recover by creating a new option and variants, ignoring option values to remove
-    createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowerOptionValuesToAdd);
+    // if flower option is missing, recover by creating a new option and variants from all flowers selected
+    createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowersSelected);
   } else if (
     flowerOption != undefined &&
     flowerOptionValuesToRemove.length > 0 ||
