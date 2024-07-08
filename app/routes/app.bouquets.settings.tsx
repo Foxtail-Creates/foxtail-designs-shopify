@@ -29,7 +29,8 @@ import type {
 } from "~/types";
 
 import {
-  FLOWER_OPTION_NAME
+  FLOWER_OPTION_NAME,
+  FLOWER_POSITION
 } from "../constants";
 
 import {
@@ -38,6 +39,8 @@ import {
 
 import { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
+import { createProductOptions } from "~/server/createProductOptions";
+import invariant from "tiny-invariant";
 
 
 export async function loader({ request, params }) {
@@ -87,15 +90,13 @@ export async function action({ request, params }) {
     }
   });
 
-  const flowerOptionValuesToAdd = data.flowerOptionValuesToAdd.map(
-    (flowerName: string) => ({ name: flowerName }),
-  );
-
-  // TODO: Fix handling when flowerOption is null
-  if (
+  if (flowerOption == null && data.flowersSelected.length > 0) {
+    // if flower option is missing, recover by creating a new option and variants from all flowers selected
+    createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowersSelected);
+  } else if (
     flowerOption != undefined &&
     flowerOptionValuesToRemove.length > 0 ||
-    flowerOptionValuesToAdd.length > 0
+    data.flowerOptionValuesToAdd.length > 0
   ) {
     const updateProductOptionAndVariantsResponse = await admin.graphql(
       UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
@@ -103,7 +104,9 @@ export async function action({ request, params }) {
         variables: {
           productId: data.product.id,
           optionId: flowerOption.id,
-          newValues: flowerOptionValuesToAdd,
+          newValues:  data.flowerOptionValuesToAdd.map(
+            (flowerName: string) => ({ name: flowerName })
+          ),
           oldValues: valueIdsToRemove,
         },
       },
@@ -111,12 +114,10 @@ export async function action({ request, params }) {
 
     // todo: validation
 
-    const {
-      data: { product, userErrors },
-    } = await updateProductOptionAndVariantsResponse.json();
-    if (userErrors != null) {
-      return json({ userErrors }, { status: 422 });
-    }
+    const updateProductOptionBody = await updateProductOptionAndVariantsResponse.json();
+    invariant(updateProductOptionBody.data?.productOptionUpdate?.userErrors.length == 0,
+      "Error creating new product options. Contact Support for help."
+    );
   }
 
   return redirect(`/app/bouquets/customize`);

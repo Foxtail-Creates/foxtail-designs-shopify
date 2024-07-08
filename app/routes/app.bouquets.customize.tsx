@@ -22,7 +22,7 @@ import { ByobCustomizerOptions } from "~/types";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 
 export async function loader({ request, params }) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
   const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
 
   return json(byobOptions);
