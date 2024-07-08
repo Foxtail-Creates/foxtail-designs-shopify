@@ -29,17 +29,7 @@ import type {
 } from "~/types";
 
 import {
-  createStoreOptions,
-  type StoreOptions,
-} from "~/models/StoreSetting.server";
-
-import {
-  FLOWER_OPTION_NAME,
-  FLOWER_POSITION,
-  FOXTAIL_NAMESPACE,
-  GRAPHQL_API_VERSION,
-  PRODUCT_METADATA_SELECTED_OPTIONS,
-  STORE_METADATA_CUSTOM_PRODUCT_KEY,
+  FLOWER_OPTION_NAME
 } from "../constants";
 
 import {
@@ -51,7 +41,7 @@ import { getBYOBOptions } from "~/server/getBYOBOptions";
 
 
 export async function loader({ request, params }) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
   const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
 
   return json(byobOptions);
@@ -59,7 +49,6 @@ export async function loader({ request, params }) {
 
 export async function action({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
-  const { shop } = session;
 
   const serializedData = await request.formData();
   const errors: FormErrors = {};

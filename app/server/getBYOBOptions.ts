@@ -11,7 +11,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   let palettesSelected: string[] = [], flowersSelected: string[] = [];
 
   // find existing shop metadata if it exists
-  var allCustomOptions: StoreOptions = await createStoreOptions();
+  const allCustomOptions: StoreOptions = await createStoreOptions();
   invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers in database. Contact Support for help.");
   const [firstFlower,] = allCustomOptions.flowersAvailable;
 
@@ -25,7 +25,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     },
   );
   const shopMetadataBody = await getShopMetadataResponse.json();
-  var customProductBody;
+  let customProductBody;
 
   if (shopMetadataBody.data?.shop.metafield?.value != null) {
     // if custom product already exists, retrieve it
