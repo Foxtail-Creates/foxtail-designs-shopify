@@ -39,7 +39,8 @@ import {
 
 import { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
-import { createProductOptions } from "~/models/VendorSelection.server";
+import { createProductOptions } from "~/server/createProductOptions";
+import invariant from "tiny-invariant";
 
 
 export async function loader({ request, params }) {
@@ -89,7 +90,7 @@ export async function action({ request, params }) {
     }
   });
 
-  if (flowerOption == null && data.flowerOptionValuesToAdd.length > 0) {
+  if (flowerOption == null && data.flowersSelected.length > 0) {
     // if flower option is missing, recover by creating a new option and variants from all flowers selected
     createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowersSelected);
   } else if (
@@ -113,12 +114,10 @@ export async function action({ request, params }) {
 
     // todo: validation
 
-    const {
-      data: { product, userErrors },
-    } = await updateProductOptionAndVariantsResponse.json();
-    if (userErrors != null) {
-      return json({ userErrors }, { status: 422 });
-    }
+    const updateProductOptionBody = await updateProductOptionAndVariantsResponse.json();
+    invariant(updateProductOptionBody.data?.productOptionUpdate?.userErrors.length == 0,
+      "Error creating new product options. Contact Support for help."
+    );
   }
 
   return redirect(`/app/bouquets/customize`);
