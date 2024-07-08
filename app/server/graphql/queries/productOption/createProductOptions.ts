@@ -6,8 +6,8 @@ export const CREATE_PRODUCT_OPTIONS_QUERY = `#graphql
             values: $values
         }) {
             userErrors{
-            field
-            message
+                field
+                message
             }
         }
     }`;

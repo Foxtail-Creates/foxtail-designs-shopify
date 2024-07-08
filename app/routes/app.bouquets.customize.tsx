@@ -18,73 +18,16 @@ import {
   PageActions,
 } from "@shopify/polaris";
 
-import {
-  FLOWER_OPTION_NAME,
-  FOXTAIL_NAMESPACE,
-  STORE_METADATA_CUSTOM_PRODUCT_KEY,
-} from "../constants";
-import {
-  GET_SHOP_METAFIELD_BY_KEY_QUERY,
-  GET_PRODUCT_BY_ID_QUERY,
-} from "../graphql";
+import { ByobCustomizerOptions } from "~/types";
+import { getBYOBOptions } from "~/server/getBYOBOptions";
 
 export async function loader({ request, params }) {
   const { admin, session } = await authenticate.admin(request);
-  let shop,
-    product,
-    palettesSelected = [],
-    flowersSelected = [];
+  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
 
-  // find existing shop metadata if it exists
-  const getShopMetadataResponse = await admin.graphql(
-    GET_SHOP_METAFIELD_BY_KEY_QUERY,
-    {
-      variables: {
-        namespace: FOXTAIL_NAMESPACE,
-        key: STORE_METADATA_CUSTOM_PRODUCT_KEY,
-      },
-    },
-  );
-  ({
-    data: { shop },
-  } = await getShopMetadataResponse.json());
-
-  if (shop.metafield == null || shop.metafield.value == null) {
-    // if custom product does not exist, redirect to create new custom product
-    redirect(`/app`);
-  }
-
-  const customProductResponse = await admin.graphql(
-    GET_PRODUCT_BY_ID_QUERY,
-    {
-      variables: {
-        id: shop.metafield.value,
-      },
-    },
-  );
-  
-  ({
-    data: { product },
-  } = await customProductResponse.json());
-
-  const flowerOption = product.options.find(
-    (option) => option.name === FLOWER_OPTION_NAME,
-  );
-
-  // TODO: handle case where flowerOption is null, (i.e. custom product exists but does not have "Focal Flower" as an option)
-  flowersSelected = flowerOption
-    ? flowerOption.optionValues.map((optionValue) => optionValue.name)
-    : [];
-
-  return json({
-    destination: "product",
-    productName: "",
-    customProduct: product,
-    sizeOptions: ["Small", "Medium", "Large", "Extra-Large"],
-    palettesSelected: palettesSelected,
-    flowersSelected: flowersSelected,
-  });
+  return json(byobOptions);
 }
+
 
 export async function action({ request, params }) {
   // todo
