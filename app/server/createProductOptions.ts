@@ -23,37 +23,9 @@ export async function createProductOptions(
     invariant(createProductOptionsBody.data.productOptionsCreate.userErrors.length == 0,
         "Error creating new product options. Contact Support for help."
     );
-
-    // const createVariantsResponse = await admin.graphql(
-    //     CREATE_VARIANTS_QUERY,
-    //     {
-    //         variables: {
-    //             productId: productId,
-    //             variants: [
-    //                 {
-    //                     optionValues: values.map(
-    //                         (value: string) => (
-    //                             {
-    //                                 name: value,
-    //                                 optionName: FLOWER_OPTION_NAME
-    //                             }
-    //                         )
-    //                     )
-    //                 }
-    //             ]
-
-    //         }
-    //     }
-    // );
-
-    // const createVariantsBody = await createVariantsResponse.json();
-
-    // invariant(createVariantsBody.data.productOptionsCreate.userErrors.length == 0,
-    //     "Error creating new variant. Contact Support for help."
-    // );
 };
 
-export async function createOptionWithValues(admin, option, responseBody, position, optionName, defaultValues) : Promise<string[]> {
+export async function getSelectedValues(admin, option, responseBody, position, optionName, defaultValues) : Promise<string[]> {
     if (option == null) {
     // create new product option and variants
       await createProductOptions(

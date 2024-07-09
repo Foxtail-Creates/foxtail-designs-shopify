@@ -3,8 +3,7 @@ import { CREATE_VARIANTS_QUERY } from "./graphql";
 import invariant from "tiny-invariant";
 
 export async function createVariants(admin, productId: string, flowerValues: string[], sizeValues: string[] ) {
- 
-    let variants = [];
+    const variants = [];
     for (let f = 0; f < flowerValues.length; f++) {
         for (let s = 0; s < sizeValues.length; s++) {
             variants.push({

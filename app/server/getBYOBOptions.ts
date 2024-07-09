@@ -6,11 +6,11 @@ import { GET_PRODUCT_BY_ID_QUERY, CREATE_PRODUCT_WITH_OPTIONS_QUERY, GET_SHOP_ME
 import type { StoreOptions} from "~/models/StoreSetting.server";
 import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
-import { createOptionWithValues as getSelectedValues, createProductOptions } from "./createProductOptions";
+import { getSelectedValues as getSelectedValues} from "./createProductOptions";
 import { createVariants } from "./createVariants";
 
 export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
-  let palettesSelected: string[] = [], flowersSelected: string[] = [], sizesSelected: string[] = [];
+  const palettesSelected: string[] = [], flowersSelected: string[] = [], sizesSelected: string[] = [];
 
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
