@@ -10,7 +10,7 @@ import { getSelectedValues as getSelectedValues} from "./createProductOptions";
 import { createVariants } from "./createVariants";
 
 export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
-  const palettesSelected: string[] = [], flowersSelected: string[] = [], sizesSelected: string[] = [];
+  let palettesSelected: string[] = [], flowersSelected: string[] = [], sizesSelected: string[] = [];
 
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
