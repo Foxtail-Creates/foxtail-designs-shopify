@@ -3,7 +3,8 @@ import type {
   ByobCustomizerOptions
 } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY, CREATE_PRODUCT_WITH_OPTIONS_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY, SET_SHOP_METAFIELDS_QUERY } from "./graphql";
-import { StoreOptions, createStoreOptions } from "~/models/StoreSetting.server";
+import type { StoreOptions} from "~/models/StoreSetting.server";
+import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
 import { createProductOptions } from "./createProductOptions";
 

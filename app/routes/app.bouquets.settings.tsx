@@ -7,7 +7,6 @@ import {
   useSubmit,
   useNavigate,
 } from "@remix-run/react";
-import { authenticate } from "../shopify.server";
 import {
   Card,
   Divider,
@@ -18,16 +17,16 @@ import {
   BlockStack,
   PageActions,
 } from "@shopify/polaris";
-
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
 import { SizeSection } from "~/components/sizes/SizeSection";
 import type {
-  ByobCustomizerForm,
+  BouquetSettingsForm,
   ByobCustomizerOptions,
   SerializedForm,
 } from "~/types";
-
+import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "../hooks/graphql/productOptionQueries";
+import { authenticate } from "../shopify.server";
 import {
   FLOWER_OPTION_NAME,
   FLOWER_POSITION
@@ -37,11 +36,10 @@ import {
   UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY
 } from "../server/graphql";
 
-import { FormErrors } from "~/errors";
+import type { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { createProductOptions } from "~/server/createProductOptions";
 import invariant from "tiny-invariant";
-
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -95,8 +93,8 @@ export async function action({ request, params }) {
     createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowersSelected);
   } else if (
     flowerOption != undefined &&
-    flowerOptionValuesToRemove.length > 0 ||
-    data.flowerOptionValuesToAdd.length > 0
+    (flowerOptionValuesToRemove.length > 0 ||
+    data.flowerOptionValuesToAdd.length > 0)
   ) {
     const updateProductOptionAndVariantsResponse = await admin.graphql(
       UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
@@ -126,7 +124,8 @@ export async function action({ request, params }) {
 export default function ByobCustomizationForm() {
   const errors: FormErrors = useActionData()?.errors || {};
   const byobCustomizer: ByobCustomizerOptions = useLoaderData();
-  const byobCustomizerForm: ByobCustomizerForm = {
+
+  const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
     sizeOptions: byobCustomizer.sizeOptions,
@@ -192,6 +191,7 @@ export default function ByobCustomizationForm() {
                   label="title"
                   labelHidden
                   autoComplete="off"
+                  placeholder="Build Your Own Bouquet"
                   value={formState.productName}
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
@@ -206,7 +206,7 @@ export default function ByobCustomizationForm() {
                   Customizations
                 </Text>
                 <Text as={"h3"} variant="bodyMd">
-                  Choose which product customizations are available to a
+                  Choose which product options are available to a
                   customer. You can edit names and prices in the next page.
                 </Text>
                 <Divider />

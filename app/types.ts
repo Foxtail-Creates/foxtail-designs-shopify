@@ -1,5 +1,5 @@
 import type { Flower, Palette } from "@prisma/client";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
 
@@ -14,7 +14,7 @@ export type ByobCustomizerOptions = {
   flowersSelected: string[];
 };
 
-export type ByobCustomizerForm = {
+export type BouquetSettingsForm = {
   destination: string;
   productName: string;
   sizeOptions: string[];
@@ -38,15 +38,14 @@ export type SerializedForm = {
 
 export type FocalFlowersSectionProps = {
   allFocalFlowerOptions: Flower[];
-  formState: ByobCustomizerForm;
-  setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
-  errors: FormErrors;
+  formState: BouquetSettingsForm;
+  setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
 };
 
 export type PaletteSectionProps = {
   allPaletteOptions: Palette[];
-  formState: ByobCustomizerForm;
-  setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
+  formState: BouquetSettingsForm;
+  setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
 };
 
 export type PaletteChoiceProps = {
@@ -64,6 +63,45 @@ export type PaletteSquareInput = {
 
 export type SizeSectionProps = {
   allSizeOptions: string[];
-  formState: ByobCustomizerForm;
-  setFormState: Dispatch<SetStateAction<ByobCustomizerForm>>;
+  formState: BouquetSettingsForm;
+  setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
 };
+
+export type BouquetCustomizationOptions = {
+  destination: string;
+  productName: string;
+  sizeOptions: string[];
+  palettesSelected: string[];
+  flowersSelected: string[];
+};
+
+export type BouquetCustomizationForm = {
+  [key: string]: OptionCustomization;
+};
+
+export type OptionCustomization = {
+  optionName: string,
+  optionValueCustomizations: {
+    [key: string]: ValueCustomization;
+  }
+}
+
+export type OptionValueCustomizations = {
+  [key: string]: ValueCustomization;
+}
+
+export type ValueCustomization = {
+  name: string;
+  price: number;
+  connectedRight: ReactElement | null;
+}
+
+export type CustomizationProps = {
+  optionKey: string;
+  setPrice: boolean;
+  setName: boolean;
+  instructions: ReactElement | null;
+  optionCustomizations: OptionCustomization
+  formState: BouquetCustomizationForm;
+  setFormState: Dispatch<SetStateAction<BouquetCustomizationForm>>;
+}

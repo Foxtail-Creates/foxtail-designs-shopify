@@ -3,7 +3,7 @@
 client_id = "04647ec21da57e20574c4c98d2ce4ce5"
 name = "foxtail-designs"
 handle = "foxtail-designs"
-application_url = "https://monitored-relying-right-risks.trycloudflare.com"
+application_url = "https://proved-memphis-plant-typical.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://monitored-relying-right-risks.trycloudflare.com/auth/callback",
-  "https://monitored-relying-right-risks.trycloudflare.com/auth/shopify/callback",
-  "https://monitored-relying-right-risks.trycloudflare.com/api/auth/callback"
+  "https://proved-memphis-plant-typical.trycloudflare.com/auth/callback",
+  "https://proved-memphis-plant-typical.trycloudflare.com/auth/shopify/callback",
+  "https://proved-memphis-plant-typical.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
