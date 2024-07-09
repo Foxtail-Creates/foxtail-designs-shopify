@@ -37,7 +37,6 @@ export const SizeSection = ({
       <Text as={"h3"} variant="headingMd">
         Size options
       </Text>
-      {inlineError(errors)}
       <ChoiceList
         title="Choose what bouquet sizes you want to offer."
         allowMultiple
@@ -47,6 +46,7 @@ export const SizeSection = ({
         selected={formState.sizesSelected}
         onChange={handleChange}
       />
+      {inlineError(errors)}
     </>
   );
 };

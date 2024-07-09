@@ -91,7 +91,6 @@ export const PaletteSection = ({
       <Text as="h3" variant="headingMd">
         Palette Color Options
       </Text>
-      {inlineError(errors)}
       <Text as={"p"} variant="bodyMd">
         Choose what color palettes you want to offer.
       </Text>
@@ -108,6 +107,7 @@ export const PaletteSection = ({
           />
         ))}
       </BlockStack>
+      {inlineError(errors)}
     </>
   );
 };

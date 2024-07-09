@@ -62,7 +62,7 @@ export async function action({ request, params }) {
     errors.sizes = "Invalid size selection. Select at least one size option to offer to customers.";
   }
   if (data.palettesSelected.length == 0) {
-    errors.sizes = "Invalid palette selection. Select at least one palette option to offer to customers.";
+    errors.palettes = "Invalid palette selection. Select at least one palette option to offer to customers.";
   }
 
   if (Object.keys(errors).length > 0) {
