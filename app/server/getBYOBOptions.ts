@@ -1,4 +1,4 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PALETTE_POSITION, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import type {
   ByobCustomizerOptions
 } from "~/types";
@@ -15,7 +15,12 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
   invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers in database. Contact Support for help.");
+  invariant(allCustomOptions.palettesAvailable.length > 0, "No palettes in database. Contact Support for help.");
+
   const [firstFlower,] = allCustomOptions.flowersAvailable;
+  const [firstPalette,] = allCustomOptions.palettesAvailable;
+  const defaultFlowerValues = [firstFlower.name];
+  const defaultPaletteValues = [firstPalette.name];
 
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
@@ -40,22 +45,26 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
       },
     );
     customProductBody = await customProductResponse.json();
-    const flowerValues = [firstFlower.name];
     const flowerOption = customProductBody.data?.product.options.find(
       (option) => option.name === FLOWER_OPTION_NAME,
     );
     const sizeOption = customProductBody.data?.product.options.find(
       (option) => option.name === SIZE_OPTION_NAME,
     );
-    flowersSelected = await getSelectedValues(admin, flowerOption, customProductBody, FLOWER_POSITION, FLOWER_OPTION_NAME, flowerValues);
+    const paletteOption = customProductBody.data?.product.options.find(
+      (option) => option.name === PALETTE_OPTION_NAME,
+    );
+    flowersSelected = await getSelectedValues(admin, flowerOption, customProductBody, FLOWER_POSITION, FLOWER_OPTION_NAME, defaultFlowerValues);
     sizesSelected = await getSelectedValues(admin, sizeOption, customProductBody, SIZE_POSITION, SIZE_OPTION_NAME, SIZE_OPTION_VALUES);
-    if (sizeOption == null || flowerOption == null) {
-      createVariants(admin, customProductBody.data.product.id, flowersSelected, sizesSelected);
+    palettesSelected = await getSelectedValues(admin, paletteOption, customProductBody, PALETTE_POSITION, PALETTE_OPTION_NAME, defaultPaletteValues);
+    if (sizeOption == null || flowerOption == null || paletteOption == null) {
+      createVariants(admin, customProductBody.data.product.id, flowersSelected, sizesSelected, palettesSelected);
     }
   } else {
     // otherwise create new custom product and add to store metadata
-    flowersSelected = firstFlower != null ? [firstFlower.name] : [];
+    flowersSelected = defaultFlowerValues;
     sizesSelected = SIZE_OPTION_VALUES;
+    palettesSelected = defaultPaletteValues;
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
@@ -67,14 +76,17 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
           flowerValues: flowersSelected,
           sizeOptionName: SIZE_OPTION_NAME,
           sizePosition: SIZE_POSITION,
-          sizeValues: sizesSelected
+          sizeValues: sizesSelected,
+          paletteOptionName: PALETTE_OPTION_NAME,
+          palettePosition: PALETTE_POSITION,
+          paletteValues: palettesSelected
         },
       },
     );
 
     customProductBody = await customProductResponse.json();
 
-    await createVariants(admin, customProductBody.data.product.id, flowersSelected, sizesSelected);
+    await createVariants(admin, customProductBody.data.product.id, flowersSelected, sizesSelected, palettesSelected);
 
     // set shop metafield to point to new custom product id
     const setStoreMetafieldResponse = await admin.graphql(

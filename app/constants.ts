@@ -6,4 +6,6 @@ export const FLOWER_OPTION_NAME = "Focal Flower";
 export const SIZE_POSITION = 2;
 export const SIZE_OPTION_NAME = "Size";
 export const SIZE_OPTION_VALUES = ["Small", "Medium", "Large", "Extra-Large"];
+export const PALETTE_POSITION = 3;
+export const PALETTE_OPTION_NAME = "Palette";
 export const GRAPHQL_API_VERSION = "2024-07";

@@ -30,19 +30,13 @@ import { authenticate } from "../shopify.server";
 import {
   FLOWER_OPTION_NAME,
   FLOWER_POSITION,
+  PALETTE_OPTION_NAME,
+  PALETTE_POSITION,
   SIZE_OPTION_NAME,
   SIZE_POSITION
 } from "../constants";
 
-<<<<<<< HEAD
-import {
-  UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY
-} from "../server/graphql";
-
 import type { FormErrors } from "~/errors";
-=======
-import { FormErrors } from "~/errors";
->>>>>>> 4a33190 (Save sizes and validate at least one size is selected)
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 
@@ -67,6 +61,9 @@ export async function action({ request, params }) {
   if (data.sizesSelected.length == 0) {
     errors.sizes = "Invalid size selection. Select at least one size option to offer to customers.";
   }
+  if (data.palettesSelected.length == 0) {
+    errors.sizes = "Invalid palette selection. Select at least one palette option to offer to customers.";
+  }
 
   if (Object.keys(errors).length > 0) {
     return json({ errors });
@@ -75,64 +72,13 @@ export async function action({ request, params }) {
   // if (data.action === "delete") {
   //   return json({ message: "Delete is not implemented" }, { status: 500 });
   // }
-<<<<<<< HEAD
-
-  const flowerOption = data.product.options.find(
-    (option) => option.name === FLOWER_OPTION_NAME,
-  );
-
-  const optionValueNameToId: Map<string, string> = flowerOption
-    ? flowerOption.optionValues.reduce(function (map, optionValue) {
-      map.set(optionValue.name, optionValue.id);
-      return map;
-    }, new Map<string, string>())
-    : new Map<string, string>();
-
-  const valueIdsToRemove: string[] = [];
-  const flowerOptionValuesToRemove: string[] = data.flowerOptionValuesToRemove;
-
-  flowerOptionValuesToRemove.forEach((flowerName: string) => {
-    if (optionValueNameToId.has(flowerName)) {
-      valueIdsToRemove.push(optionValueNameToId.get(flowerName));
-    }
-  });
-
-  if (flowerOption == null && data.flowersSelected.length > 0) {
-    // if flower option is missing, recover by creating a new option and variants from all flowers selected
-    createProductOptions(admin, data.product.id, FLOWER_POSITION, FLOWER_OPTION_NAME, data.flowersSelected);
-  } else if (
-    flowerOption != undefined &&
-    (flowerOptionValuesToRemove.length > 0 ||
-      data.flowerOptionValuesToAdd.length > 0)
-  ) {
-    const updateProductOptionAndVariantsResponse = await admin.graphql(
-      UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
-      {
-        variables: {
-          productId: data.product.id,
-          optionId: flowerOption.id,
-          newValues: data.flowerOptionValuesToAdd.map(
-            (flowerName: string) => ({ name: flowerName })
-          ),
-          oldValues: valueIdsToRemove,
-        },
-      },
-    );
-
-    // todo: validation
-
-    const updateProductOptionBody = await updateProductOptionAndVariantsResponse.json();
-    invariant(updateProductOptionBody.data?.productOptionUpdate?.userErrors.length == 0,
-      "Error creating new product options. Contact Support for help."
-    );
-  }
-=======
   await updateOptionsAndCreateVariants(admin, data.product, FLOWER_OPTION_NAME, FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected);
   await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
     data.sizesSelected);
->>>>>>> 4a33190 (Save sizes and validate at least one size is selected)
-
+  await updateOptionsAndCreateVariants(admin, data.product, PALETTE_OPTION_NAME, PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
+    data.palettesSelected); 
+ 
   return redirect(`/app/bouquets/customize`);
 }
 
@@ -151,6 +97,9 @@ export default function ByobCustomizationForm() {
     allPaletteColorOptions: byobCustomizer.palettesAvailable.map(
       (palette) => palette.name,
     ),
+    palettesSelected: byobCustomizer.palettesSelected,
+    paletteOptionValuesToRemove: [],
+    paletteOptionValuesToAdd: [],
     allFocalFlowerOptions: byobCustomizer.flowersAvailable.map(
       (flower) => flower.name,
     ),
@@ -179,6 +128,9 @@ export default function ByobCustomizationForm() {
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
       sizeOptionValuesToRemove: formState.sizeOptionValuesToRemove,
       allPaletteColorOptions: formState.allPaletteColorOptions,
+      palettesSelected: formState.palettesSelected,
+      paletteOptionValuesToRemove: formState.paletteOptionValuesToRemove,
+      paletteOptionValuesToAdd: formState.paletteOptionValuesToAdd,
       allFocalFlowerOptions: formState.allFocalFlowerOptions,
       flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
@@ -242,6 +194,7 @@ export default function ByobCustomizationForm() {
                   allPaletteOptions={byobCustomizer.palettesAvailable}
                   formState={formState}
                   setFormState={setFormState}
+                  errors={errors}
                 />
                 <Divider />
                 <FocalFlowersSection

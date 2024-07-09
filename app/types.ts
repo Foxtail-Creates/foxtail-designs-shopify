@@ -24,6 +24,9 @@ export type BouquetSettingsForm = {
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
+  palettesSelected: string[]
+  paletteOptionValuesToRemove: string[];
+  paletteOptionValuesToAdd: string[];
   allFocalFlowerOptions: string[];
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
@@ -37,6 +40,9 @@ export type SerializedForm = {
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
+  palettesSelected: string[];
+  paletteOptionValuesToRemove: string[];
+  paletteOptionValuesToAdd: string[];
   allFocalFlowerOptions: string[];
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
@@ -53,6 +59,7 @@ export type PaletteSectionProps = {
   allPaletteOptions: Palette[];
   formState: BouquetSettingsForm;
   setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
+  errors: FormErrors;
 };
 
 export type PaletteChoiceProps = {
