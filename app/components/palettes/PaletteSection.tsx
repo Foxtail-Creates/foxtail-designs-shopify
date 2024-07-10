@@ -4,8 +4,10 @@ import {
   BlockStack,
   Checkbox,
   InlineGrid,
+  InlineError,
 } from "@shopify/polaris";
 import { useCallback } from "react";
+import { FormErrors } from "~/errors";
 import type {
   PaletteChoiceProps,
   PaletteSectionProps,
@@ -26,7 +28,7 @@ const PaletteChoice = ({
   setIsChecked: setCheckedPalette,
   color1,
   color2,
-  color3,
+  color3
 }: PaletteChoiceProps) => {
   return (
     <>
@@ -47,6 +49,7 @@ export const PaletteSection = ({
   allPaletteOptions,
   formState,
   setFormState,
+  errors
 }: PaletteSectionProps) => {
   const sortedPalettes = allPaletteOptions.sort((a, b) =>
     a.name < b.name ? -1 : 1,
@@ -54,20 +57,34 @@ export const PaletteSection = ({
 
   const updateSelection = useCallback(
     (newChecked: boolean, selected: string) => {
-      const nextSelectedPalettes = new Set([...formState.allPaletteColorOptions]);
+      const nextSelectedPalettes = new Set([...formState.palettesSelected]);
+      const paletteOptionValuesToAdd = new Set([...formState.paletteOptionValuesToAdd]);
+      const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
 
       if (newChecked) {
         nextSelectedPalettes.add(selected);
+        paletteOptionValuesToAdd.add(selected);
+        paletteOptionValuesToRemove.delete(selected);
       } else {
         nextSelectedPalettes.delete(selected);
+        paletteOptionValuesToAdd.delete(selected);
+        paletteOptionValuesToRemove.add(selected);
       }
       setFormState({
         ...formState,
-        allPaletteColorOptions: Array.from(nextSelectedPalettes).sort(),
+        palettesSelected: Array.from(nextSelectedPalettes),
+        paletteOptionValuesToAdd: Array.from(paletteOptionValuesToAdd),
+        paletteOptionValuesToRemove: Array.from(paletteOptionValuesToRemove)
       });
     },
     [formState, setFormState],
   );
+
+  function inlineError(errors: FormErrors) {
+    return (errors != null && errors.palettes != null)
+    ? (<InlineError message={errors.palettes} fieldID="palettes" />)
+    : null;
+  }
 
   return (
     <>
@@ -82,7 +99,7 @@ export const PaletteSection = ({
           <PaletteChoice
             key={palette.name}
             paletteName={palette.name}
-            isChecked={formState.allPaletteColorOptions.includes(palette.name)}
+            isChecked={formState.palettesSelected.includes(palette.name)}
             setIsChecked={updateSelection}
             color1={palette.color1}
             color2={palette.color2}
@@ -90,6 +107,7 @@ export const PaletteSection = ({
           />
         ))}
       </BlockStack>
+      {inlineError(errors)}
     </>
   );
 };

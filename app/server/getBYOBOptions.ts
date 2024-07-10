@@ -1,4 +1,4 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PALETTE_POSITION, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import type {
   ByobCustomizerOptions
 } from "~/types";
@@ -6,15 +6,21 @@ import { GET_PRODUCT_BY_ID_QUERY, CREATE_PRODUCT_WITH_OPTIONS_QUERY, GET_SHOP_ME
 import type { StoreOptions} from "~/models/StoreSetting.server";
 import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
-import { createProductOptions } from "./createProductOptions";
+import { getSelectedValues as getSelectedValues} from "./createProductOptions";
+import { createVariants } from "./createVariants";
 
 export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
-  let palettesSelected: string[] = [], flowersSelected: string[] = [];
+  let palettesSelected: string[] = [], flowersSelected: string[] = [], sizesSelected: string[] = [];
 
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
   invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers in database. Contact Support for help.");
+  invariant(allCustomOptions.palettesAvailable.length > 0, "No palettes in database. Contact Support for help.");
+
   const [firstFlower,] = allCustomOptions.flowersAvailable;
+  const [firstPalette,] = allCustomOptions.palettesAvailable;
+  const defaultFlowerValues = [firstFlower.name];
+  const defaultPaletteValues = [firstPalette.name];
 
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
@@ -42,25 +48,23 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     const flowerOption = customProductBody.data?.product.options.find(
       (option) => option.name === FLOWER_OPTION_NAME,
     );
-
-    if (flowerOption == null) {
-      // create new product option and variants
-      await createProductOptions(
-        admin,
-        customProductBody.data?.product.id,
-        FLOWER_POSITION,
-        FLOWER_OPTION_NAME,
-        [firstFlower.name]
-      );
-      flowersSelected = [firstFlower.name];
-    } else {
-      flowersSelected = flowerOption.optionValues.map(
-        (optionValue) => optionValue.name,
-      );
+    const sizeOption = customProductBody.data?.product.options.find(
+      (option) => option.name === SIZE_OPTION_NAME,
+    );
+    const paletteOption = customProductBody.data?.product.options.find(
+      (option) => option.name === PALETTE_OPTION_NAME,
+    );
+    flowersSelected = await getSelectedValues(admin, flowerOption, customProductBody, FLOWER_POSITION, FLOWER_OPTION_NAME, defaultFlowerValues);
+    sizesSelected = await getSelectedValues(admin, sizeOption, customProductBody, SIZE_POSITION, SIZE_OPTION_NAME, SIZE_OPTION_VALUES);
+    palettesSelected = await getSelectedValues(admin, paletteOption, customProductBody, PALETTE_POSITION, PALETTE_OPTION_NAME, defaultPaletteValues);
+    if (sizeOption == null || flowerOption == null || paletteOption == null) {
+      createVariants(admin, customProductBody.data.product.id, flowersSelected, sizesSelected, palettesSelected);
     }
   } else {
     // otherwise create new custom product and add to store metadata
-    flowersSelected = firstFlower != null ? [firstFlower.name] : [];
+    flowersSelected = defaultFlowerValues;
+    sizesSelected = SIZE_OPTION_VALUES;
+    palettesSelected = defaultPaletteValues;
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
@@ -70,11 +74,19 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
           flowerOptionName: FLOWER_OPTION_NAME,
           flowerPosition: FLOWER_POSITION,
           flowerValues: flowersSelected,
+          sizeOptionName: SIZE_OPTION_NAME,
+          sizePosition: SIZE_POSITION,
+          sizeValues: sizesSelected,
+          paletteOptionName: PALETTE_OPTION_NAME,
+          palettePosition: PALETTE_POSITION,
+          paletteValues: palettesSelected
         },
       },
     );
 
     customProductBody = await customProductResponse.json();
+
+    await createVariants(admin, customProductBody.data.product.id, flowersSelected, sizesSelected, palettesSelected);
 
     // set shop metafield to point to new custom product id
     const setStoreMetafieldResponse = await admin.graphql(
@@ -98,7 +110,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     destination: "product",
     productName: "BYOB",
     customProduct: customProductBody.data?.product,
-    sizeOptions: ["Small", "Medium", "Large", "Extra-Large"],
+    sizesSelected: sizesSelected,
+    sizesAvailable: SIZE_OPTION_VALUES,
     palettesAvailable: allCustomOptions.palettesAvailable,
     palettesSelected: palettesSelected,
     flowersAvailable: allCustomOptions.flowersAvailable,
@@ -106,3 +119,4 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   };
   return byobOptions;
 };
+
