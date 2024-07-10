@@ -1,3 +1,23 @@
+# foxtail-designs-shopify
+
+### Re-initialize data
+
+1. Run migrations using Prisma and drop rows from relevant tables
+2. Download sqlite CLI tools. 
+3. Run sqlite3
+4. Open database using `.open FILENAME.sqlite`
+5. Change to csv mode using `.mode csv`
+6. Import new data from csv files using `.import FILENAME.csv TABLE_NAME`
+
+When sqlite3 is in the `prisma/data` directory:
+```
+sqlite3
+.open ../dev.sqlite
+.mode csv
+.import focalFlowers.csv Flower
+.import palettes.csv Palette
+```
+
 # Shopify App Template - Remix
 
 This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) using the [Remix](https://remix.run) framework.

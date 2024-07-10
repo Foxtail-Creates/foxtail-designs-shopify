@@ -98,8 +98,9 @@ export type ValueCustomization = {
 
 export type CustomizationProps = {
   optionKey: string;
-  setPrice: boolean;
-  setName: boolean;
+  shouldSetPrice: boolean;
+  shouldSetName: boolean;
+  shouldSortOptions: boolean;
   instructions: ReactElement | null;
   optionCustomizations: OptionCustomization
   formState: BouquetCustomizationForm;

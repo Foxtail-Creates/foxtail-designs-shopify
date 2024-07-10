@@ -5,20 +5,20 @@ import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization }
 type CustomizationOptionsProps = {
   optionKey: string;
   optionValueKey: string;
-  setName: boolean;
-  setPrice: boolean;
+  shouldSetName: boolean;
+  shouldSetPrice: boolean;
   value: ValueCustomization;
   formState: BouquetCustomizationForm,
   setFormState: (formState: BouquetCustomizationForm) => void;
 };
 
 const CustomizationOptions = (props: CustomizationOptionsProps) => {
-  const { optionKey, optionValueKey, setPrice, setName, value, formState, setFormState } = props;
+  const { optionKey, optionValueKey, shouldSetPrice, shouldSetName, value, formState, setFormState } = props;
   return (
     <>
       <InlineGrid columns={['oneHalf', 'oneHalf']} gap="400">
-        {setName && (<TextField
-          label={`Edit option name`}
+        {shouldSetName && (<TextField
+          label={`Option name`}
           placeholder={value.name}
           value={formState[optionKey].optionValueCustomizations[optionValueKey].name}
           onChange={(value) =>
@@ -41,9 +41,9 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
           autoComplete="off"
         />
         )}
-        {setPrice && (
+        {shouldSetPrice && (
           <TextField
-            label={`Edit option price`}
+            label={`Price for ${value.name}`}
             type="number"
             prefix="$"
             placeholder={value.price.toString()}
@@ -67,7 +67,7 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
             }
             autoComplete="off"
           />)}
-          {value.connectedRight}
+        {value.connectedRight}
       </InlineGrid>
     </>
   )
@@ -75,8 +75,9 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
 
 export const CustomizationSection = ({
   optionKey,
-  setPrice,
-  setName,
+  shouldSetPrice,
+  shouldSetName,
+  shouldSortOptions,
   instructions,
   optionCustomizations,
   formState,
@@ -99,10 +100,11 @@ export const CustomizationSection = ({
       {optionCustomizations.optionValueCustomizations &&
         Object
           .entries(optionCustomizations.optionValueCustomizations)
+          .sort((a, b) => shouldSortOptions ? (a[1].name.localeCompare(b[1].name)) : 0)
           .map(([key, value]) => (
             <CustomizationOptions
-              setPrice={setPrice}
-              setName={setName}
+              shouldSetPrice={shouldSetPrice}
+              shouldSetName={shouldSetName}
               value={value}
               optionKey={optionKey}
               optionValueKey={key}

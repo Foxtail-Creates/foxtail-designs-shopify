@@ -94,7 +94,7 @@ export async function action({ request, params }) {
   } else if (
     flowerOption != undefined &&
     (flowerOptionValuesToRemove.length > 0 ||
-    data.flowerOptionValuesToAdd.length > 0)
+      data.flowerOptionValuesToAdd.length > 0)
   ) {
     const updateProductOptionAndVariantsResponse = await admin.graphql(
       UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY,
@@ -102,7 +102,7 @@ export async function action({ request, params }) {
         variables: {
           productId: data.product.id,
           optionId: flowerOption.id,
-          newValues:  data.flowerOptionValuesToAdd.map(
+          newValues: data.flowerOptionValuesToAdd.map(
             (flowerName: string) => ({ name: flowerName })
           ),
           oldValues: valueIdsToRemove,

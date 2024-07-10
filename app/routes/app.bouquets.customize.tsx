@@ -137,8 +137,9 @@ export default function ByobCustomizationForm() {
                 </Text>
                 <CustomizationSection
                   optionKey="sizes"
-                  setPrice={true}
-                  setName={true}
+                  shouldSetPrice={true}
+                  shouldSetName={true}
+                  shouldSortOptions={false}
                   instructions={
                     <>
                       <Text as="h2" variant="headingMd">
@@ -161,8 +162,9 @@ export default function ByobCustomizationForm() {
                 <Divider />
                 <CustomizationSection
                   optionKey="palettes"
-                  setPrice={false}
-                  setName={true}
+                  shouldSetPrice={false}
+                  shouldSetName={true}
+                  shouldSortOptions={true}
                   instructions={
                     <>
                       <Text as="h2" variant="headingMd">
@@ -182,8 +184,9 @@ export default function ByobCustomizationForm() {
                 <Divider />
                 <CustomizationSection
                   optionKey="flowers"
-                  setPrice={true}
-                  setName={false}
+                  shouldSetPrice={true}
+                  shouldSetName={false}
+                  shouldSortOptions={true}
                   instructions={
                     <>
                       <Text as="h2" variant="headingMd">
