@@ -1,4 +1,4 @@
-import { InlineGrid, Text, TextField } from "@shopify/polaris";
+import { InlineGrid, TextField } from "@shopify/polaris";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
 
