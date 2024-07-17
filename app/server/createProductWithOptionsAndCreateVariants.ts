@@ -7,7 +7,7 @@ import { createVariants } from "./createVariants";
  * Creates a new product
  */
 export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[],
-  selectedPalettes: string[], selectedSizes: string[], sizeToPrices: Object) {
+  selectedPalettes: string[], selectedSizes: string[], sizeToPrices: object) {
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {

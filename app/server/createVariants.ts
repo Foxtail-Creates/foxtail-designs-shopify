@@ -8,13 +8,13 @@ export async function createVariants(
     flowerValues: string[],
     sizeValues: string[],
     paletteValues: string[],
-    sizeToPrice: Object
+    sizeToPrice: object
  ) {
     const variants = [];
     for (let f = 0; f < flowerValues.length; f++) {
         for (let s = 0; s < sizeValues.length; s++) {
             for(let p = 0; p < paletteValues.length; p++) {
-                const unitPrice = sizeToPrice.hasOwnProperty(sizeValues[s])
+                const unitPrice = Object.prototype.hasOwnProperty.call(sizeToPrice, sizeValues[s])
                     ?  sizeToPrice[sizeValues[s]].toString()
                     : SIZE_TO_PRICE_DEFAULT_VALUES[sizeValues[s]].toString();
                 variants.push({
