@@ -21,6 +21,7 @@ import type {
   BouquetCustomizationForm,
   ByobCustomizerOptions,
   OptionValueCustomizations,
+  SerializedCustomizeForm,
 } from "~/types";
 import { authenticate } from "../shopify.server";
 
@@ -38,7 +39,14 @@ export async function loader({ request, params }) {
 
 
 export async function action({ request, params }) {
-  // todo
+  const { admin, session } = await authenticate.admin(request);
+
+  const serializedData = await request.formData();
+
+  const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
+
+
+  // await savePrices(data.product, data.sizeToPrice, updatedSizes);
   return redirect(`/app`);
 }
 
