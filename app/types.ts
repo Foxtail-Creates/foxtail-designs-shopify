@@ -108,7 +108,7 @@ export type OptionValueCustomizations = {
 export type ValueCustomization = {
   name: string;
   price: number;
-  connectedRight: ReactElement | null;
+  connectedLeft: ReactElement | undefined | null;
 }
 
 export type CustomizationProps = {

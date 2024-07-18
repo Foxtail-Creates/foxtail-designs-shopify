@@ -1,4 +1,3 @@
-
 import {
   useLoaderData,
   useNavigation,
@@ -14,6 +13,7 @@ import {
   Text,
   BlockStack,
   PageActions,
+  Thumbnail,
 } from "@shopify/polaris";
 import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
@@ -26,7 +26,7 @@ import { authenticate } from "../shopify.server";
 
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
-import { Palette } from "@prisma/client";
+import { Flower, Palette } from "@prisma/client";
 import { Palette as PaletteComponent } from "~/components/palettes/Palette";
 
 export async function loader({ request, params }) {
@@ -50,7 +50,7 @@ const createValueCustomizationsObject = (optionValues: string[]) => {
     acc[value] = {
       name: value,
       price: 0, // TODO: get price from product variant
-      connectedRight: null
+      connectedLeft: null
     };
     return acc;
   }, {});
@@ -61,15 +61,32 @@ const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], op
     return {};
   }
   return optionValues.reduce((acc: OptionValueCustomizations, value) => {
-    if (availablePalettes.find(palette => palette.name === value) === undefined) {
-      return acc
-    }
-    const palette = availablePalettes.find(palette => palette.name === value)!
+    const palette = availablePalettes.find(palette => palette.name === value)
 
     acc[value] = {
       name: value,
       price: 0,
-      connectedRight: (<PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
+      connectedLeft: (palette && <PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
+    };
+    return acc;
+  }, {});
+};
+
+const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], optionValues: string[]) => {
+  if (!optionValues) {
+    return {};
+  }
+  return optionValues.reduce((acc: OptionValueCustomizations, value) => {
+    const flowerImageLink = availableFocalFlowers.find(palette => palette.name === value)?.imageLink
+
+    acc[value] = {
+      name: value,
+      price: 0,
+      connectedLeft: <Thumbnail
+        size="large"
+        alt={"Photo of " + value}
+        source={flowerImageLink ?? ""}
+      />
     };
     return acc;
   }, {});
@@ -94,7 +111,7 @@ export default function ByobCustomizationForm() {
     },
     flowers: {
       optionName: "Focal Flower",
-      optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected),
+      optionValueCustomizations: createFlowerValueCustomizationsObject(formOptions.flowersAvailable, formOptions.flowersSelected),
     }
   }
 
