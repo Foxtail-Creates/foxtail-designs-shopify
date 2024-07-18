@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://shock-arrives-pounds-far.trycloudflare.com"
+application_url = "https://porsche-michel-lay-def.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://shock-arrives-pounds-far.trycloudflare.com/auth/callback",
-  "https://shock-arrives-pounds-far.trycloudflare.com/auth/shopify/callback",
-  "https://shock-arrives-pounds-far.trycloudflare.com/api/auth/callback"
+  "https://porsche-michel-lay-def.trycloudflare.com/auth/callback",
+  "https://porsche-michel-lay-def.trycloudflare.com/auth/shopify/callback",
+  "https://porsche-michel-lay-def.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

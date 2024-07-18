@@ -8,7 +8,7 @@ export async function createVariants(
     flowerValues: string[],
     sizeValues: string[],
     paletteValues: string[],
-    sizeToPrice: object
+    sizeToPrice: { [key: string]: number }
  ) {
     const variants = [];
     for (let f = 0; f < flowerValues.length; f++) {

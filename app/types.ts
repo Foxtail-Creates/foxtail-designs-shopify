@@ -51,7 +51,7 @@ export type SerializedSettingForm = {
 
 export type SerializedCustomizeForm = {
   product: Product;
-  sizeToPrice: object;
+  sizeToPrice: { [key: string]: number };
   updatedSizes: string[];
 }
 
