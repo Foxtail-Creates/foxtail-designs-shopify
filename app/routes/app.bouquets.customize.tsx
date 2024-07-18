@@ -50,7 +50,7 @@ const createValueCustomizationsObject = (optionValues: string[]) => {
     acc[value] = {
       name: value,
       price: 0, // TODO: get price from product variant
-      connectedRight: null
+      connectedLeft: null
     };
     return acc;
   }, {});
@@ -66,7 +66,7 @@ const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], op
     acc[value] = {
       name: value,
       price: 0,
-      connectedRight: (palette && <PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
+      connectedLeft: (palette && <PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
     };
     return acc;
   }, {});
@@ -82,7 +82,7 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
     acc[value] = {
       name: value,
       price: 0,
-      connectedRight: <Thumbnail
+      connectedLeft: <Thumbnail
         size="large"
         alt={"Photo of " + value}
         source={flowerImageLink ?? ""}

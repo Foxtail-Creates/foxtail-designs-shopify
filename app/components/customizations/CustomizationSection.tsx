@@ -1,4 +1,4 @@
-import { InlineGrid, TextField } from "@shopify/polaris";
+import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
 
@@ -16,7 +16,8 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
   const { optionKey, optionValueKey, shouldSetPrice, shouldSetName, value, formState, setFormState } = props;
   return (
     <>
-      <InlineGrid columns={['oneHalf', 'oneHalf']} gap="400">
+      <InlineStack gap="400">
+        {value.connectedLeft}
         {shouldSetName && (<TextField
           label={`Option name`}
           placeholder={value.name}
@@ -67,8 +68,7 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
             }
             autoComplete="off"
           />)}
-        {value.connectedRight}
-      </InlineGrid>
+      </InlineStack>
     </>
   )
 }
@@ -98,20 +98,24 @@ export const CustomizationSection = ({
         selectTextOnFocus={true}
       />
       {optionCustomizations.optionValueCustomizations &&
-        Object
-          .entries(optionCustomizations.optionValueCustomizations)
-          .sort((a, b) => shouldSortOptions ? (a[1].name.localeCompare(b[1].name)) : 0)
-          .map(([key, value]) => (
-            <CustomizationOptions
-              shouldSetPrice={shouldSetPrice}
-              shouldSetName={shouldSetName}
-              value={value}
-              optionKey={optionKey}
-              optionValueKey={key}
-              formState={formState}
-              setFormState={setFormState}
-            />
-          ))
+        <InlineGrid columns={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }} gap="400" >
+          {Object
+            .entries(optionCustomizations.optionValueCustomizations)
+            .sort((a, b) => shouldSortOptions ? (a[1].name.localeCompare(b[1].name)) : 0)
+            .map(([key, value]) => (
+              <CustomizationOptions
+                key={value.name}
+                shouldSetPrice={shouldSetPrice}
+                shouldSetName={shouldSetName}
+                value={value}
+                optionKey={optionKey}
+                optionValueKey={key}
+                formState={formState}
+                setFormState={setFormState}
+              />
+            ))
+          }
+        </InlineGrid>
       }
     </>
   );
