@@ -23,9 +23,8 @@ import { SizeSection } from "~/components/sizes/SizeSection";
 import type {
   BouquetSettingsForm,
   ByobCustomizerOptions,
-  SerializedForm,
+  SerializedSettingForm,
 } from "~/types";
-import { UPDATE_PRODUCT_OPTION_AND_VARIANTS } from "../hooks/graphql/productOptionQueries";
 import { authenticate } from "../shopify.server";
 import {
   FLOWER_OPTION_NAME,
@@ -53,7 +52,7 @@ export async function action({ request, params }) {
   const serializedData = await request.formData();
   const errors: FormErrors = {};
 
-  const data: SerializedForm = JSON.parse(serializedData.get("data"));
+  const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
   if (data.flowersSelected.length == 0) {
     errors.flowers = "Invalid flower selection. Select at least one focal flower to offer to customers.";
@@ -121,7 +120,7 @@ export default function ByobCustomizationForm() {
   const submit = useSubmit();
 
   function submitFormData() {
-    const data: SerializedForm = {
+    const data: SerializedSettingForm = {
       productName: formState.productName,
       product: byobCustomizer.customProduct,
       sizesSelected: formState.sizesSelected,

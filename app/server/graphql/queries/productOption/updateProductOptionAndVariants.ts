@@ -1,10 +1,12 @@
 export const UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY = `#graphql
-    mutation updateProductOptionAndVariants($productId: ID!, $optionId: ID!, $newValues: [OptionValueCreateInput!], $oldValues: [ID!]) {
+    mutation updateProductOptionAndVariants($productId: ID!, $optionName: String!, $optionId: ID!, $newValues: [OptionValueCreateInput!], $oldValues: [ID!],
+	    $updatedValues: [OptionValueUpdateInput!]) {
         productOptionUpdate(
             productId: $productId
-            option: {id: $optionId}
+            option: {id: $optionId, name: $optionName}
             optionValuesToAdd: $newValues
             optionValuesToDelete: $oldValues
+            optionValuesToUpdate: $updatedValues
             variantStrategy: MANAGE
         ) {
             product {

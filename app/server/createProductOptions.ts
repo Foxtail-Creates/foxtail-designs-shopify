@@ -25,12 +25,12 @@ export async function createProductOptions(
     );
 };
 
-export async function getSelectedValues(admin, option, responseBody, position, optionName, defaultValues) : Promise<string[]> {
+export async function getSelectedValues(admin, option, customProduct, position, optionName, defaultValues) : Promise<string[]> {
     if (option == null) {
     // create new product option and variants
       await createProductOptions(
         admin,
-        responseBody.data?.product.id,
+        customProduct.id,
         position,
         optionName,
         defaultValues

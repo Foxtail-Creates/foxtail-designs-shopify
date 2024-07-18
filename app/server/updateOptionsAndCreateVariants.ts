@@ -44,11 +44,13 @@ export async function updateOptionsAndCreateVariants(
             {
                 variables: {
                     productId: product.id,
+                    optionName: option.name,
                     optionId: option.id,
                     newValues: optionValuesToAdd.map(
                         (optionValueName: string) => ({ name: optionValueName })
                     ),
                     oldValues: valueIdsToRemove,
+                    updatedValues: []
                 },
             },
         );

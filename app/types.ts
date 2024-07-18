@@ -33,7 +33,7 @@ export type BouquetSettingsForm = {
   flowerOptionValuesToAdd: string[];
 };
 
-export type SerializedForm = {
+export type SerializedSettingForm = {
   productName: string;
   product: Product;
   sizesSelected: string[];
@@ -47,6 +47,12 @@ export type SerializedForm = {
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
+}
+
+export type SerializedCustomizeForm = {
+  product: Product;
+  sizeToPrice: { [key: string]: number };
+  updatedSizes: string[];
 }
 
 export type FocalFlowersSectionProps = {
