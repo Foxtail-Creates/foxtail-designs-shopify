@@ -211,15 +211,6 @@ export default function ByobCustomizationForm() {
               disabled: isSaving,
               onAction: submitFormData,
             }}
-            secondaryActions={[
-              {
-                content: "Save",
-                loading: isSaving,
-                disabled: isSaving,
-                outline: true,
-                onAction: submitFormData, // TODO
-              },
-            ]}
           />
         </Layout.Section>
       </Layout>
