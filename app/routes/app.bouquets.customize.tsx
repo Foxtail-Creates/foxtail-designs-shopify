@@ -127,9 +127,7 @@ export default function ByobCustomizationForm() {
 
   const nav = useNavigation();
   const isSaving =
-    nav.state === "submitting" && nav.formData?.get("action") !== "delete";
-  const isDeleting =
-    nav.state === "submitting" && nav.formData?.get("action") === "delete";
+    nav.state === "submitting";
 
   const navigate = useNavigate();
 
@@ -238,22 +236,18 @@ export default function ByobCustomizationForm() {
         <Layout.Section>
           <PageActions
             primaryAction={{
-              content: "Save and Continue",
+              content: "Save and continue",
               loading: isSaving,
-              disabled: isSaving || isDeleting,
+              disabled: isSaving,
               onAction: submitFormData,
             }}
             secondaryActions={[
               {
-                content: "Delete",
-                loading: isDeleting,
-                disabled:
-                  isSaving ||
-                  isDeleting,
-                destructive: true,
+                content: "Save",
+                loading: isSaving,
+                disabled: isSaving,
                 outline: true,
-                onAction: () =>
-                  submit({ action: "delete" }, { method: "post" }),
+                onAction: submitFormData, // TODO
               },
             ]}
           />
