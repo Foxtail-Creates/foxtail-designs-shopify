@@ -67,17 +67,14 @@ export async function action({ request, params }) {
   if (Object.keys(errors).length > 0) {
     return json({ errors });
   }
-  // todo: delete if data.action == "delete"
-  // if (data.action === "delete") {
-  //   return json({ message: "Delete is not implemented" }, { status: 500 });
-  // }
+
   await updateOptionsAndCreateVariants(admin, data.product, FLOWER_OPTION_NAME, FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected);
   await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
     data.sizesSelected);
   await updateOptionsAndCreateVariants(admin, data.product, PALETTE_OPTION_NAME, PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
-    data.palettesSelected); 
- 
+    data.palettesSelected);
+
   return redirect(`/app/bouquets/customize`);
 }
 
@@ -91,7 +88,7 @@ export default function ByobCustomizationForm() {
     prevSizesSelected: byobCustomizer.sizesSelected,
     sizesSelected: byobCustomizer.sizesSelected,
     allSizeOptions: byobCustomizer.sizesAvailable,
-    sizeOptionValuesToAdd: [], 
+    sizeOptionValuesToAdd: [],
     sizeOptionValuesToRemove: [],
     allPaletteColorOptions: byobCustomizer.palettesAvailable.map(
       (palette) => palette.name,
@@ -111,9 +108,7 @@ export default function ByobCustomizationForm() {
 
   const nav = useNavigation();
   const isSaving =
-    nav.state === "submitting" && nav.formData?.get("action") !== "delete";
-  const isDeleting =
-    nav.state === "submitting" && nav.formData?.get("action") === "delete";
+    nav.state === "submitting";
 
   const navigate = useNavigate();
 
@@ -168,7 +163,7 @@ export default function ByobCustomizationForm() {
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
                   }
-                  // error={errors.productName}
+                // error={errors.productName}
                 />
               </BlockStack>
             </Card>
@@ -211,26 +206,11 @@ export default function ByobCustomizationForm() {
         <Layout.Section>
           <PageActions
             primaryAction={{
-              content: "Save and Continue",
+              content: "Save and continue",
               loading: isSaving,
-              disabled: isSaving || isDeleting,
+              disabled: isSaving,
               onAction: submitFormData,
             }}
-            secondaryActions={[
-              {
-                content: "Delete",
-                loading: isDeleting,
-                disabled:
-                  !byobCustomizer.productName ||
-                  !byobCustomizer ||
-                  isSaving ||
-                  isDeleting,
-                destructive: true,
-                outline: true,
-                onAction: () =>
-                  submit({ action: "delete" }, { method: "post" }),
-              },
-            ]}
           />
         </Layout.Section>
       </Layout>

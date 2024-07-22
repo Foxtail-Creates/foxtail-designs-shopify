@@ -1,37 +1,87 @@
 import { json } from "@remix-run/node";
-import { useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { BlockStack, Button, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
-import { EmailIcon, FlowerIcon, PlusIcon } from "@shopify/polaris-icons";
+import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
+import { DeleteIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
+import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
+
+type ByobProductProps = {
+  onEditAction: () => void;
+  onDeleteAction: () => void;
+  onPreviewAction: () => void;
+  productId: string | null;
+};
+
+type Product = {
+  id: string | null;
+};
 
 export async function loader({ request }) {
   const { admin, session } = await authenticate.admin(request);
 
+  const getShopMetadataResponse = await admin.graphql(
+    GET_SHOP_METAFIELD_BY_KEY_QUERY,
+    {
+      variables: {
+        namespace: FOXTAIL_NAMESPACE,
+        key: STORE_METADATA_CUSTOM_PRODUCT_KEY,
+      },
+    },
+  );
+  const shopMetadataBody = await getShopMetadataResponse.json();
+
+  const productId = shopMetadataBody.data?.shop.metafield?.value;
+
   return json({
-    byobProducts: [],
+    id: productId,
   });
 }
 
-const ByobProduct = ({ onAction }) => (
+const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId }: ByobProductProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
         <Text as="h2" variant="headingMd">
-          Build-Your-Own-Bouquet Product
+          Build-Your-Own-Bouquet
         </Text>
-        <Button
-          onClick={onAction}
-          accessibilityLabel="Create or edit BYOB product"
-          icon={PlusIcon}
-        >
-          Create or Edit
-        </Button>
+        {(productId !== null) &&
+          <Button
+            onClick={onPreviewAction}
+            accessibilityLabel="Preview BYOB product"
+            icon={ViewIcon}
+          >
+            Preview
+          </Button>
+        }
       </InlineGrid>
       <Text as="p" variant="bodyMd">
         Give customers the option to buy a custom arrangement! Select the
         customizations you want to offer and generate all of the Shopify variants
         with one click.
       </Text>
+      <InlineStack align="end">
+        <ButtonGroup>
+          {(productId !== null) &&
+            <Button
+              variant="secondary"
+              onClick={onDeleteAction}
+              accessibilityLabel="Delete BYOB product"
+              icon={DeleteIcon}
+            >
+              Delete
+            </Button>
+          }
+          <Button
+            variant="primary"
+            onClick={onEditAction}
+            accessibilityLabel="Create or edit BYOB product"
+            icon={PlusIcon}
+          >
+            {(productId === null) ? 'Create' : 'Edit'}
+          </Button>
+        </ButtonGroup>
+      </InlineStack>
     </BlockStack>
   </Card>
 );
@@ -82,16 +132,22 @@ const ContactUs = ({ onAction }) => (
   </Card>
 );
 
-
 export default function Index() {
   const navigate = useNavigate();
+
+  const product: Product = useLoaderData();
 
   return (
     <Page>
       <Layout>
         <Layout.Section>
           <InlineGrid gap="300" columns={2}>
-            <ByobProduct onAction={() => navigate("bouquets/settings")} />
+            <ByobProduct
+              onEditAction={() => navigate("bouquets/settings")}
+              onDeleteAction={() => { }} // TODO https://linear.app/foxtail-creates/issue/FOX-47/delete-custom-product
+              onPreviewAction={() => window.open("https://foxtailcreates.com/")?.focus()} // TODO
+              productId={product.id}
+            />
             <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
             <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
           </InlineGrid>
