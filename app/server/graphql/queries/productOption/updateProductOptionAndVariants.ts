@@ -11,26 +11,30 @@ export const UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY = `#graphql
         ) {
             product {
                 id
-                options(first: 5) {
-                    name
-                    optionValues {
-                    name
-                    }
-                }
-                variants(first: 5) {
-                    nodes {
+                options {
+                id
+                name
+                position
+                optionValues {
                     id
+                    name
+                }
+                }
+                variants(first:100) { # TODO: limit number of variants/pagination
+                nodes {
                     displayName
+                    id
+                    price
                     selectedOptions {
-                        name
-                        value
-                        optionValue {
+                    name
+                    optionValue {
                         id
                         name
-                        }
                     }
+                    value
                     }
                 }
+            }
             }
             userErrors {
                 field

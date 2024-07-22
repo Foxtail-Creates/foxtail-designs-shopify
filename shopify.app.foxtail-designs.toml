@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://porsche-michel-lay-def.trycloudflare.com"
+application_url = "https://reuters-hh-newman-exception.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://porsche-michel-lay-def.trycloudflare.com/auth/callback",
-  "https://porsche-michel-lay-def.trycloudflare.com/auth/shopify/callback",
-  "https://porsche-michel-lay-def.trycloudflare.com/api/auth/callback"
+  "https://reuters-hh-newman-exception.trycloudflare.com/auth/callback",
+  "https://reuters-hh-newman-exception.trycloudflare.com/auth/shopify/callback",
+  "https://reuters-hh-newman-exception.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

@@ -7,23 +7,27 @@ export const BULK_CREATE_VARIANTS_QUERY = `#graphql
         ) {
         product {
             id
-            options(first: 5) {
+            options {
+            id
             name
+            position
             optionValues {
+                id
                 name
             }
             }
-            variants(first: 5) {
+            variants(first:100) { # TODO: limit number of variants/pagination
             nodes {
-                id
                 displayName
+                id
+                price
                 selectedOptions {
                 name
-                value
                 optionValue {
                     id
                     name
                 }
+                value
                 }
             }
             }

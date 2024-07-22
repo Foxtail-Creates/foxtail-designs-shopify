@@ -5,6 +5,33 @@ export const CREATE_PRODUCT_OPTIONS_QUERY = `#graphql
             position: $position,
             values: $values
         }) {
+            product {
+              id
+              options {
+                id
+                name
+                position
+                optionValues {
+                  id
+                  name
+                }
+              }
+              variants(first:100) { # TODO: handle large amounts of variants. Make product projection into a fragment
+                nodes {
+                  displayName
+                  id
+                  price
+                  selectedOptions {
+                    name
+                    optionValue {
+                      id
+                      name
+                    }
+                    value
+                  }
+                }
+              }
+            }
             userErrors{
                 field
                 message
