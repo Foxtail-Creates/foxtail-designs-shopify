@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://cookbook-aging-chassis-epson.trycloudflare.com"
+application_url = "https://arena-hosts-disable-order.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://cookbook-aging-chassis-epson.trycloudflare.com/auth/callback",
-  "https://cookbook-aging-chassis-epson.trycloudflare.com/auth/shopify/callback",
-  "https://cookbook-aging-chassis-epson.trycloudflare.com/api/auth/callback"
+  "https://arena-hosts-disable-order.trycloudflare.com/auth/callback",
+  "https://arena-hosts-disable-order.trycloudflare.com/auth/shopify/callback",
+  "https://arena-hosts-disable-order.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
