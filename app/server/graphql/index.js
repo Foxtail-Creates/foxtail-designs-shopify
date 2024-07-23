@@ -3,6 +3,7 @@
  */
 export { CREATE_VARIANTS_QUERY } from "./queries/productVariant/createVariant";
 export { BULK_CREATE_VARIANTS_QUERY } from "./queries/productVariant/bulkCreateVariants";
+export { BULK_UPDATE_VARIANTS_QUERY } from "./queries/productVariant/bulkUpdateVariants";
 
 export { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "./queries/product/createProductWithOptions";
 export { SET_PRODUCT_METAFIELD_QUERY } from "./queries/product/setProductMetafield";

@@ -1,4 +1,7 @@
 import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
+import { useCallback } from "react";
+import invariant from "tiny-invariant";
+import { FLOWER_CUSTOMIZATION_SECTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
 
@@ -10,10 +13,45 @@ type CustomizationOptionsProps = {
   value: ValueCustomization;
   formState: BouquetCustomizationForm,
   setFormState: (formState: BouquetCustomizationForm) => void;
+  optionValueToPriceUpdates: { [key:string]: number};
 };
 
 const CustomizationOptions = (props: CustomizationOptionsProps) => {
-  const { optionKey, optionValueKey, shouldSetPrice, shouldSetName, value, formState, setFormState } = props;
+  const { optionKey, optionValueKey, shouldSetPrice, shouldSetName, value, formState, setFormState,
+    optionValueToPriceUpdates
+   } = props;
+
+  const updatePrice = useCallback(
+    (value: string) => {
+      const parsedPrice: number = parseFloat(value);
+      optionValueToPriceUpdates[optionValueKey] = parsedPrice;
+      setFormState(
+        {
+          ...formState,
+          optionCustomizations: {
+            ...formState.optionCustomizations,
+            [optionKey]: {
+              ...formState.optionCustomizations[optionKey],
+              optionValueCustomizations: {
+                ...formState.optionCustomizations[optionKey].optionValueCustomizations,
+                [optionValueKey]: {
+                  ...formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey],
+                  price: parsedPrice
+                }
+              }
+            }
+          },
+          sizeToPriceUpdates: optionKey === SIZE_CUSTOMIZATION_SECTION_NAME
+            ? optionValueToPriceUpdates
+            : formState.sizeToPriceUpdates,
+          flowerToPriceUpdates: optionKey === FLOWER_CUSTOMIZATION_SECTION_NAME
+            ? optionValueToPriceUpdates
+            : formState.flowerToPriceUpdates
+        }
+      )
+    },
+    [formState, setFormState, optionValueToPriceUpdates]
+  );
   return (
     <>
       <InlineStack gap="400">
@@ -21,18 +59,21 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
         {shouldSetName && (<TextField
           label={`Option name`}
           placeholder={value.name}
-          value={formState[optionKey].optionValueCustomizations[optionValueKey].name}
+          value={formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey].name}
           onChange={(value) =>
             setFormState(
               {
                 ...formState,
-                [optionKey]: {
-                  ...formState[optionKey],
-                  optionValueCustomizations: {
-                    ...formState[optionKey].optionValueCustomizations,
-                    [optionValueKey]: {
-                      ...formState[optionKey].optionValueCustomizations[optionValueKey],
-                      name: value,
+                optionCustomizations: {
+                  ...formState.optionCustomizations,
+                  [optionKey]: {
+                    ...formState.optionCustomizations[optionKey],
+                    optionValueCustomizations: {
+                      ...formState.optionCustomizations[optionKey].optionValueCustomizations,
+                      [optionValueKey]: {
+                        ...formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey],
+                        name: value,
+                      }
                     }
                   }
                 }
@@ -48,24 +89,8 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
             type="number"
             prefix="$"
             placeholder={value.price.toString()}
-            value={formState[optionKey].optionValueCustomizations[optionValueKey].price.toString()}
-            // TODO: Clean this up yikes
-            onChange={(value) =>
-              setFormState(
-                {
-                  ...formState,
-                  [optionKey]: {
-                    ...formState[optionKey],
-                    optionValueCustomizations: {
-                      ...formState[optionKey].optionValueCustomizations,
-                      [optionValueKey]: {
-                        ...formState[optionKey].optionValueCustomizations[optionValueKey],
-                        price: parseFloat(value)
-                      }
-                    }
-                  }
-                })
-            }
+            value={formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey].price.toString()}
+            onChange={updatePrice}
             autoComplete="off"
           />)}
       </InlineStack>
@@ -81,6 +106,7 @@ export const CustomizationSection = ({
   instructions,
   optionCustomizations,
   formState,
+  optionValueToPriceUpdates,
   setFormState,
 }: CustomizationProps) => {
   return (
@@ -90,9 +116,9 @@ export const CustomizationSection = ({
       <TextField
         label={`Edit category name`}
         placeholder={optionCustomizations.optionName}
-        value={formState[optionKey].optionName}
+        value={formState.optionCustomizations[optionKey].optionName}
         onChange={(value) =>
-          setFormState({ ...formState, [optionKey]: { ...formState[optionKey], optionName: value } })
+          setFormState({ ...formState, [optionKey]: { ...formState.optionCustomizations[optionKey], optionName: value } })
         }
         autoComplete="off"
         selectTextOnFocus={true}
@@ -112,6 +138,7 @@ export const CustomizationSection = ({
                 optionValueKey={key}
                 formState={formState}
                 setFormState={setFormState}
+                optionValueToPriceUpdates= {optionValueToPriceUpdates}
               />
             ))
           }

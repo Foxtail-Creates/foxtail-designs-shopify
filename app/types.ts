@@ -13,6 +13,8 @@ export type ByobCustomizerOptions = {
   palettesSelected: string[];
   flowersAvailable: Flower[];
   flowersSelected: string[];
+  sizeToPrice: { [key: string]: number };
+  flowerToPrice: { [key: string]: number };
 };
 
 export type BouquetSettingsForm = {
@@ -52,7 +54,9 @@ export type SerializedSettingForm = {
 export type SerializedCustomizeForm = {
   product: Product;
   sizeToPrice: { [key: string]: number };
-  updatedSizes: string[];
+  sizeToPriceUpdates: { [key: string]: number };
+  flowerToPrice: { [key: string]: number };
+  flowerToPriceUpdates: { [key: string]: number };
 }
 
 export type FocalFlowersSectionProps = {
@@ -97,7 +101,11 @@ export type BouquetCustomizationOptions = {
 };
 
 export type BouquetCustomizationForm = {
-  [key: string]: OptionCustomization;
+  optionCustomizations: { [key: string]: OptionCustomization };
+  sizeToPrice: { [key: string]: number };
+  sizeToPriceUpdates: { [key: string]: number };
+  flowerToPrice: { [key: string]: number };
+  flowerToPriceUpdates: { [key: string]: number };
 };
 
 export type OptionCustomization = {
@@ -123,7 +131,13 @@ export type CustomizationProps = {
   shouldSetName: boolean;
   shouldSortOptions: boolean;
   instructions: ReactElement | null;
-  optionCustomizations: OptionCustomization
+  optionCustomizations: OptionCustomization;
   formState: BouquetCustomizationForm;
+  optionValueToPriceUpdates: { [key: string]: number };
   setFormState: Dispatch<SetStateAction<BouquetCustomizationForm>>;
+}
+
+export type PriceMetadata = {
+  sizeToPrice: { [key: string]: number };
+  flowerToPrice: { [key: string]: number };
 }

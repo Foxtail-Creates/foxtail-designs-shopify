@@ -1,4 +1,4 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, SIZE_TO_PRICE_DEFAULT_VALUES_SERIALIZED } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, SIZE_TO_PRICE_DEFAULT_VALUES_SERIALIZED, OPTION_TO_PRICE_DEFAULT_VALUES_SERIALIZED, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
 import { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "./graphql";
 import invariant from "tiny-invariant";
 import { createVariants } from "./createVariants";
@@ -7,7 +7,7 @@ import { createVariants } from "./createVariants";
  * Creates a new product
  */
 export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[],
-  selectedPalettes: string[], selectedSizes: string[], sizeToPrices: { [key: string]: number }) {
+  selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number }) {
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
@@ -25,7 +25,7 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
           paletteValues: selectedPalettes.map((value: string) => ({ "name": value })),
           metafieldNamespace: FOXTAIL_NAMESPACE,
           metafieldKey: PRODUCT_METADATA_PRICES,
-          metafieldValue: SIZE_TO_PRICE_DEFAULT_VALUES_SERIALIZED
+          metafieldValue: OPTION_TO_PRICE_DEFAULT_VALUES_SERIALIZED
         },
       },
     );
@@ -36,6 +36,6 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
         "Error creating new product. Contact Support for help."
     );  
 
-    await createVariants(admin, customProductBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrices);
+    await createVariants(admin, customProductBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice);
     return customProductBody.data.productCreate.product;
   }

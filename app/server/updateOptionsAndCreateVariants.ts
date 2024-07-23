@@ -10,7 +10,7 @@ export async function updateOptionsAndCreateVariants(
     optionValuesToRemove: string[],
     optionValuesToAdd: string[],
     optionValuesSelected: string[]
- ) {
+) {
     const option = product.options.find(
         (o) => o.name === optionName,
     );

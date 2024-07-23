@@ -1,4 +1,4 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES_SERIALIZED, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FOXTAIL_NAMESPACE, OPTION_TO_PRICE_DEFAULT_VALUES_SERIALIZED, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES_SERIALIZED, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import type {
   ByobCustomizerOptions
 } from "~/types";
@@ -37,6 +37,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   const shopMetadataBody = await getShopMetadataResponse.json();
   let customProduct;
 
+  let sizeToPrice: { [key: string]: number } = SIZE_TO_PRICE_DEFAULT_VALUES;
+  let flowerToPrice: { [key: string]: number } = FLOWER_TO_PRICE_DEFAULT_VALUES;
   if (shopMetadataBody.data?.shop.metafield?.value != null) {
     // if shop metadata has custom product id, retrieve it
     const customProductResponse = await admin.graphql(
@@ -53,18 +55,16 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
     if (customProduct == null) {
       // if custom product is missing, create new custom product and add to store metadata
-      customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES);
+      customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
       await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
     }
 
-    let sizeToPrice;
     if (customProduct.metafield?.value != null) {
-      sizeToPrice = JSON.parse(customProduct.metafield.value);
+      ({sizeToPrice, flowerToPrice} = JSON.parse(customProduct.metafield.value));
     } else {
       // if product metafield is missing for pricing, set metafield to default values
-      sizeToPrice = SIZE_TO_PRICE_DEFAULT_VALUES;
       await setProductMetadata(admin, customProduct.id,
-        FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, SIZE_TO_PRICE_DEFAULT_VALUES_SERIALIZED);
+        FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, OPTION_TO_PRICE_DEFAULT_VALUES_SERIALIZED);
     }
 
     // retrieve selected options
@@ -83,11 +83,11 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
-      await createVariants(admin, customProduct.id, flowersSelected, sizesSelected, palettesSelected, sizeToPrice);
+      customProduct = await createVariants(admin, customProduct.id, flowersSelected, sizesSelected, palettesSelected, sizeToPrice, flowerToPrice);
     }
   } else {
     // otherwise create new custom product and add to store metadata
-    customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES);
+    customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
   const byobOptions: ByobCustomizerOptions = {
@@ -100,6 +100,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     palettesSelected: palettesSelected,
     flowersAvailable: allCustomOptions.flowersAvailable,
     flowersSelected: flowersSelected,
+    sizeToPrice: sizeToPrice,
+    flowerToPrice: flowerToPrice
   };
   return byobOptions;
 };

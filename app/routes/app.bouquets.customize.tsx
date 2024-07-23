@@ -29,6 +29,8 @@ import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
 import { Palette as PaletteComponent } from "~/components/palettes/Palette";
+import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
+import { savePrices } from "~/server/savePrices";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -46,18 +48,19 @@ export async function action({ request, params }) {
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
 
-  // await savePrices(data.product, data.sizeToPrice, updatedSizes);
+  await savePrices(admin, data.product.id, data.product.variants.nodes,
+    data.sizeToPrice, data.sizeToPriceUpdates, data.flowerToPrice, data.flowerToPriceUpdates);
   return redirect(`/app`);
 }
 
-const createValueCustomizationsObject = (optionValues: string[]) => {
+const createValueCustomizationsObject = (optionValues: string[], optionValueToPrice: { [key: string]: number }) => {
   if (!optionValues) {
     return {};
   }
   return optionValues.reduce((acc: OptionValueCustomizations, value) => {
     acc[value] = {
       name: value,
-      price: 0, // TODO: get price from product variant
+      price: optionValueToPrice[value] != undefined ? optionValueToPrice[value] : 0, //todo: default prices
       connectedLeft: null
     };
     return acc;
@@ -106,21 +109,27 @@ export default function ByobCustomizationForm() {
   const formOptions: ByobCustomizerOptions = useLoaderData();
 
   const form: BouquetCustomizationForm = {
-    sizes: {
-      optionName: "Size",
-      optionValueCustomizations: createValueCustomizationsObject(formOptions.sizeOptions),
+    optionCustomizations: {
+      sizes: {
+        optionName: SIZE_OPTION_NAME,
+        optionValueCustomizations: createValueCustomizationsObject(formOptions.sizesSelected, formOptions.sizeToPrice),
+      },
+      palettes: {
+        optionName: PALETTE_OPTION_NAME,
+        optionValueCustomizations: createPaletteValueCustomizationsObject(
+          formOptions.palettesAvailable,
+          formOptions.palettesSelected
+        ),
+      },
+      flowers: {
+        optionName: FLOWER_OPTION_NAME,
+        optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected, formOptions.flowerToPrice),
+      }
     },
-    palettes: {
-      optionName: "Palette",
-      optionValueCustomizations: createPaletteValueCustomizationsObject(
-        formOptions.palettesAvailable,
-        formOptions.palettesSelected
-      ),
-    },
-    flowers: {
-      optionName: "Focal Flower",
-      optionValueCustomizations: createFlowerValueCustomizationsObject(formOptions.flowersAvailable, formOptions.flowersSelected),
-    }
+    sizeToPrice: formOptions.sizeToPrice,
+    sizeToPriceUpdates: {},
+    flowerToPrice: formOptions.flowerToPrice,
+    flowerToPriceUpdates: {}
   }
 
   const [formState, setFormState] = useState(form);
@@ -136,8 +145,17 @@ export default function ByobCustomizationForm() {
   // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
 
   function submitFormData() {
-    // todo
-    submit({}, { method: "post" });
+    const data: SerializedCustomizeForm = {
+      product: formOptions.customProduct,
+      sizeToPrice: formState.sizeToPrice,
+      sizeToPriceUpdates: formState.sizeToPriceUpdates,
+      flowerToPrice: formState.flowerToPrice,
+      flowerToPriceUpdates: formState.flowerToPriceUpdates,
+    };
+
+    const serializedData = JSON.stringify(data);
+
+    submit({ data: serializedData }, { method: "post" });
   }
 
   return (
@@ -178,9 +196,10 @@ export default function ByobCustomizationForm() {
                       </List>
                     </>
                   }
-                  optionCustomizations={form.sizes}
+                  optionCustomizations={form.optionCustomizations.sizes}
                   formState={formState}
                   setFormState={setFormState}
+                  optionValueToPriceUpdates={formState.sizeToPriceUpdates}
                 />
                 <Divider />
                 <CustomizationSection
@@ -200,9 +219,10 @@ export default function ByobCustomizationForm() {
                       </List>
                     </>
                   }
-                  optionCustomizations={form.palettes}
+                  optionCustomizations={form.optionCustomizations.palettes}
                   formState={formState}
                   setFormState={setFormState}
+                  optionValueToPriceUpdates={{}}
                 />
                 <Divider />
                 <CustomizationSection
@@ -225,9 +245,10 @@ export default function ByobCustomizationForm() {
                       </List>
                     </>
                   }
-                  optionCustomizations={form.flowers}
+                  optionCustomizations={form.optionCustomizations.flowers}
                   formState={formState}
                   setFormState={setFormState}
+                  optionValueToPriceUpdates={formState.flowerToPriceUpdates}
                 />
               </BlockStack>
             </Card>

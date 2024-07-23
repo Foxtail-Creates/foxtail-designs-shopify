@@ -14,8 +14,8 @@ export const SizeSection = ({
   const handleChange = useCallback(
     (selected: string[]) => {
       const newSelectedSizes = selected;
-      const sizeOptionValuesToAdd = newSelectedSizes.filter( x => !formState.prevSizesSelected.includes(x)); 
-      const sizeOptionValuesToRemove = formState.prevSizesSelected.filter( x => !newSelectedSizes.includes(x));
+      const sizeOptionValuesToAdd = newSelectedSizes.filter(x => !formState.prevSizesSelected.includes(x));
+      const sizeOptionValuesToRemove = formState.prevSizesSelected.filter(x => !newSelectedSizes.includes(x));
       setFormState({
         ...formState,
         sizesSelected: newSelectedSizes,
@@ -28,8 +28,8 @@ export const SizeSection = ({
 
   function inlineError(errors: FormErrors) {
     return (errors != null && errors.sizes != null)
-    ? (<InlineError message={errors.sizes} fieldID="size" />)
-    : null;
+      ? (<InlineError message={errors.sizes} fieldID="size" />)
+      : null;
   }
 
   return (

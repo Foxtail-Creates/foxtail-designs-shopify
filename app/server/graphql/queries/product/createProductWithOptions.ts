@@ -26,8 +26,20 @@ export const CREATE_PRODUCT_WITH_OPTIONS_QUERY= `#graphql
                   name
                 }
               }
-              metafield (namespace: $metafieldNamespace, key: $metafieldKey) {
-                value
+              variants(first:100) { # TODO: limit number of variants/pagination
+                nodes {
+                  displayName
+                  id
+                  price
+                  selectedOptions {
+                    name
+                    optionValue {
+                      id
+                      name
+                    }
+                    value
+                  }
+                }
               }
             }
             userErrors {
