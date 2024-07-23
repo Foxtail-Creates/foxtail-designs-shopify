@@ -6,7 +6,7 @@ import { createVariants } from "./createVariants";
 /**
  * Creates a new product
  */
-export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[],
+export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], flowerName: string,
   selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number }) {
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
@@ -36,6 +36,6 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
         "Error creating new product. Contact Support for help."
     );  
 
-    await createVariants(admin, customProductBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice);
+    await createVariants(admin, customProductBody.data.productCreate.product.id, selectedFlowers, flowerName, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice);
     return customProductBody.data.productCreate.product;
   }

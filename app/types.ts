@@ -15,6 +15,7 @@ export type ByobCustomizerOptions = {
   flowersSelected: string[];
   sizeToPrice: { [key: string]: number };
   flowerToPrice: { [key: string]: number };
+  optionToName: { [key: string]: string };
 };
 
 export type BouquetSettingsForm = {
@@ -49,6 +50,7 @@ export type SerializedSettingForm = {
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
+  optionToName: { [key: string]: string };
 }
 
 export type SerializedCustomizeForm = {
@@ -57,6 +59,8 @@ export type SerializedCustomizeForm = {
   sizeToPriceUpdates: { [key: string]: number };
   flowerToPrice: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
+  optionToDisplayName: { [key: string]: string };
+  flowerNameUpdate: string;
 }
 
 export type FocalFlowersSectionProps = {

@@ -6,6 +6,7 @@ export async function createVariants(
     admin,
     productId: string,
     flowerValues: string[],
+    flowerOptionName: string,
     sizeValues: string[],
     paletteValues: string[],
     sizeToPrice: { [key: string]: number },
@@ -24,7 +25,7 @@ export async function createVariants(
                 variants.push({
                     optionValues: [
                         {
-                            optionName: FLOWER_OPTION_NAME,
+                            optionName: flowerOptionName,
                             name: flowerValues[f]
                         },
                         {

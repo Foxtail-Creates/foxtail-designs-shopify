@@ -68,7 +68,7 @@ export async function action({ request, params }) {
     return json({ errors });
   }
 
-  await updateOptionsAndCreateVariants(admin, data.product, FLOWER_OPTION_NAME, FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected);
   await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
     data.sizesSelected);

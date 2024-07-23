@@ -25,6 +25,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   const defaultFlowerValues = [firstFlower.name];
   const defaultPaletteValues = [firstPalette.name];
 
+  const optionToName: { [key:string] : string} = {FLOWER_OPTION_NAME: "Main flower"};
+
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
     {
@@ -55,7 +57,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
     if (customProduct == null) {
       // if custom product is missing, create new custom product and add to store metadata
-      customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
+      customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, optionToName[FLOWER_OPTION_NAME], defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
       await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
     }
 
@@ -83,11 +85,11 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
-      customProduct = await createVariants(admin, customProduct.id, flowersSelected, sizesSelected, palettesSelected, sizeToPrice, flowerToPrice);
+      customProduct = await createVariants(admin, customProduct.id, flowersSelected, optionToName[FLOWER_OPTION_NAME], sizesSelected, palettesSelected, sizeToPrice, flowerToPrice);
     }
   } else {
     // otherwise create new custom product and add to store metadata
-    customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
+    customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, optionToName[FLOWER_OPTION_NAME], defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
   const byobOptions: ByobCustomizerOptions = {
@@ -101,7 +103,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     flowersAvailable: allCustomOptions.flowersAvailable,
     flowersSelected: flowersSelected,
     sizeToPrice: sizeToPrice,
-    flowerToPrice: flowerToPrice
+    flowerToPrice: flowerToPrice,
+    optionToName: optionToName
   };
   return byobOptions;
 };

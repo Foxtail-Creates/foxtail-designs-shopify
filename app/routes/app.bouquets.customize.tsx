@@ -31,6 +31,7 @@ import { Flower, Palette } from "@prisma/client";
 import { Palette as PaletteComponent } from "~/components/palettes/Palette";
 import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import { savePrices } from "~/server/savePrices";
+import { updateOptionName } from "~/server/updateOptionNames";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -46,7 +47,7 @@ export async function action({ request, params }) {
   const serializedData = await request.formData();
 
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
-
+  await updateOptionName(admin, data.product, data.optionToDisplayName[FLOWER_OPTION_NAME], data.flowerNameUpdate);
 
   await savePrices(admin, data.product.id, data.product.variants.nodes,
     data.sizeToPrice, data.sizeToPriceUpdates, data.flowerToPrice, data.flowerToPriceUpdates);
@@ -122,7 +123,7 @@ export default function ByobCustomizationForm() {
         ),
       },
       flowers: {
-        optionName: FLOWER_OPTION_NAME,
+        optionName: formOptions.optionToName[FLOWER_OPTION_NAME],
         optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected, formOptions.flowerToPrice),
       }
     },
@@ -151,6 +152,8 @@ export default function ByobCustomizationForm() {
       sizeToPriceUpdates: formState.sizeToPriceUpdates,
       flowerToPrice: formState.flowerToPrice,
       flowerToPriceUpdates: formState.flowerToPriceUpdates,
+      optionToDisplayName: formOptions.optionToName,
+      flowerNameUpdate: formState.optionCustomizations.flowers.optionName
     };
 
     const serializedData = JSON.stringify(data);
