@@ -5,7 +5,7 @@ import { createVariants } from "./createVariants";
 /**
  * Creates a new product
  */
-export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], flowerName: string,
+export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], optionToName: { [key: string]: string},
   selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number }) {
     const customProductResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
@@ -13,13 +13,13 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
         variables: {
           productName: "Custom Bouquet",
           productType: "Custom Flowers",
-          flowerOptionName: FLOWER_OPTION_NAME,
+          flowerOptionName: optionToName[FLOWER_OPTION_NAME],
           flowerPosition: FLOWER_POSITION,
           flowerValues: selectedFlowers.map((value: string) => ({ "name": value })),
-          sizeOptionName: SIZE_OPTION_NAME,
+          sizeOptionName: optionToName[SIZE_OPTION_NAME],
           sizePosition: SIZE_POSITION,
           sizeValues: selectedSizes.map((value: string) => ({ "name": value })),
-          paletteOptionName: PALETTE_OPTION_NAME,
+          paletteOptionName: optionToName[PALETTE_OPTION_NAME],
           palettePosition: PALETTE_POSITION,
           paletteValues: selectedPalettes.map((value: string) => ({ "name": value })),
           metafieldNamespace: FOXTAIL_NAMESPACE,
@@ -41,6 +41,6 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
         throw "Error creating new product. Contact Support for help.";
     }
 
-    await createVariants(admin, customProductBody.data.productCreate.product.id, selectedFlowers, flowerName, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice);
+    await createVariants(admin, customProductBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice, optionToName);
     return customProductBody.data.productCreate.product;
   }

@@ -70,9 +70,9 @@ export async function action({ request, params }) {
 
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected);
-  await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
     data.sizesSelected);
-  await updateOptionsAndCreateVariants(admin, data.product, PALETTE_OPTION_NAME, PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected);
 
   return redirect(`/app/bouquets/customize`);

@@ -13,7 +13,7 @@ export async function updateVariants(
     const newVariants = [];
     // for all variants, if flower or size options are in the update maps, recalculate price
     variantNodes.forEach( (variantNode) => {
-        const sizeName: string = variantNode.selectedOptions.find((option) => option.name == SIZE_OPTION_NAME).value;
+        const sizeName: string = variantNode.selectedOptions.find((option) => option.name == productMetadata.optionToName[SIZE_OPTION_NAME]).value;
         const shouldUpdateSizePrice: boolean = Object.prototype.hasOwnProperty.call(sizeToPriceUpdates, sizeName);
         const defaultSizePrice: number = Object.prototype.hasOwnProperty.call(productMetadata.sizeToPrice, sizeName)
             ? productMetadata.sizeToPrice[sizeName]
