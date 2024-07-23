@@ -1,6 +1,5 @@
 import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
 import { useCallback } from "react";
-import invariant from "tiny-invariant";
 import { FLOWER_CUSTOMIZATION_SECTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
@@ -109,6 +108,23 @@ export const CustomizationSection = ({
   optionValueToPriceUpdates,
   setFormState,
 }: CustomizationProps) => {
+  const updateOptionName = useCallback(
+    (value: string) => {
+      setFormState({
+        ...formState,
+        optionToNameUpdates: {
+          ...formState.optionToNameUpdates,
+          [optionKey]: value
+        },
+        optionCustomizations: {
+          ...formState.optionCustomizations,
+          [optionKey]: { ...formState.optionCustomizations[optionKey], optionName: value }
+        }
+      });
+    },
+    [formState, setFormState]
+  );
+
   return (
     <>
 
@@ -117,9 +133,7 @@ export const CustomizationSection = ({
         label={`Edit category name`}
         placeholder={optionCustomizations.optionName}
         value={formState.optionCustomizations[optionKey].optionName}
-        onChange={(value) =>
-          setFormState({ ...formState, [optionKey]: { ...formState.optionCustomizations[optionKey], optionName: value } })
-        }
+        onChange={updateOptionName}
         autoComplete="off"
         selectTextOnFocus={true}
       />

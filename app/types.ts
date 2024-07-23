@@ -13,9 +13,7 @@ export type ByobCustomizerOptions = {
   palettesSelected: string[];
   flowersAvailable: Flower[];
   flowersSelected: string[];
-  sizeToPrice: { [key: string]: number };
-  flowerToPrice: { [key: string]: number };
-  optionToName: { [key: string]: string };
+  productMetadata: ProductMetadata;
 };
 
 export type BouquetSettingsForm = {
@@ -34,6 +32,7 @@ export type BouquetSettingsForm = {
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
+  productMetadata: ProductMetadata;
 };
 
 export type SerializedSettingForm = {
@@ -50,17 +49,15 @@ export type SerializedSettingForm = {
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
-  optionToName: { [key: string]: string };
+  productMetadata: ProductMetadata;
 }
 
 export type SerializedCustomizeForm = {
   product: Product;
-  sizeToPrice: { [key: string]: number };
+  productMetadata: ProductMetadata;
   sizeToPriceUpdates: { [key: string]: number };
-  flowerToPrice: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
-  optionToDisplayName: { [key: string]: string };
-  flowerNameUpdate: string;
+  optionToNameUpdates: { [key: string]: string };
 }
 
 export type FocalFlowersSectionProps = {
@@ -106,10 +103,10 @@ export type BouquetCustomizationOptions = {
 
 export type BouquetCustomizationForm = {
   optionCustomizations: { [key: string]: OptionCustomization };
-  sizeToPrice: { [key: string]: number };
+  productMetadata: ProductMetadata;
   sizeToPriceUpdates: { [key: string]: number };
-  flowerToPrice: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
+  optionToNameUpdates: { [key: string]: string };
 };
 
 export type OptionCustomization = {
@@ -141,7 +138,8 @@ export type CustomizationProps = {
   setFormState: Dispatch<SetStateAction<BouquetCustomizationForm>>;
 }
 
-export type PriceMetadata = {
+export type ProductMetadata = {
   sizeToPrice: { [key: string]: number };
   flowerToPrice: { [key: string]: number };
+  optionToName: { [key: string]: string };
 }

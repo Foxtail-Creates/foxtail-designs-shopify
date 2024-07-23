@@ -1,4 +1,3 @@
-import invariant from "tiny-invariant";
 import { UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY } from "./graphql";
 
 export async function updateOptionName(
@@ -8,20 +7,6 @@ export async function updateOptionName(
   newDisplayName: string,
 ) {
 
-  // custom option - alias
-  // - option names
-  // - option values
-  // - save
-  //   - option name to displayName map
-  //   - option value to displayName map
-  // const optionUpdates = [];
-  // for (const option in optionToDisplayName) {
-  //     optionUpdates.push({
-  //         id: 
-  //     })
-  // }
-
-  // todo: don't update it name is the same
   const option = product.options.find(
     (o) => o.name === currentOptionName,
 ) ;
@@ -31,7 +16,7 @@ export async function updateOptionName(
       variables: {
         productId: product.id,
         optionName: newDisplayName,
-        optionId: option.optionId,
+        optionId: option.id,
         newValues: [],
         oldValues: [],
         updatedValues: []
@@ -40,7 +25,13 @@ export async function updateOptionName(
   );
 
   const updateProductOptionNameBody = await updateProductOptionNameResponse.json();
-  invariant(updateProductOptionNameBody.data?.productOptionUpdate?.userErrors.length == 0,
-    "Error renaming new product options. Contact Support for help."
-  );
+  const hasErrors: boolean = updateProductOptionNameBody.data?.productOptionUpdate.userErrors.length != 0;
+  if (hasErrors) {
+      console.log("Error updating variants. Message {"
+          + updateProductOptionNameBody.data?.productOptionUpdate.userErrors[0].message
+          + "} on field {"
+          + updateProductOptionNameBody.data?.productOptionUpdate.userErrors[0].field
+          + "}");
+      throw "Error renaming option. Contact Support for help.";
+  }
 }

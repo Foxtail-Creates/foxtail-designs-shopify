@@ -68,7 +68,7 @@ export async function action({ request, params }) {
     return json({ errors });
   }
 
-  await updateOptionsAndCreateVariants(admin, data.product, data.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected);
   await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
     data.sizesSelected);
@@ -102,6 +102,7 @@ export default function ByobCustomizationForm() {
     flowersSelected: byobCustomizer.flowersSelected,
     flowerOptionValuesToRemove: [],
     flowerOptionValuesToAdd: [],
+    productMetadata: byobCustomizer.productMetadata
   };
 
   const [formState, setFormState] = useState(byobCustomizerForm);
@@ -129,6 +130,7 @@ export default function ByobCustomizationForm() {
       flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
+      productMetadata: byobCustomizer.productMetadata
     };
 
     const serializedData = JSON.stringify(data);

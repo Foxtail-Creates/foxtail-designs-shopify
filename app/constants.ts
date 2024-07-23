@@ -1,4 +1,4 @@
-import { PriceMetadata } from "./types";
+import { ProductMetadata } from "./types";
 
 export const FOXTAIL_NAMESPACE = "foxtail";
 export const STORE_METADATA_CUSTOM_PRODUCT_KEY = "customProductId";
@@ -37,10 +37,17 @@ export const DEFAULT_FLOWER_PRICE = 0;
 
 export const FLOWER_TO_PRICE_DEFAULT_VALUES: {[key: string]: number} = {};
 
-// default price metadata values
-export const OPTION_TO_PRICE_DEFAULT_VALUES: PriceMetadata = {
-    sizeToPrice: SIZE_TO_PRICE_DEFAULT_VALUES,
-    flowerToPrice: FLOWER_TO_PRICE_DEFAULT_VALUES
+export const OPTION_TO_NAME_DEFAULT_VALUES: {[key: string]: string} = {
+    [FLOWER_OPTION_NAME]: FLOWER_OPTION_NAME,
+    [PALETTE_OPTION_NAME]: PALETTE_OPTION_NAME,
+    [SIZE_OPTION_NAME]: SIZE_OPTION_NAME
 };
 
-export const OPTION_TO_PRICE_DEFAULT_VALUES_SERIALIZED = JSON.stringify(OPTION_TO_PRICE_DEFAULT_VALUES);
+// default price metadata values
+export const PRODUCT_METADATA_DEFAULT_VALUES: ProductMetadata = {
+    "sizeToPrice": SIZE_TO_PRICE_DEFAULT_VALUES,
+    "flowerToPrice": FLOWER_TO_PRICE_DEFAULT_VALUES,
+    "optionToName": OPTION_TO_NAME_DEFAULT_VALUES
+};
+
+export const PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED = JSON.stringify(PRODUCT_METADATA_DEFAULT_VALUES);
