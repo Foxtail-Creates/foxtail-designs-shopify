@@ -1,23 +1,25 @@
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
-import { DeleteIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
-import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
-import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
+import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Spinner, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/deleteProduct";
 import { deleteShopMetafield } from "~/server/deleteShopMetafield";
+import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
+import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
+import { useState } from "react";
 
 type ByobProductProps = {
   onEditAction: () => void;
   onDeleteAction: () => void;
   onPreviewAction: () => void;
-  productId: string | null;
+  productId: string | undefined;
 };
 
 type Product = {
   id: string | null;
   metafieldId: string;
+  onlineStorePreviewUrl: string | undefined;
 };
 
 export async function loader({ request }) {
@@ -36,9 +38,26 @@ export async function loader({ request }) {
 
   const productId = shopMetadataBody.data?.shop.metafield?.value;
 
+  let productPreviewUrl = null;
+
+  if (productId != undefined && productId != null) {
+    const customProductResponse = await admin.graphql(
+      GET_PRODUCT_BY_ID_QUERY,
+      {
+        variables: {
+          id: productId,
+          namespace: FOXTAIL_NAMESPACE,
+          key: PRODUCT_METADATA_PRICES
+        },
+      },
+    );
+    productPreviewUrl = (await customProductResponse.json()).data.product.onlineStorePreviewUrl;
+  }
+
   return json({
     id: productId,
-    metafieldId: shopMetadataBody.data?.shop.metafield?.id
+    metafieldId: shopMetadataBody.data?.shop.metafield?.id,
+    onlineStorePreviewUrl: productPreviewUrl
   });
 }
 
@@ -61,14 +80,21 @@ export async function action({ request, params }) {
   return redirect(`/app`);
 }
 
-const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId }: ByobProductProps) => (
+const ByobProduct = (
+  {
+    onEditAction,
+    onDeleteAction,
+    onPreviewAction,
+    productId,
+  }
+    : ByobProductProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
         <Text as="h2" variant="headingMd">
           Build-Your-Own-Bouquet
         </Text>
-        {(productId !== null) &&
+        {(!!productId) &&
           <Button
             onClick={onPreviewAction}
             accessibilityLabel="Preview BYOB product"
@@ -85,7 +111,7 @@ const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId 
       </Text>
       <InlineStack align="end">
         <ButtonGroup>
-          {(productId !== null) &&
+          {(!!productId) &&
             <Button
               variant="secondary"
               onClick={onDeleteAction}
@@ -99,9 +125,9 @@ const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId 
             variant="primary"
             onClick={onEditAction}
             accessibilityLabel="Create or edit BYOB product"
-            icon={PlusIcon}
+            icon={(!productId) ? PlusIcon : EditIcon}
           >
-            {(productId === null) ? 'Create' : 'Edit'}
+            {(!productId) ? 'Create' : 'Edit'}
           </Button>
         </ButtonGroup>
       </InlineStack>
@@ -160,6 +186,7 @@ export default function Index() {
 
   const product: Product = useLoaderData();
   const submit = useSubmit();
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <Page>
@@ -168,8 +195,11 @@ export default function Index() {
           <InlineGrid gap="300" columns={2}>
             <ByobProduct
               onEditAction={() => navigate("bouquets/settings")}
-              onDeleteAction={() => submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId}, { method: "post" }) }
-              onPreviewAction={() => window.open("https://foxtailcreates.com/")?.focus()} // TODO
+              onDeleteAction={() =>
+                submit(
+                  { action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+              }
+              onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
               productId={product.id}
             />
             <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />

@@ -37,15 +37,16 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   );
   const shopMetadataBody = await getShopMetadataResponse.json();
   let customProduct;
-  let productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
+  const productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
 
-  if (shopMetadataBody.data?.shop.metafield?.value != null) {
+  const productId = shopMetadataBody.data?.shop.metafield?.value
+  if (productId != undefined && productId != null) {
     // if shop metadata has custom product id, retrieve it
     const customProductResponse = await admin.graphql(
       GET_PRODUCT_BY_ID_QUERY,
       {
         variables: {
-          id: shopMetadataBody.data?.shop.metafield?.value,
+          id: productId,
           namespace: FOXTAIL_NAMESPACE,
           key: PRODUCT_METADATA_PRICES
         },
