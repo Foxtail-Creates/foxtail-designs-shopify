@@ -29,8 +29,10 @@ import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
 import { Palette as PaletteComponent } from "~/components/palettes/Palette";
-import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
-import { savePrices } from "~/server/savePrices";
+import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
+import { updateOptionName } from "~/server/updateOptionNames";
+import { updateVariants } from "~/server/updateVariants";
+import { setProductMetadata } from "~/server/setProductMetadata";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -47,10 +49,39 @@ export async function action({ request, params }) {
 
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
+  // Note that order of operations matters. For example when updating prices and option names in the same form,
+  // we update price variants using the old option names first, and then update the option names to the new values
+  await updateVariants(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
+    data.sizeToPriceUpdates, data.flowerToPriceUpdates);
 
-  await savePrices(admin, data.product.id, data.product.variants.nodes,
-    data.sizeToPrice, data.sizeToPriceUpdates, data.flowerToPrice, data.flowerToPriceUpdates);
+  if (data.optionToNameUpdates[FLOWER_OPTION_NAME] != null
+    && data.productMetadata.optionToName[FLOWER_OPTION_NAME] != data.optionToNameUpdates[FLOWER_OPTION_NAME]) {
+    await updateOptionName(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], data.optionToNameUpdates[FLOWER_OPTION_NAME]);
+  }
+
+  if (data.optionToNameUpdates[PALETTE_OPTION_NAME] != null
+    && data.productMetadata.optionToName[PALETTE_OPTION_NAME] != data.optionToNameUpdates[PALETTE_OPTION_NAME]) {
+    await updateOptionName(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], data.optionToNameUpdates[PALETTE_OPTION_NAME]);
+  }
+
+  if (data.optionToNameUpdates[SIZE_OPTION_NAME] != null
+    && data.productMetadata.optionToName[SIZE_OPTION_NAME] != data.optionToNameUpdates[SIZE_OPTION_NAME]) {
+    await updateOptionName(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], data.optionToNameUpdates[SIZE_OPTION_NAME]);
+  }
+
+  updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
+  updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);
+  updateMap(data.productMetadata.optionToName, data.optionToNameUpdates);
+  await setProductMetadata(admin, data.product.id,
+      FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
+
   return redirect(`/app`);
+}
+
+export function updateMap<T>(original: { [key:string]: T }, updates: { [key:string]: T }) {
+  for (const optionValue in updates) {
+      original[optionValue] = updates[optionValue];
+  }
 }
 
 const createValueCustomizationsObject = (optionValues: string[], optionValueToPrice: { [key: string]: number }) => {
@@ -110,25 +141,25 @@ export default function ByobCustomizationForm() {
 
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
-      sizes: {
-        optionName: SIZE_OPTION_NAME,
-        optionValueCustomizations: createValueCustomizationsObject(formOptions.sizesSelected, formOptions.sizeToPrice),
+      [SIZE_OPTION_NAME]: {
+        optionName: formOptions.productMetadata.optionToName[SIZE_OPTION_NAME],
+        optionValueCustomizations: createValueCustomizationsObject(formOptions.sizesSelected, formOptions.productMetadata.sizeToPrice),
       },
-      palettes: {
-        optionName: PALETTE_OPTION_NAME,
+      [PALETTE_OPTION_NAME]: {
+        optionName: formOptions.productMetadata.optionToName[PALETTE_OPTION_NAME],
         optionValueCustomizations: createPaletteValueCustomizationsObject(
           formOptions.palettesAvailable,
           formOptions.palettesSelected
         ),
       },
-      flowers: {
-        optionName: FLOWER_OPTION_NAME,
-        optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected, formOptions.flowerToPrice),
+      [FLOWER_OPTION_NAME]: {
+        optionName: formOptions.productMetadata.optionToName[FLOWER_OPTION_NAME],
+        optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected, formOptions.productMetadata.flowerToPrice),
       }
     },
-    sizeToPrice: formOptions.sizeToPrice,
+    productMetadata: formOptions.productMetadata,
+    optionToNameUpdates: {},
     sizeToPriceUpdates: {},
-    flowerToPrice: formOptions.flowerToPrice,
     flowerToPriceUpdates: {}
   }
 
@@ -142,15 +173,14 @@ export default function ByobCustomizationForm() {
 
   const submit = useSubmit();
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
-  // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
 
   function submitFormData() {
     const data: SerializedCustomizeForm = {
       product: formOptions.customProduct,
-      sizeToPrice: formState.sizeToPrice,
+      productMetadata: formOptions.productMetadata,
       sizeToPriceUpdates: formState.sizeToPriceUpdates,
-      flowerToPrice: formState.flowerToPrice,
       flowerToPriceUpdates: formState.flowerToPriceUpdates,
+      optionToNameUpdates: formState.optionToNameUpdates
     };
 
     const serializedData = JSON.stringify(data);
@@ -177,7 +207,7 @@ export default function ByobCustomizationForm() {
                   Edit Bouquet Option Names and Prices
                 </Text>
                 <CustomizationSection
-                  optionKey="sizes"
+                  optionKey={SIZE_OPTION_NAME}
                   shouldSetPrice={true}
                   shouldSetName={true}
                   shouldSortOptions={false}
@@ -196,14 +226,14 @@ export default function ByobCustomizationForm() {
                       </List>
                     </>
                   }
-                  optionCustomizations={form.optionCustomizations.sizes}
+                  optionCustomizations={form.optionCustomizations[SIZE_OPTION_NAME]}
                   formState={formState}
                   setFormState={setFormState}
                   optionValueToPriceUpdates={formState.sizeToPriceUpdates}
                 />
                 <Divider />
                 <CustomizationSection
-                  optionKey="palettes"
+                  optionKey={PALETTE_OPTION_NAME}
                   shouldSetPrice={false}
                   shouldSetName={true}
                   shouldSortOptions={true}
@@ -219,14 +249,14 @@ export default function ByobCustomizationForm() {
                       </List>
                     </>
                   }
-                  optionCustomizations={form.optionCustomizations.palettes}
+                  optionCustomizations={form.optionCustomizations[PALETTE_OPTION_NAME]}
                   formState={formState}
                   setFormState={setFormState}
                   optionValueToPriceUpdates={{}}
                 />
                 <Divider />
                 <CustomizationSection
-                  optionKey="flowers"
+                  optionKey={FLOWER_OPTION_NAME}
                   shouldSetPrice={true}
                   shouldSetName={false}
                   shouldSortOptions={true}
@@ -245,7 +275,7 @@ export default function ByobCustomizationForm() {
                       </List>
                     </>
                   }
-                  optionCustomizations={form.optionCustomizations.flowers}
+                  optionCustomizations={form.optionCustomizations[FLOWER_OPTION_NAME]}
                   formState={formState}
                   setFormState={setFormState}
                   optionValueToPriceUpdates={formState.flowerToPriceUpdates}

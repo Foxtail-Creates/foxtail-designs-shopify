@@ -68,11 +68,11 @@ export async function action({ request, params }) {
     return json({ errors });
   }
 
-  await updateOptionsAndCreateVariants(admin, data.product, FLOWER_OPTION_NAME, FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected);
-  await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
     data.sizesSelected);
-  await updateOptionsAndCreateVariants(admin, data.product, PALETTE_OPTION_NAME, PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected);
 
   return redirect(`/app/bouquets/customize`);
@@ -102,6 +102,7 @@ export default function ByobCustomizationForm() {
     flowersSelected: byobCustomizer.flowersSelected,
     flowerOptionValuesToRemove: [],
     flowerOptionValuesToAdd: [],
+    productMetadata: byobCustomizer.productMetadata
   };
 
   const [formState, setFormState] = useState(byobCustomizerForm);
@@ -129,6 +130,7 @@ export default function ByobCustomizationForm() {
       flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
+      productMetadata: byobCustomizer.productMetadata
     };
 
     const serializedData = JSON.stringify(data);

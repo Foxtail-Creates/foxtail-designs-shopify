@@ -9,7 +9,8 @@ export async function createVariants(
     sizeValues: string[],
     paletteValues: string[],
     sizeToPrice: { [key: string]: number },
-    flowerToPrice: { [key: string]: number }
+    flowerToPrice: { [key: string]: number },
+    optionToName: { [key: string]: string },
  ) {
     const variants = [];
     for (let f = 0; f < flowerValues.length; f++) {
@@ -24,15 +25,15 @@ export async function createVariants(
                 variants.push({
                     optionValues: [
                         {
-                            optionName: FLOWER_OPTION_NAME,
+                            optionName: optionToName[FLOWER_OPTION_NAME],
                             name: flowerValues[f]
                         },
                         {
-                            optionName: SIZE_OPTION_NAME,
+                            optionName: optionToName[SIZE_OPTION_NAME],
                             name: sizeValues[s]
                         },
                         {
-                            optionName: PALETTE_OPTION_NAME,
+                            optionName: optionToName[PALETTE_OPTION_NAME],
                             name: paletteValues[p]
                         }
                     ],
