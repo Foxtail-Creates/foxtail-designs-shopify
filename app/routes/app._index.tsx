@@ -49,10 +49,14 @@ export async function action({ request, params }) {
   };
   if (data.action === "delete") {
     // delete product
-    await deleteProduct(admin, data.productId);
+    if (data.productId != "undefined") {
+      await deleteProduct(admin, data.productId);
+    }
 
     // delete shop metafield
-    await deleteShopMetafield(admin, data.metafieldId)
+    if (data.metafieldId != "undefined") {
+      await deleteShopMetafield(admin, data.metafieldId)
+    }
   }
   return redirect(`/app`);
 }
