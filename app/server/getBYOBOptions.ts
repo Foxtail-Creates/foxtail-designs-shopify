@@ -14,8 +14,6 @@ import { createProductWithOptionsAndVariants } from "./createProductWithOptionsA
 import { setShopMetafield } from "./setShopMetafield";
 
 export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
-  let palettesSelected: string[] = [], flowersSelected: string[] = [], sizesSelected: string[] = [];
-
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
   invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers are available. Contact Support for help.");
@@ -23,8 +21,11 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
   const [firstFlower,] = allCustomOptions.flowersAvailable;
   const [firstPalette,] = allCustomOptions.palettesAvailable;
-  const defaultFlowerValues = [firstFlower.name];
-  const defaultPaletteValues = [firstPalette.name];
+
+  // set default selections
+  let flowersSelected = [firstFlower.name];
+  let palettesSelected = [firstPalette.name];
+  let sizesSelected = SIZE_OPTION_VALUES;  
 
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
@@ -55,7 +56,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     
     if (customProduct == null) {
       // if custom product is missing, create new custom product and add to store metadata
-      customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, productMetadata.optionToName, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
+      customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
       await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
     }
 
@@ -86,9 +87,9 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     const paletteOption = customProduct.options.find(
       (option) => option.name === paletteDisplayName,
     );
-    flowersSelected = await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, defaultFlowerValues);
+    flowersSelected = await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, flowersSelected);
     sizesSelected = await getSelectedValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES);
-    palettesSelected = await getSelectedValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, defaultPaletteValues);
+    palettesSelected = await getSelectedValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected);
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
@@ -96,7 +97,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     }
   } else {
     // otherwise create new custom product and add to store metadata
-    customProduct = await createProductWithOptionsAndVariants(admin, defaultFlowerValues, productMetadata.optionToName, defaultPaletteValues, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
+    customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES);
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
   const byobOptions: ByobCustomizerOptions = {
