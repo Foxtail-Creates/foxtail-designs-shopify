@@ -49,6 +49,8 @@ export async function action({ request, params }) {
 
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
+  // Note that order of operations matters. For example when updating prices and option names in the same form,
+  // we update price variants using the old option names first, and then update the option names to the new values
   await updateVariants(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
     data.sizeToPriceUpdates, data.flowerToPriceUpdates);
 
@@ -171,7 +173,6 @@ export default function ByobCustomizationForm() {
 
   const submit = useSubmit();
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
-  // TODO: https://linear.app/foxtail-creates/issue/FOX-30/shopify-app-frontend-pricing
 
   function submitFormData() {
     const data: SerializedCustomizeForm = {
