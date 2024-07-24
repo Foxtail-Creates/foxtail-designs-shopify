@@ -1,10 +1,12 @@
-import { json } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { DeleteIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
+import { deleteProduct } from "~/server/deleteProduct";
+import { deleteShopMetafield } from "~/server/deleteShopMetafield";
 
 type ByobProductProps = {
   onEditAction: () => void;
@@ -15,6 +17,7 @@ type ByobProductProps = {
 
 type Product = {
   id: string | null;
+  metafieldId: string;
 };
 
 export async function loader({ request }) {
@@ -35,7 +38,27 @@ export async function loader({ request }) {
 
   return json({
     id: productId,
+    metafieldId: shopMetadataBody.data?.shop.metafield?.id
   });
+}
+
+export async function action({ request, params }) {
+  const { admin, session } = await authenticate.admin(request);
+  const data = {
+    ...Object.fromEntries(await request.formData()),
+  };
+  if (data.action === "delete") {
+    // delete product
+    if (data.productId != "undefined") {
+      await deleteProduct(admin, data.productId);
+    }
+
+    // delete shop metafield
+    if (data.metafieldId != "undefined") {
+      await deleteShopMetafield(admin, data.metafieldId)
+    }
+  }
+  return redirect(`/app`);
 }
 
 const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId }: ByobProductProps) => (
@@ -136,6 +159,7 @@ export default function Index() {
   const navigate = useNavigate();
 
   const product: Product = useLoaderData();
+  const submit = useSubmit();
 
   return (
     <Page>
@@ -144,7 +168,7 @@ export default function Index() {
           <InlineGrid gap="300" columns={2}>
             <ByobProduct
               onEditAction={() => navigate("bouquets/settings")}
-              onDeleteAction={() => { }} // TODO https://linear.app/foxtail-creates/issue/FOX-47/delete-custom-product
+              onDeleteAction={() => submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId}, { method: "post" }) }
               onPreviewAction={() => window.open("https://foxtailcreates.com/")?.focus()} // TODO
               productId={product.id}
             />
