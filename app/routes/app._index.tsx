@@ -1,7 +1,7 @@
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate, useNavigation, useSubmit } from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Spinner, Text } from "@shopify/polaris";
+import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/deleteProduct";
 import { deleteShopMetafield } from "~/server/deleteShopMetafield";
 import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
@@ -13,7 +13,7 @@ type ByobProductProps = {
   onEditAction: () => void;
   onDeleteAction: () => void;
   onPreviewAction: () => void;
-  productId: string | undefined;
+  productId: string | undefined | null;
 
   isEditLoading: boolean;
   isDeleteLoading: boolean;
@@ -26,7 +26,7 @@ type Product = {
 };
 
 export async function loader({ request }) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
 
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
@@ -65,7 +65,7 @@ export async function loader({ request }) {
 }
 
 export async function action({ request, params }) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
   const data = {
     ...Object.fromEntries(await request.formData()),
   };
@@ -121,8 +121,8 @@ const ByobProduct = (
               onClick={onDeleteAction}
               accessibilityLabel="Delete BYOB product"
               icon={DeleteIcon}
-            // loading={isDeleteLoading}
-            // disabled={isDeleteLoading || isEditLoading}
+              loading={isDeleteLoading}
+              disabled={isDeleteLoading || isEditLoading}
             >
               Delete
             </Button>
@@ -133,7 +133,7 @@ const ByobProduct = (
             accessibilityLabel="Create or edit BYOB product"
             icon={(!productId) ? PlusIcon : EditIcon}
             loading={isEditLoading}
-            disabled={isEditLoading || isDeleteLoading}
+            disabled={isEditLoading} // todo: figure out how to add isDeleteLoading
           >
             {(!productId) ? 'Create' : 'Edit'}
           </Button>
