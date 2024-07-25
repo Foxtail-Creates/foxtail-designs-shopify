@@ -1,5 +1,5 @@
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
+import { useLoaderData, useNavigate, useNavigation, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Spinner, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/deleteProduct";
@@ -14,6 +14,9 @@ type ByobProductProps = {
   onDeleteAction: () => void;
   onPreviewAction: () => void;
   productId: string | undefined;
+
+  isEditLoading: boolean;
+  isDeleteLoading: boolean;
 };
 
 type Product = {
@@ -86,8 +89,9 @@ const ByobProduct = (
     onDeleteAction,
     onPreviewAction,
     productId,
-  }
-    : ByobProductProps) => (
+    isEditLoading,
+    isDeleteLoading
+  }: ByobProductProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
@@ -117,6 +121,8 @@ const ByobProduct = (
               onClick={onDeleteAction}
               accessibilityLabel="Delete BYOB product"
               icon={DeleteIcon}
+            // loading={isDeleteLoading}
+            // disabled={isDeleteLoading || isEditLoading}
             >
               Delete
             </Button>
@@ -126,6 +132,8 @@ const ByobProduct = (
             onClick={onEditAction}
             accessibilityLabel="Create or edit BYOB product"
             icon={(!productId) ? PlusIcon : EditIcon}
+            loading={isEditLoading}
+            disabled={isEditLoading || isDeleteLoading}
           >
             {(!productId) ? 'Create' : 'Edit'}
           </Button>
@@ -183,10 +191,21 @@ const ContactUs = ({ onAction }) => (
 
 export default function Index() {
   const navigate = useNavigate();
-
-  const product: Product = useLoaderData();
   const submit = useSubmit();
-  const [isLoading, setIsLoading] = useState(false);
+  const product: Product = useLoaderData();
+
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
+  const onEdit = () => {
+    setIsEditLoading(true);
+    navigate("bouquets/settings")
+  };
+
+  const onDelete = () => {
+    setIsDeleteLoading(true);
+    submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+  };
 
   return (
     <Page>
@@ -194,13 +213,12 @@ export default function Index() {
         <Layout.Section>
           <InlineGrid gap="300" columns={2}>
             <ByobProduct
-              onEditAction={() => navigate("bouquets/settings")}
-              onDeleteAction={() =>
-                submit(
-                  { action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
-              }
               onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+              onEditAction={onEdit}
+              onDeleteAction={onDelete}
               productId={product.id}
+              isEditLoading={isEditLoading}
+              isDeleteLoading={isDeleteLoading}
             />
             <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
             <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
