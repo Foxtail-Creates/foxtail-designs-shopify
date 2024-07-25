@@ -21,6 +21,7 @@ import type {
   BouquetCustomizationForm,
   ByobCustomizerOptions,
   OptionValueCustomizations,
+  ProductOptionValue,
   SerializedCustomizeForm,
 } from "~/types";
 import { authenticate } from "../shopify.server";
@@ -98,7 +99,7 @@ const createValueCustomizationsObject = (optionValues: string[], optionValueToPr
   }, {});
 };
 
-const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], optionValues: string[]) => {
+const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], optionValues: ProductOptionValue[]) => {
   if (!optionValues) {
     return {};
   }

@@ -1,5 +1,7 @@
+import { ProductOptionValue } from "~/types";
 import { CREATE_PRODUCT_OPTIONS_QUERY } from "./graphql";
 import invariant from "tiny-invariant";
+import { FallbackMap } from "./FallbackMap";
 
 export async function createProductOptions(
     admin,
@@ -25,7 +27,8 @@ export async function createProductOptions(
     );
 };
 
-export async function getSelectedValues(admin, option, customProduct, position, optionName, defaultValues) : Promise<string[]> {
+export async function getSelectedValues(admin, option, customProduct, position, optionName, defaultValues,
+  nameToBackendId: FallbackMap<string, number>) : Promise<number[]> {
     if (option == null) {
     // create new product option and variants
       await createProductOptions(
@@ -35,10 +38,12 @@ export async function getSelectedValues(admin, option, customProduct, position, 
         optionName,
         defaultValues
       );
-      return defaultValues;
+      return defaultValues.map(
+        (optionValue) => nameToBackendId.getValue(optionValue.name)
+      );
     } else {
       return option.optionValues.map(
-        (optionValue) => optionValue.name,
+        (optionValue) => (nameToBackendId.getValue(optionValue.name))
       );
     }
   };

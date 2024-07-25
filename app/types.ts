@@ -2,6 +2,7 @@ import type { Flower, Palette } from "@prisma/client";
 import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
+import { FallbackMap } from "./server/FallbackMap";
 
 export type ByobCustomizerOptions = {
   destination: string;
@@ -10,7 +11,9 @@ export type ByobCustomizerOptions = {
   sizesAvailable: string[];
   sizesSelected: string[];
   palettesAvailable: Palette[];
-  palettesSelected: string[];
+  palettesSelected: number[];
+  paletteNameToBackendId: FallbackMap<string, number>;
+  paletteBackendIdToName: FallbackMap<number, string>;
   flowersAvailable: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
@@ -25,9 +28,11 @@ export type BouquetSettingsForm = {
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
-  palettesSelected: string[]
-  paletteOptionValuesToRemove: string[];
-  paletteOptionValuesToAdd: string[];
+  palettesSelected: number[];
+  paletteOptionValuesToRemove: number[];
+  paletteOptionValuesToAdd: number[];
+  paletteNameToBackendId: FallbackMap<string, number>;
+  paletteBackendIdToName: FallbackMap<number, string>;
   allFocalFlowerOptions: string[];
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
@@ -42,9 +47,11 @@ export type SerializedSettingForm = {
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
-  palettesSelected: string[];
-  paletteOptionValuesToRemove: string[];
-  paletteOptionValuesToAdd: string[];
+  palettesSelected: number[];
+  paletteOptionValuesToRemove: number[];
+  paletteOptionValuesToAdd: number[];
+  paletteNameToBackendId: FallbackMap<string, number>;
+  paletteBackendIdToName: FallbackMap<number, string>;
   allFocalFlowerOptions: string[];
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
@@ -74,6 +81,7 @@ export type PaletteSectionProps = {
 };
 
 export type PaletteChoiceProps = {
+  paletteId: number;
   paletteName: string;
   isChecked: boolean;
   setIsChecked: (newChecked: boolean, selected: string) => void;
@@ -142,4 +150,10 @@ export type ProductMetadata = {
   sizeToPrice: { [key: string]: number };
   flowerToPrice: { [key: string]: number };
   optionToName: { [key: string]: string };
+  customSizeNames: { [key: string]: string };
+}
+
+export type ProductOptionValue = {
+  backendId: number;
+  displayName: string;
 }

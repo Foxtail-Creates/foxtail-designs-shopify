@@ -14,6 +14,7 @@ import type {
 import { Palette } from "./Palette";
 
 const PaletteChoice = ({
+  paletteId,
   paletteName,
   isChecked,
   setIsChecked: setCheckedPalette,
@@ -25,7 +26,7 @@ const PaletteChoice = ({
     <>
       <InlineGrid gap="100" columns="5">
         <Checkbox
-          id={paletteName}
+          id={paletteId.toString()}
           label={paletteName}
           checked={isChecked}
           onChange={setCheckedPalette}
@@ -51,15 +52,15 @@ export const PaletteSection = ({
       const nextSelectedPalettes = new Set([...formState.palettesSelected]);
       const paletteOptionValuesToAdd = new Set([...formState.paletteOptionValuesToAdd]);
       const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
-
+      const paletteId = parseInt(selected);// getBackendId(selected);
       if (newChecked) {
-        nextSelectedPalettes.add(selected);
-        paletteOptionValuesToAdd.add(selected);
-        paletteOptionValuesToRemove.delete(selected);
+        nextSelectedPalettes.add(paletteId);
+        paletteOptionValuesToAdd.add(paletteId);
+        paletteOptionValuesToRemove.delete(paletteId);
       } else {
-        nextSelectedPalettes.delete(selected);
-        paletteOptionValuesToAdd.delete(selected);
-        paletteOptionValuesToRemove.add(selected);
+        nextSelectedPalettes.delete(paletteId);
+        paletteOptionValuesToAdd.delete(paletteId);
+        paletteOptionValuesToRemove.add(paletteId);
       }
       setFormState({
         ...formState,
@@ -77,6 +78,12 @@ export const PaletteSection = ({
     : null;
   }
 
+  function getDisplayName(backendId: number) {
+    return formState.paletteBackendIdToName.customMap[backendId] != null
+      ? formState.paletteBackendIdToName.customMap[backendId]
+      : formState.paletteBackendIdToName.defaultMap[backendId]
+  }
+
   return (
     <>
       <Text as="h3" variant="headingMd">
@@ -88,9 +95,10 @@ export const PaletteSection = ({
       <BlockStack gap="500" align="start">
         {sortedPalettes.map((palette) => (
           <PaletteChoice
-            key={palette.name}
-            paletteName={palette.name}
-            isChecked={formState.palettesSelected.includes(palette.name)}
+            key={getDisplayName(palette.id)}
+            paletteId={palette.id}
+            paletteName={getDisplayName(palette.id)}
+            isChecked={formState.palettesSelected.some(selected => selected == palette.id)}
             setIsChecked={updateSelection}
             color1={palette.color1}
             color2={palette.color2}
