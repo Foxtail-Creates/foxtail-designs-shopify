@@ -40,7 +40,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   const productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
 
   const productId = shopMetadataBody.data?.shop.metafield?.value
-  if (productId != undefined && productId != null) {
+  if (productId) {
     // if shop metadata has custom product id, retrieve it
     const customProductResponse = await admin.graphql(
       GET_PRODUCT_BY_ID_QUERY,

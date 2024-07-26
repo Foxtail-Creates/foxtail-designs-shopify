@@ -6,8 +6,9 @@ import { deleteProduct } from "~/server/deleteProduct";
 import { deleteShopMetafield } from "~/server/deleteShopMetafield";
 import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
 import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
-import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
+import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { useState } from "react";
+import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 
 type ByobProductProps = {
   onEditAction: () => void;
@@ -43,14 +44,12 @@ export async function loader({ request }) {
 
   let productPreviewUrl = null;
 
-  if (productId != undefined && productId != null) {
+  if (productId) {
     const customProductResponse = await admin.graphql(
-      GET_PRODUCT_BY_ID_QUERY,
+      GET_PRODUCT_PREVIEW_BY_ID_QUERY,
       {
         variables: {
-          id: productId,
-          namespace: FOXTAIL_NAMESPACE,
-          key: PRODUCT_METADATA_PRICES
+          id: productId
         },
       },
     );

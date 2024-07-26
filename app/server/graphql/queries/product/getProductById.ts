@@ -2,7 +2,6 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
     query getProductById($id: ID!, $namespace: String!, $key: String!) { 
       product(id:$id) {
         id
-        onlineStorePreviewUrl
         options {
           id
           name
@@ -30,5 +29,13 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
         metafield (namespace: $namespace, key: $key) {
           value
         }
+      }
+    }`;
+
+export const GET_PRODUCT_PREVIEW_BY_ID_QUERY = `#graphql
+    query getProductPreviewById($id: ID!) { 
+      product(id:$id) {
+        id
+        onlineStorePreviewUrl
       }
     }`;
