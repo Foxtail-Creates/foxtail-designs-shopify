@@ -2,26 +2,32 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
-import { DeleteIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
-import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
-import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { deleteProduct } from "~/server/deleteProduct";
 import { deleteShopMetafield } from "~/server/deleteShopMetafield";
+import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
+import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
+import { useState } from "react";
+import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 
 type ByobProductProps = {
   onEditAction: () => void;
   onDeleteAction: () => void;
   onPreviewAction: () => void;
-  productId: string | null;
+  productId: string | undefined | null;
+
+  isEditLoading: boolean;
+  isDeleteLoading: boolean;
 };
 
 type Product = {
   id: string | null;
   metafieldId: string;
+  onlineStorePreviewUrl: string | undefined;
 };
 
 export async function loader({ request }) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
 
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
@@ -36,14 +42,29 @@ export async function loader({ request }) {
 
   const productId = shopMetadataBody.data?.shop.metafield?.value;
 
+  let productPreviewUrl = null;
+
+  if (productId) {
+    const customProductResponse = await admin.graphql(
+      GET_PRODUCT_PREVIEW_BY_ID_QUERY,
+      {
+        variables: {
+          id: productId
+        },
+      },
+    );
+    productPreviewUrl = (await customProductResponse.json()).data.product.onlineStorePreviewUrl;
+  }
+
   return json({
     id: productId,
-    metafieldId: shopMetadataBody.data?.shop.metafield?.id
+    metafieldId: shopMetadataBody.data?.shop.metafield?.id,
+    onlineStorePreviewUrl: productPreviewUrl
   });
 }
 
 export async function action({ request, params }) {
-  const { admin, session } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
   const data = {
     ...Object.fromEntries(await request.formData()),
   };
@@ -61,14 +82,22 @@ export async function action({ request, params }) {
   return redirect(`/app`);
 }
 
-const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId }: ByobProductProps) => (
+const ByobProduct = (
+  {
+    onEditAction,
+    onDeleteAction,
+    onPreviewAction,
+    productId,
+    isEditLoading,
+    isDeleteLoading
+  }: ByobProductProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
         <Text as="h2" variant="headingMd">
           Build-Your-Own-Bouquet
         </Text>
-        {(productId !== null) &&
+        {(!!productId) &&
           <Button
             onClick={onPreviewAction}
             accessibilityLabel="Preview BYOB product"
@@ -85,12 +114,14 @@ const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId 
       </Text>
       <InlineStack align="end">
         <ButtonGroup>
-          {(productId !== null) &&
+          {(!!productId) &&
             <Button
               variant="secondary"
               onClick={onDeleteAction}
               accessibilityLabel="Delete BYOB product"
               icon={DeleteIcon}
+              loading={isDeleteLoading}
+              disabled={isDeleteLoading || isEditLoading}
             >
               Delete
             </Button>
@@ -99,9 +130,11 @@ const ByobProduct = ({ onEditAction, onDeleteAction, onPreviewAction, productId 
             variant="primary"
             onClick={onEditAction}
             accessibilityLabel="Create or edit BYOB product"
-            icon={PlusIcon}
+            icon={(!productId) ? PlusIcon : EditIcon}
+            loading={isEditLoading}
+            disabled={isEditLoading} // todo: figure out how to add isDeleteLoading
           >
-            {(productId === null) ? 'Create' : 'Edit'}
+            {(!productId) ? 'Create' : 'Edit'}
           </Button>
         </ButtonGroup>
       </InlineStack>
@@ -157,9 +190,21 @@ const ContactUs = ({ onAction }) => (
 
 export default function Index() {
   const navigate = useNavigate();
-
-  const product: Product = useLoaderData();
   const submit = useSubmit();
+  const product: Product = useLoaderData();
+
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
+  const onEdit = () => {
+    setIsEditLoading(true);
+    navigate("bouquets/settings")
+  };
+
+  const onDelete = () => {
+    setIsDeleteLoading(true);
+    submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+  };
 
   return (
     <Page>
@@ -167,10 +212,12 @@ export default function Index() {
         <Layout.Section>
           <InlineGrid gap="300" columns={2}>
             <ByobProduct
-              onEditAction={() => navigate("bouquets/settings")}
-              onDeleteAction={() => submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId}, { method: "post" }) }
-              onPreviewAction={() => window.open("https://foxtailcreates.com/")?.focus()} // TODO
+              onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+              onEditAction={onEdit}
+              onDeleteAction={onDelete}
               productId={product.id}
+              isEditLoading={isEditLoading}
+              isDeleteLoading={isDeleteLoading}
             />
             <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
             <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />

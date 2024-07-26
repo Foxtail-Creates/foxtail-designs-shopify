@@ -1,5 +1,4 @@
 import {
-  InlineStack,
   Text,
   BlockStack,
   Checkbox,
@@ -11,16 +10,8 @@ import { FormErrors } from "~/errors";
 import type {
   PaletteChoiceProps,
   PaletteSectionProps,
-  PaletteSquareInput,
 } from "~/types";
 import { Palette } from "./Palette";
-
-const paletteSquareStyle = ({ color }: PaletteSquareInput) => ({
-  backgroundColor: color,
-  width: 50,
-  height: 50,
-  borderRadius: 5,
-});
 
 const PaletteChoice = ({
   paletteName,

@@ -31,3 +31,11 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
         }
       }
     }`;
+
+export const GET_PRODUCT_PREVIEW_BY_ID_QUERY = `#graphql
+    query getProductPreviewById($id: ID!) { 
+      product(id:$id) {
+        id
+        onlineStorePreviewUrl
+      }
+    }`;
