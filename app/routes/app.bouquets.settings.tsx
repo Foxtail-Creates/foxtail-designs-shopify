@@ -77,21 +77,25 @@ export async function action({ request, params }) {
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
+  console.log(data.productImages);
+
   // todo: delete existing media?
 
+  // add images for new palettes
+  if (data.palettesSelected.length > 0) {
+    const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
+      (palette) => data.palettesSelected.includes(palette.name),
+    ).map((palette) => {
+      return {
+        alt: `Palette ${palette.name}`,
+        originalSource: palette.imageLink,
+        mediaContentType: "IMAGE"
+      };
+    });
 
-  const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
-    (palette) => data.paletteOptionValuesToAdd.includes(palette.name),
-  ).map((palette) => {
-    return {
-      alt: `Palette ${palette.name}`,
-      originalSource: palette.imageLink,
-      mediaContentType: "IMAGE"
-    };
-  });
-  
-  await createProductMedia(admin, createMediaInput, data.product.id);
-  // todo: set media on variants
+    await createProductMedia(admin, createMediaInput, data.product.id);
+    // todo: set media on variants
+  }
 
   return redirect(`/app/bouquets/customize`);
 }
@@ -152,7 +156,8 @@ export default function ByobCustomizationForm() {
       flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
-      productMetadata: byobCustomizer.productMetadata
+      productMetadata: byobCustomizer.productMetadata,
+      productImages: byobCustomizer.productImages
     };
 
     const serializedData = JSON.stringify(data);

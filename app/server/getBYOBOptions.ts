@@ -134,6 +134,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     flowersAvailable: allCustomOptions.flowersAvailable,
     flowersSelected: flowersSelected,
     productMetadata: productMetadata,
+    productImages: customProduct.images.nodes,
   };
   return byobOptions;
 };
