@@ -1,12 +1,21 @@
+import { JsonObject, JsonProperty } from "json2typescript";
+
 /**
  * Map class for keys mapped to exactly one value, with fallback to a default value.
  * Only strings are supported, to avoid type problems for the reverse maps
  */
+@JsonObject("TwoWayFallbackMap")
 export class TwoWayFallbackMap {
+    @JsonProperty("customMap")
     customMap: Record<string, string>;
+
+    @JsonProperty("defaultMap")
     defaultMap: Record<string, string>;
 
+    @JsonProperty("reverseCustomMap")
     reverseCustomMap: Record<string, string>;
+
+    @JsonProperty("reverseDefaultMap")
     reverseDefaultMap: Record<string, string>;
 
     constructor(customMap: Record<string, string>, defaultMap: Record<string, string>) {
