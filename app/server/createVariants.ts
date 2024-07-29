@@ -1,18 +1,18 @@
 import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
 import { CREATE_VARIANTS_QUERY } from "./graphql";
 import invariant from "tiny-invariant";
-import { ProductOptionValue } from "~/types";
+import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 
 export async function createVariants(
     admin,
     productId: string,
     flowerValues: string[],
     sizeValues: string[],
-    paletteValues: number[],
+    paletteValues: string[],
     sizeToPrice: { [key: string]: number },
     flowerToPrice: { [key: string]: number },
     optionToName: { [key: string]: string },
-    backendIdToName: FallbackMap<number, string>
+    backendIdToName: TwoWayFallbackMap
  ) {
     const variants = [];
     for (let f = 0; f < flowerValues.length; f++) {

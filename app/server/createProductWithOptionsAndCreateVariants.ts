@@ -6,8 +6,8 @@ import { createVariants } from "./createVariants";
  * Creates a new product
  */
 export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], optionToName: { [key: string]: string},
-  selectedPalettes: number[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number },
-  backendIdToName: FallbackMap<number, string>) {
+  selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number },
+  backendIdToName: FallbackMap) {
     const customProductWithOptionsResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
@@ -22,7 +22,7 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
           sizeValues: selectedSizes.map((value: string) => ({ "name": value })),
           paletteOptionName: optionToName[PALETTE_OPTION_NAME],
           palettePosition: PALETTE_POSITION,
-          paletteValues: selectedPalettes.map((id: number) => {
+          paletteValues: selectedPalettes.map((id: string) => {
             return { "name": backendIdToName.getValue(id) };
           }),
           metafieldNamespace: FOXTAIL_NAMESPACE,
