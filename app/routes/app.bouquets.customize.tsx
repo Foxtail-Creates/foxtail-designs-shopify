@@ -35,6 +35,7 @@ import { updateOptionAndValueNames } from "~/server/updateOptionAndValueNames";
 import { updateVariants } from "~/server/updateVariants";
 import { setProductMetadata } from "~/server/setProductMetadata";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
+import { sanitizeData } from "~/server/sanitizeData";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -50,6 +51,8 @@ export async function action({ request, params }) {
   const serializedData = await request.formData();
 
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
+
+  sanitizeData(data);
 
   // Note that order of operations matters. For example when updating prices and option names in the same form,
   // we update price variants using the old option names first, and then update the option names to the new values
@@ -80,21 +83,21 @@ export async function action({ request, params }) {
 
   updateIdMap(data.productMetadata.paletteToName, data.paletteToNameUpdates, data.paletteBackendIdToName);
   await setProductMetadata(admin, data.product.id,
-      FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
+    FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
 
   return redirect(`/app`);
 }
 
-export function updateMap<T>(original: { [key:string]: T }, updates: { [key:string]: T }) {
+export function updateMap<T>(original: { [key: string]: T }, updates: { [key: string]: T }) {
   for (const optionValue in updates) {
-      original[optionValue] = updates[optionValue];
+    original[optionValue] = updates[optionValue];
   }
 }
 
-export function updateIdMap<T>(oldBackendIdToCustomName: { [key:string]: string }, nameToNewName: { [key:string]: string },
+export function updateIdMap(oldBackendIdToCustomName: { [key: string]: string }, nameToNewName: { [key: string]: string },
   backendIdToName: SerializedTwoWayFallbackMap) {
   for (const oldName in nameToNewName) {
-    const backendId: string = backendIdToName.reverseCustomMap[oldName] != null ? backendIdToName.reverseCustomMap[oldName] :  backendIdToName.reverseDefaultMap[oldName];
+    const backendId: string = backendIdToName.reverseCustomMap[oldName] != null ? backendIdToName.reverseCustomMap[oldName] : backendIdToName.reverseDefaultMap[oldName];
     oldBackendIdToCustomName[backendId] = nameToNewName[oldName];
   }
 }

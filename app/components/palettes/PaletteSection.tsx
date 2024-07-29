@@ -52,7 +52,7 @@ export const PaletteSection = ({
       const nextSelectedPalettes = new Set([...formState.palettesSelected]);
       const paletteOptionValuesToAdd = new Set([...formState.paletteOptionValuesToAdd]);
       const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
-      const paletteId = selected;// getBackendId(selected);
+      const paletteId = selected;
       if (newChecked) {
         nextSelectedPalettes.add(paletteId);
         paletteOptionValuesToAdd.add(paletteId);
