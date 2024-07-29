@@ -40,6 +40,7 @@ import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
 import { CreateMediaInput, createProductMedia } from "~/server/createProductMedia";
+import { deleteProductMedia } from "~/server/deleteProductMedia";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -77,11 +78,19 @@ export async function action({ request, params }) {
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
-  console.log(data.productImages);
+  // remove all images
+  if (data.productImages?.length) {
+    const mediaIds = data.productImages.map((image) =>
+        image.id
+      );
 
-  // todo: delete existing media?
+    console.log(mediaIds)
+    console.log(data.product.id)
 
-  // add images for new palettes
+    await deleteProductMedia(admin, mediaIds, data.product.id);
+  }
+
+  // add images for palettes
   if (data.palettesSelected.length > 0) {
     const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
       (palette) => data.palettesSelected.includes(palette.name),
@@ -94,6 +103,7 @@ export async function action({ request, params }) {
     });
 
     await createProductMedia(admin, createMediaInput, data.product.id);
+    // todo: re-order media
     // todo: set media on variants
   }
 
