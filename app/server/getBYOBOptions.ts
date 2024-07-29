@@ -7,7 +7,7 @@ import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./grap
 import type { StoreOptions} from "~/models/StoreSetting.server";
 import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
-import { getSelectedValues as getSelectedValues} from "./createProductOptions";
+import { getSelectedCustomValues, getSelectedValues as getSelectedValues} from "./createProductOptions";
 import { createVariants } from "./createVariants";
 import { setProductMetadata } from "./setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
@@ -98,9 +98,9 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     const paletteOption = customProduct.options.find(
       (option) => option.name === paletteDisplayName,
     );
-    flowersSelected = []; //await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, defaultFlowerValues);
-    sizesSelected = []; //await getSelectedValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES);
-    palettesSelected = await getSelectedValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, backendIdToName);
+    flowersSelected = await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, flowersSelected);
+    sizesSelected = await getSelectedValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES);
+    palettesSelected = await getSelectedCustomValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, backendIdToName);
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
