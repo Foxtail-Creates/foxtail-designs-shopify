@@ -46,7 +46,7 @@ export type SerializedSettingForm = {
   sizesSelected: string[];
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
-  allPaletteColorOptions: string[];
+  allPaletteColorOptions: Palette[];
   palettesSelected: string[];
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];

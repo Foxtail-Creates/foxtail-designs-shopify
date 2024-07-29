@@ -110,7 +110,7 @@ const ByobProduct = (
       <Text as="p" variant="bodyMd">
         Give customers the option to buy a custom arrangement! Select the
         customizations you want to offer and generate all of the Shopify variants
-        with one click.
+        with a few clicks.
       </Text>
       <InlineStack align="end">
         <ButtonGroup>

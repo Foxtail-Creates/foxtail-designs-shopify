@@ -15,3 +15,5 @@ export { DELETE_PRODUCT_QUERY } from "./queries/product/deleteProduct";
 export { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./queries/shop/getShopMetafieldByKey";
 export { SET_SHOP_METAFIELDS_QUERY } from "./queries/shop/setShopMetafields";
 export { DELETE_SHOP_METAFIELD_QUERY } from "./queries/shop/deleteShopMetafield";
+
+export { CREATE_PRODUCT_MEDIA_QUERY } from "./queries/product/createProductMedia";

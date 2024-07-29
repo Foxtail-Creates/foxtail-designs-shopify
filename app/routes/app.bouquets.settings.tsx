@@ -39,6 +39,7 @@ import type { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
+import { CreateMediaInput, createProductMedia } from "~/server/createProductMedia";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -75,6 +76,22 @@ export async function action({ request, params }) {
     data.sizesSelected, (sizeEnum) => TwoWayFallbackMap.getValue(sizeEnum, data.sizeEnumToName.customMap, data.sizeEnumToName.defaultMap));
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
+
+  // todo: delete existing media?
+
+
+  const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
+    (palette) => data.paletteOptionValuesToAdd.includes(palette.name),
+  ).map((palette) => {
+    return {
+      alt: `Palette ${palette.name}`,
+      originalSource: palette.imageLink,
+      mediaContentType: "IMAGE"
+    };
+  });
+  
+  await createProductMedia(admin, createMediaInput, data.product.id);
+  // todo: set media on variants
 
   return redirect(`/app/bouquets/customize`);
 }
@@ -126,7 +143,7 @@ export default function ByobCustomizationForm() {
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
       sizeOptionValuesToRemove: formState.sizeOptionValuesToRemove,
       sizeEnumToName: formState.sizeEnumToName,
-      allPaletteColorOptions: formState.allPaletteColorOptions,
+      allPaletteColorOptions: byobCustomizer.palettesAvailable,
       palettesSelected: formState.palettesSelected,
       paletteOptionValuesToRemove: formState.paletteOptionValuesToRemove,
       paletteOptionValuesToAdd: formState.paletteOptionValuesToAdd,
