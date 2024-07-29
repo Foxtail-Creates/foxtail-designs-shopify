@@ -2,7 +2,6 @@ import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FO
 import type {
   ByobCustomizerOptions,
   ProductMetadata,
-  ProductOptionValue
 } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./graphql";
 import type { StoreOptions} from "~/models/StoreSetting.server";
@@ -13,7 +12,7 @@ import { createVariants } from "./createVariants";
 import { setProductMetadata } from "./setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
 import { setShopMetafield } from "./setShopMetafield";
-import { FallbackMap } from "./FallbackMap";
+import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
@@ -25,22 +24,14 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
   // set default selections
   let flowersSelected = [firstFlower.name];
-  // let palettesSelected = [firstPalette.name];
   let sizesSelected = SIZE_OPTION_VALUES;  
-  let palettesSelected = [firstPalette.id];
-  // todo: save this map
-  const customNameToBackendId: Record<string, number> = {"New name": 1};
-  const backendIdToCustomName: Record<number, string> =  {1: "New name"};
+  let palettesSelected: string[] = [firstPalette.id.toString()];
 
-  const defaultNameToBackendId: Record<string, number> = {};
-  const backendIdToDefaultName: Record<number, string> = {};
+  const backendIdToDefaultName: Record<string, string> = {};
+
   allCustomOptions.palettesAvailable.forEach((palette) => {
-    defaultNameToBackendId[palette.name] = palette.id;
     backendIdToDefaultName[palette.id] = palette.name;
   });
-
-  const nameToBackendId: FallbackMap<string, number> = new FallbackMap(customNameToBackendId, defaultNameToBackendId);
-  const backendIdToName: FallbackMap<number, string> = new FallbackMap(backendIdToCustomName, backendIdToDefaultName);
 
   const getShopMetadataResponse = await admin.graphql(
     GET_SHOP_METAFIELD_BY_KEY_QUERY,
@@ -53,8 +44,9 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   );
   const shopMetadataBody = await getShopMetadataResponse.json();
   let customProduct;
-  const productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
 
+  const productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
+  let backendIdToName: TwoWayFallbackMap= new TwoWayFallbackMap({}, backendIdToDefaultName);
   const productId = shopMetadataBody.data?.shop.metafield?.value
   if (productId) {
     // if shop metadata has custom product id, retrieve it
@@ -82,14 +74,16 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
       for (const key in savedMetadata) {
         productMetadata[key] = savedMetadata[key];
       }
+      backendIdToName = new TwoWayFallbackMap(productMetadata.paletteToName, backendIdToDefaultName);
+
     } else {
       // if product metafield is missing for pricing, set metafield to default values
       await setProductMetadata(admin, customProduct.id,
         FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED);
     }
 
-    // retrieve selected options
 
+    // retrieve selected options
     const flowerDisplayName = productMetadata.optionToName[FLOWER_OPTION_NAME];
     const flowerOption = customProduct.options.find(
      (option) => option.name === flowerDisplayName,
@@ -106,7 +100,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     );
     flowersSelected = []; //await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, defaultFlowerValues);
     sizesSelected = []; //await getSelectedValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES);
-    palettesSelected = await getSelectedValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, nameToBackendId);
+    palettesSelected = await getSelectedValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, backendIdToName);
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
@@ -119,6 +113,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
       backendIdToName);
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
+
   const byobOptions: ByobCustomizerOptions = {
     destination: "product",
     productName: "BYOB",
@@ -127,7 +122,6 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     sizesAvailable: SIZE_OPTION_VALUES,
     palettesAvailable: allCustomOptions.palettesAvailable,
     palettesSelected: palettesSelected,
-    paletteNameToBackendId: nameToBackendId,
     paletteBackendIdToName: backendIdToName,
     flowersAvailable: allCustomOptions.flowersAvailable,
     flowersSelected: flowersSelected,

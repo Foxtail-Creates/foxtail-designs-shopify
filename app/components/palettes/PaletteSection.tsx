@@ -26,7 +26,7 @@ const PaletteChoice = ({
     <>
       <InlineGrid gap="100" columns="5">
         <Checkbox
-          id={paletteId.toString()}
+          id={paletteId}
           label={paletteName}
           checked={isChecked}
           onChange={setCheckedPalette}
@@ -52,7 +52,7 @@ export const PaletteSection = ({
       const nextSelectedPalettes = new Set([...formState.palettesSelected]);
       const paletteOptionValuesToAdd = new Set([...formState.paletteOptionValuesToAdd]);
       const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
-      const paletteId = parseInt(selected);// getBackendId(selected);
+      const paletteId = selected;// getBackendId(selected);
       if (newChecked) {
         nextSelectedPalettes.add(paletteId);
         paletteOptionValuesToAdd.add(paletteId);
@@ -78,7 +78,7 @@ export const PaletteSection = ({
     : null;
   }
 
-  function getDisplayName(backendId: number) {
+  function getDisplayName(backendId: string) {
     return formState.paletteBackendIdToName.customMap[backendId] != null
       ? formState.paletteBackendIdToName.customMap[backendId]
       : formState.paletteBackendIdToName.defaultMap[backendId]
@@ -93,18 +93,23 @@ export const PaletteSection = ({
         Choose what color palettes you want to offer.
       </Text>
       <BlockStack gap="500" align="start">
-        {sortedPalettes.map((palette) => (
-          <PaletteChoice
-            key={getDisplayName(palette.id)}
-            paletteId={palette.id}
-            paletteName={getDisplayName(palette.id)}
-            isChecked={formState.palettesSelected.some(selected => selected == palette.id)}
-            setIsChecked={updateSelection}
-            color1={palette.color1}
-            color2={palette.color2}
-            color3={palette.color3}
+        {sortedPalettes.map((palette) => {
+            const paletteId: string = palette.id.toString();
+            const paletteName: string = getDisplayName(paletteId);
+            return (
+            <PaletteChoice
+              key={paletteName}
+              paletteId={paletteId}
+              paletteName={paletteName}
+              isChecked={formState.palettesSelected.some(selected => selected === paletteId)}
+              setIsChecked={updateSelection}
+              color1={palette.color1}
+              color2={palette.color2}
+              color3={palette.color3}
           />
-        ))}
+          );
+        }
+        )}
       </BlockStack>
       {inlineError(errors)}
     </>

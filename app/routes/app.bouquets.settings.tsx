@@ -38,6 +38,7 @@ import {
 import type { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
+import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -68,12 +69,12 @@ export async function action({ request, params }) {
     return json({ errors });
   }
 
-  // await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
-  //   data.flowersSelected);
-  // await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
-  //   data.sizesSelected);
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+    data.flowersSelected, (x) => x);
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+    data.sizesSelected, (x) => x);
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
-    data.palettesSelected, data.paletteBackendIdToName);
+    data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
   return redirect(`/app/bouquets/customize`);
 }
@@ -96,7 +97,6 @@ export default function ByobCustomizationForm() {
     palettesSelected: byobCustomizer.palettesSelected,
     paletteOptionValuesToRemove: [],
     paletteOptionValuesToAdd: [],
-    paletteNameToBackendId: byobCustomizer.paletteNameToBackendId,
     paletteBackendIdToName: byobCustomizer.paletteBackendIdToName,
     allFocalFlowerOptions: byobCustomizer.flowersAvailable.map(
       (flower) => flower.name,
@@ -128,7 +128,6 @@ export default function ByobCustomizationForm() {
       palettesSelected: formState.palettesSelected,
       paletteOptionValuesToRemove: formState.paletteOptionValuesToRemove,
       paletteOptionValuesToAdd: formState.paletteOptionValuesToAdd,
-      paletteNameToBackendId: formState.paletteNameToBackendId,
       paletteBackendIdToName: formState.paletteBackendIdToName,
       allFocalFlowerOptions: formState.allFocalFlowerOptions,
       flowersSelected: formState.flowersSelected,

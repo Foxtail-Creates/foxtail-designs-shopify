@@ -7,10 +7,10 @@ export async function updateOptionsAndCreateVariants(
     product,
     optionName: string,
     optionPosition: number,
-    optionIdsToRemove: number[],
-    optionIdsToAdd: number[],
-    optionIdsSelected: number[],
-    backendIdToName: FallbackMap<number, string>
+    optionIdsToRemove: string[],
+    optionIdsToAdd: string[],
+    optionIdsSelected: string[],
+    getOptionValueName: (value: string) => string
 ) {
     const option = product.options.find(
         (o) => o.name === optionName,
@@ -25,22 +25,22 @@ export async function updateOptionsAndCreateVariants(
 
     const shopifyIdsToRemove: string[] = [];
 
-    optionIdsToRemove.forEach((backendId: number) => {
-        const paletteName = backendIdToName.getValue(backendId);
+    optionIdsToRemove.forEach((backendId: string) => {
+        const optionValueName = getOptionValueName(backendId);
 
-        if (Object.prototype.hasOwnProperty.call(optionValueNameToShopifyId, paletteName)) {
-            shopifyIdsToRemove.push(optionValueNameToShopifyId[paletteName]);
+        if (Object.prototype.hasOwnProperty.call(optionValueNameToShopifyId, optionValueName)) {
+            shopifyIdsToRemove.push(optionValueNameToShopifyId[optionValueName]);
         }
     });
     const optionValuesToAdd = optionIdsToAdd.map(
-        (optionBackendId: number) => ({
-            name: backendIdToName.getValue(optionBackendId)
+        (optionBackendId: string) => ({
+            name: getOptionValueName(optionBackendId)
         })
     );
 
     const optionValuesSelected = optionIdsSelected.map(
-        (optionBackendId: number) => ({
-            name: backendIdToName.getValue(optionBackendId)
+        (optionBackendId: string) => ({
+            name: getOptionValueName(optionBackendId)
         })
     );
     if (option == null && optionIdsSelected.length > 0) {

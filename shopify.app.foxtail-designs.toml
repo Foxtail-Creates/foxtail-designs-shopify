@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://manchester-princeton-their-lifestyle.trycloudflare.com"
+application_url = "https://helped-civilization-designer-saying.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://manchester-princeton-their-lifestyle.trycloudflare.com/auth/callback",
-  "https://manchester-princeton-their-lifestyle.trycloudflare.com/auth/shopify/callback",
-  "https://manchester-princeton-their-lifestyle.trycloudflare.com/api/auth/callback"
+  "https://helped-civilization-designer-saying.trycloudflare.com/auth/callback",
+  "https://helped-civilization-designer-saying.trycloudflare.com/auth/shopify/callback",
+  "https://helped-civilization-designer-saying.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
