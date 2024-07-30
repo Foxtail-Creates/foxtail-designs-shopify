@@ -48,8 +48,7 @@ export const PRODUCT_METADATA_DEFAULT_VALUES: ProductMetadata = {
     sizeToPrice: SIZE_TO_PRICE_DEFAULT_VALUES,
     flowerToPrice: FLOWER_TO_PRICE_DEFAULT_VALUES,
     optionToName: OPTION_TO_NAME_DEFAULT_VALUES,
-    paletteToName: {},
-    paletteCustomNameToId: {}
+    paletteToName: {}
 };
 
 export const PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED = JSON.stringify(PRODUCT_METADATA_DEFAULT_VALUES);

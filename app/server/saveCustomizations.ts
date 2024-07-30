@@ -53,7 +53,7 @@ export function updateMap<T>(original: { [key: string]: T }, updates: { [key: st
 export function updateIdMap(oldBackendIdToCustomName: { [key: string]: string }, nameToNewName: { [key: string]: string },
   backendIdToName: TwoWayFallbackMap) {
   for (const oldName in nameToNewName) {
-    const backendId: string = backendIdToName.getValue(oldName);
+    const backendId: string = backendIdToName.getReverseValue(oldName);
     oldBackendIdToCustomName[backendId] = nameToNewName[oldName];
   }
 }
