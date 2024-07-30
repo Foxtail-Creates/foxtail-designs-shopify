@@ -6,7 +6,8 @@ import { createVariants } from "./createVariants";
  * Creates a new product
  */
 export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], optionToName: { [key: string]: string},
-  selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number }) {
+  selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number },
+  backendIdToName: FallbackMap) {
     const customProductWithOptionsResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
@@ -21,7 +22,9 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
           sizeValues: selectedSizes.map((value: string) => ({ "name": value })),
           paletteOptionName: optionToName[PALETTE_OPTION_NAME],
           palettePosition: PALETTE_POSITION,
-          paletteValues: selectedPalettes.map((value: string) => ({ "name": value })),
+          paletteValues: selectedPalettes.map((id: string) => {
+            return { "name": backendIdToName.getValue(id) };
+          }),
           metafieldNamespace: FOXTAIL_NAMESPACE,
           metafieldKey: PRODUCT_METADATA_PRICES,
           metafieldValue: PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED
@@ -41,6 +44,6 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
         throw "Error creating new product. Contact Support for help.";
     }
 
-    const customProductWithVariants = await createVariants(admin, customProductWithOptionsBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice, optionToName);
+    const customProductWithVariants = await createVariants(admin, customProductWithOptionsBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice, optionToName, backendIdToName);
     return customProductWithVariants;
   }

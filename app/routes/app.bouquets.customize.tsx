@@ -22,17 +22,18 @@ import type {
   ByobCustomizerOptions,
   OptionValueCustomizations,
   SerializedCustomizeForm,
+  SerializedTwoWayFallbackMap,
 } from "~/types";
 import { authenticate } from "../shopify.server";
 
 import { getBYOBOptions } from "~/server/getBYOBOptions";
+import { saveCustomizations } from "~/server/saveCustomizations";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
 import { Palette as PaletteComponent } from "~/components/palettes/Palette";
-import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
-import { updateOptionName } from "~/server/updateOptionNames";
-import { updateVariants } from "~/server/updateVariants";
-import { setProductMetadata } from "~/server/setProductMetadata";
+import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
+import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
+import { sanitizeData } from "~/server/sanitizeData";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -49,40 +50,12 @@ export async function action({ request, params }) {
 
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
-  // Note that order of operations matters. For example when updating prices and option names in the same form,
-  // we update price variants using the old option names first, and then update the option names to the new values
-  await updateVariants(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
-    data.sizeToPriceUpdates, data.flowerToPriceUpdates);
-
-  if (data.optionToNameUpdates[FLOWER_OPTION_NAME] != null
-    && data.productMetadata.optionToName[FLOWER_OPTION_NAME] != data.optionToNameUpdates[FLOWER_OPTION_NAME]) {
-    await updateOptionName(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], data.optionToNameUpdates[FLOWER_OPTION_NAME]);
-  }
-
-  if (data.optionToNameUpdates[PALETTE_OPTION_NAME] != null
-    && data.productMetadata.optionToName[PALETTE_OPTION_NAME] != data.optionToNameUpdates[PALETTE_OPTION_NAME]) {
-    await updateOptionName(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], data.optionToNameUpdates[PALETTE_OPTION_NAME]);
-  }
-
-  if (data.optionToNameUpdates[SIZE_OPTION_NAME] != null
-    && data.productMetadata.optionToName[SIZE_OPTION_NAME] != data.optionToNameUpdates[SIZE_OPTION_NAME]) {
-    await updateOptionName(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], data.optionToNameUpdates[SIZE_OPTION_NAME]);
-  }
-
-  updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
-  updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);
-  updateMap(data.productMetadata.optionToName, data.optionToNameUpdates);
-  await setProductMetadata(admin, data.product.id,
-      FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
+  sanitizeData(data);
+  saveCustomizations(admin, data);
 
   return redirect(`/app`);
 }
 
-export function updateMap<T>(original: { [key:string]: T }, updates: { [key:string]: T }) {
-  for (const optionValue in updates) {
-      original[optionValue] = updates[optionValue];
-  }
-}
 
 const createValueCustomizationsObject = (optionValues: string[], optionValueToPrice: { [key: string]: number }) => {
   if (!optionValues) {
@@ -98,15 +71,17 @@ const createValueCustomizationsObject = (optionValues: string[], optionValueToPr
   }, {});
 };
 
-const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], optionValues: string[]) => {
-  if (!optionValues) {
+const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], paletteIdsSelected: string[],
+  backendIdToName: SerializedTwoWayFallbackMap) => {
+  if (!paletteIdsSelected) {
     return {};
   }
-  return optionValues.reduce((acc: OptionValueCustomizations, value) => {
-    const palette = availablePalettes.find(palette => palette.name === value)
+  return paletteIdsSelected.reduce((acc: OptionValueCustomizations, paletteId) => {
+    const selectedName = TwoWayFallbackMap.getValue(paletteId, backendIdToName.customMap, backendIdToName.defaultMap);
+    const palette = availablePalettes.find(palette => palette.id.toString() === paletteId)
 
-    acc[value] = {
-      name: value,
+    acc[selectedName] = {
+      name: selectedName,
       price: 0,
       connectedLeft: (palette && <PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
     };
@@ -135,8 +110,6 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
 };
 
 export default function ByobCustomizationForm() {
-  // const errors = useActionData()?.errors || {};
-
   const formOptions: ByobCustomizerOptions = useLoaderData();
 
   const form: BouquetCustomizationForm = {
@@ -149,7 +122,8 @@ export default function ByobCustomizationForm() {
         optionName: formOptions.productMetadata.optionToName[PALETTE_OPTION_NAME],
         optionValueCustomizations: createPaletteValueCustomizationsObject(
           formOptions.palettesAvailable,
-          formOptions.palettesSelected
+          formOptions.palettesSelected,
+          formOptions.paletteBackendIdToName
         ),
       },
       [FLOWER_OPTION_NAME]: {
@@ -160,7 +134,8 @@ export default function ByobCustomizationForm() {
     productMetadata: formOptions.productMetadata,
     optionToNameUpdates: {},
     sizeToPriceUpdates: {},
-    flowerToPriceUpdates: {}
+    flowerToPriceUpdates: {},
+    paletteToNameUpdates: {},
   }
 
   const [formState, setFormState] = useState(form);
@@ -180,7 +155,9 @@ export default function ByobCustomizationForm() {
       productMetadata: formOptions.productMetadata,
       sizeToPriceUpdates: formState.sizeToPriceUpdates,
       flowerToPriceUpdates: formState.flowerToPriceUpdates,
-      optionToNameUpdates: formState.optionToNameUpdates
+      optionToNameUpdates: formState.optionToNameUpdates,
+      paletteToNameUpdates: formState.paletteToNameUpdates,
+      paletteBackendIdToName: formOptions.paletteBackendIdToName
     };
 
     const serializedData = JSON.stringify(data);

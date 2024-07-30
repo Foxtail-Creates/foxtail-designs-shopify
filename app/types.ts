@@ -2,6 +2,7 @@ import type { Flower, Palette } from "@prisma/client";
 import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
+import { TwoWayFallbackMap } from "./server/TwoWayFallbackMap";
 
 export type ByobCustomizerOptions = {
   destination: string;
@@ -10,7 +11,9 @@ export type ByobCustomizerOptions = {
   sizesAvailable: string[];
   sizesSelected: string[];
   palettesAvailable: Palette[];
-  palettesSelected: string[];
+  palettesSelected: string[]; // backend ids of palettes, as strings
+  paletteBackendIdToName: TwoWayFallbackMap;
+  sizeBackendIdToName: TwoWayFallbackMap;
   flowersAvailable: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
@@ -25,9 +28,10 @@ export type BouquetSettingsForm = {
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
   allPaletteColorOptions: string[];
-  palettesSelected: string[]
+  palettesSelected: string[];
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
+  paletteBackendIdToName: TwoWayFallbackMap;
   allFocalFlowerOptions: string[];
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
@@ -45,11 +49,19 @@ export type SerializedSettingForm = {
   palettesSelected: string[];
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
+  paletteBackendIdToName: SerializedTwoWayFallbackMap;
   allFocalFlowerOptions: string[];
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
   productMetadata: ProductMetadata;
+}
+
+export type SerializedTwoWayFallbackMap = {
+  customMap: Record<string, string>;
+  defaultMap: Record<string, string>;
+  reverseCustomMap: Record<string, string>;
+  reverseDefaultMap: Record<string, string>;
 }
 
 export type SerializedCustomizeForm = {
@@ -58,6 +70,8 @@ export type SerializedCustomizeForm = {
   sizeToPriceUpdates: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
   optionToNameUpdates: { [key: string]: string };
+  paletteToNameUpdates: { [key: string]: string };
+  paletteBackendIdToName: SerializedTwoWayFallbackMap;
 }
 
 export type FocalFlowersSectionProps = {
@@ -74,9 +88,10 @@ export type PaletteSectionProps = {
 };
 
 export type PaletteChoiceProps = {
+  paletteId: string; // backend palette id as a string
   paletteName: string;
   isChecked: boolean;
-  setIsChecked: (newChecked: boolean, selected: string) => void;
+  setIsChecked: (newChecked: boolean, paletteId: string) => void;
   color1: string;
   color2: string | null;
   color3: string | null;
@@ -107,6 +122,7 @@ export type BouquetCustomizationForm = {
   sizeToPriceUpdates: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
   optionToNameUpdates: { [key: string]: string };
+  paletteToNameUpdates: { [key: string]: string };
 };
 
 export type OptionCustomization = {
@@ -142,4 +158,5 @@ export type ProductMetadata = {
   sizeToPrice: { [key: string]: number };
   flowerToPrice: { [key: string]: number };
   optionToName: { [key: string]: string };
+  paletteToName: { [key: string]: string }; // backend palette id (as string) to custom palette name
 }
