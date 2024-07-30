@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://alberta-stolen-revolution-undergraduate.trycloudflare.com"
+application_url = "https://recommends-fate-complications-k.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://alberta-stolen-revolution-undergraduate.trycloudflare.com/auth/callback",
-  "https://alberta-stolen-revolution-undergraduate.trycloudflare.com/auth/shopify/callback",
-  "https://alberta-stolen-revolution-undergraduate.trycloudflare.com/api/auth/callback"
+  "https://recommends-fate-complications-k.trycloudflare.com/auth/callback",
+  "https://recommends-fate-complications-k.trycloudflare.com/auth/shopify/callback",
+  "https://recommends-fate-complications-k.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
