@@ -7,49 +7,36 @@ export async function updateOptionsAndCreateVariants(
     product,
     optionName: string,
     optionPosition: number,
-    optionIdsToRemove: string[],
-    optionIdsToAdd: string[],
-    optionIdsSelected: string[],
-    getOptionValueName: (value: string) => string
+    optionValuesToRemove: string[],
+    optionValuesToAdd: string[],
+    optionValuesSelected: string[]
 ) {
     const option = product.options.find(
         (o) => o.name === optionName,
     );
 
-    const optionValueNameToShopifyId: { [key: string]: string } = option
-        ? option.optionValues.reduce(function (map: { [key: string]: string }, optionValue) {
-            map[optionValue.name] = optionValue.id;
+    const optionValueNameToId: Map<string, string> = option
+        ? option.optionValues.reduce(function (map, optionValue) {
+            map.set(optionValue.name, optionValue.id);
             return map;
-        }, {})
-        : {};
+        }, new Map<string, string>())
+        : new Map<string, string>();
 
-    const shopifyIdsToRemove: string[] = [];
+    const valueIdsToRemove: string[] = [];
 
-    optionIdsToRemove.forEach((backendId: string) => {
-        const optionValueName = getOptionValueName(backendId);
-
-        if (Object.prototype.hasOwnProperty.call(optionValueNameToShopifyId, optionValueName)) {
-            shopifyIdsToRemove.push(optionValueNameToShopifyId[optionValueName]);
+    optionValuesToRemove.forEach((optionValueName: string) => {
+        if (optionValueNameToId.has(optionValueName)) {
+            valueIdsToRemove.push(optionValueNameToId.get(optionValueName));
         }
     });
-    const optionValuesToAdd = optionIdsToAdd.map(
-        (optionBackendId: string) => ({
-            name: getOptionValueName(optionBackendId)
-        })
-    );
 
-    const optionValuesSelected = optionIdsSelected.map(
-        (optionBackendId: string) => ({
-            name: getOptionValueName(optionBackendId)
-        })
-    );
-    if (option == null && optionIdsSelected.length > 0) {
+    if (option == null && optionValuesSelected.length > 0) {
         // if flower option is missing, recover by creating a new option and variants from all flowers selected
         createProductOptions(admin, product.id, optionPosition, optionName, optionValuesSelected);
         // todo: create variants
     } else if (
         option != undefined &&
-        optionIdsToRemove.length > 0 ||
+        optionValuesToRemove.length > 0 ||
         optionValuesToAdd.length > 0
     ) {
         const updateProductOptionAndVariantsResponse = await admin.graphql(
@@ -59,12 +46,16 @@ export async function updateOptionsAndCreateVariants(
                     productId: product.id,
                     optionName: option.name,
                     optionId: option.id,
-                    newValues: optionValuesToAdd,
-                    oldValues: shopifyIdsToRemove,
+                    newValues: optionValuesToAdd.map(
+                        (optionValueName: string) => ({ name: optionValueName })
+                    ),
+                    oldValues: valueIdsToRemove,
                     updatedValues: []
                 },
             },
         );
+
+        // todo: validation
 
         const updateProductOptionBody = await updateProductOptionAndVariantsResponse.json();
         invariant(updateProductOptionBody.data?.productOptionUpdate?.userErrors.length == 0,

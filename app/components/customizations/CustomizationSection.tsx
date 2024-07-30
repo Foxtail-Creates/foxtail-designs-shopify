@@ -51,34 +51,6 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
     },
     [formState, setFormState, optionValueToPriceUpdates]
   );
-
-
-  const updateOptionValueName = useCallback(
-    (value: string) => {
-      setFormState({
-        ...formState,
-        paletteToNameUpdates: {
-          ...formState.paletteToNameUpdates,
-          [optionValueKey]: value
-        },
-        optionCustomizations: {
-          ...formState.optionCustomizations,
-          [optionKey]: {
-            ...formState.optionCustomizations[optionKey],
-            optionValueCustomizations: {
-              ...formState.optionCustomizations[optionKey].optionValueCustomizations,
-              [optionValueKey]: {
-                ...formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey],
-                name: value,
-              }
-            }
-          }
-        }
-      });
-    },
-    [formState, setFormState]
-  );
-
   return (
     <>
       <InlineStack gap="400">
@@ -87,7 +59,25 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
           label={`Option name`}
           placeholder={value.name}
           value={formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey].name}
-          onChange={updateOptionValueName}
+          onChange={(value) =>
+            setFormState(
+              {
+                ...formState,
+                optionCustomizations: {
+                  ...formState.optionCustomizations,
+                  [optionKey]: {
+                    ...formState.optionCustomizations[optionKey],
+                    optionValueCustomizations: {
+                      ...formState.optionCustomizations[optionKey].optionValueCustomizations,
+                      [optionValueKey]: {
+                        ...formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey],
+                        name: value,
+                      }
+                    }
+                  }
+                }
+              })
+          }
           selectTextOnFocus={true}
           autoComplete="off"
         />
