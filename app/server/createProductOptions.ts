@@ -1,5 +1,4 @@
 import { CREATE_PRODUCT_OPTIONS_QUERY } from "./graphql";
-import invariant from "tiny-invariant";
 import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 
 export async function createProductOptions(
@@ -21,9 +20,17 @@ export async function createProductOptions(
     },
   );
   const createProductOptionsBody = await createProductOptionsResponse.json();
-  invariant(createProductOptionsBody.data.productOptionsCreate.userErrors.length == 0,
-    "Error creating new product options. Contact Support for help."
-  );
+
+  const hasErrors: boolean = createProductOptionsBody.data?.productOptionsCreate.userErrors.length != 0;
+  if (hasErrors) {
+      console.log("Error creating new product options. Message {"
+          + createProductOptionsBody.data?.productOptionsCreate.userErrors[0].message
+          + "} on field {"
+          + createProductOptionsBody.data?.productOptionsCreate.userErrors[0].field
+          + "}");
+      throw "Error creating new product options. Contact Support for help.";
+  }
+
 };
 
 export async function getSelectedCustomValues(admin, option, customProduct, position: number,
