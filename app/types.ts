@@ -13,6 +13,7 @@ export type ByobCustomizerOptions = {
   palettesAvailable: Palette[];
   palettesSelected: string[]; // backend ids of palettes, as strings
   paletteBackendIdToName: TwoWayFallbackMap;
+  sizeBackendIdToName: TwoWayFallbackMap;
   flowersAvailable: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
@@ -90,7 +91,7 @@ export type PaletteChoiceProps = {
   paletteId: string; // backend palette id as a string
   paletteName: string;
   isChecked: boolean;
-  setIsChecked: (newChecked: boolean, selected: string) => void;
+  setIsChecked: (newChecked: boolean, paletteId: string) => void;
   color1: string;
   color2: string | null;
   color3: string | null;

@@ -48,11 +48,10 @@ export const PaletteSection = ({
   );
 
   const updateSelection = useCallback(
-    (newChecked: boolean, selected: string) => {
+    (newChecked: boolean, paletteId: string) => {
       const nextSelectedPalettes = new Set([...formState.palettesSelected]);
       const paletteOptionValuesToAdd = new Set([...formState.paletteOptionValuesToAdd]);
       const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
-      const paletteId = selected;
       if (newChecked) {
         nextSelectedPalettes.add(paletteId);
         paletteOptionValuesToAdd.add(paletteId);

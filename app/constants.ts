@@ -1,4 +1,4 @@
-import { ProductMetadata } from "./types";
+import { SMALL, MEDIUM, LARGE, EXTRA_LARGE} from "~/size";
 
 export const FOXTAIL_NAMESPACE = "foxtail";
 export const STORE_METADATA_CUSTOM_PRODUCT_KEY = "customProductId";
@@ -21,7 +21,7 @@ export const PALETTE_CUSTOMIZATION_SECTION_NAME = "palettes";
 export const SIZE_CUSTOMIZATION_SECTION_NAME = "sizes";
 
 // default size values in different forms
-export const SIZE_OPTION_VALUES = ["Small", "Medium", "Large", "Extra-Large"];
+export const SIZE_OPTION_VALUES = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
 export const SIZE_TO_PRICE_DEFAULT_VALUES: {[key: string]: number} = {
     "Small": 40,
     "Medium": 50,
