@@ -14,7 +14,6 @@ import type {
 import { Palette } from "./Palette";
 
 const PaletteChoice = ({
-  paletteId,
   paletteName,
   isChecked,
   setIsChecked: setCheckedPalette,
@@ -26,7 +25,7 @@ const PaletteChoice = ({
     <>
       <InlineGrid gap="100" columns="5">
         <Checkbox
-          id={paletteId}
+          id={paletteName}
           label={paletteName}
           checked={isChecked}
           onChange={setCheckedPalette}
@@ -48,18 +47,19 @@ export const PaletteSection = ({
   );
 
   const updateSelection = useCallback(
-    (newChecked: boolean, paletteId: string) => {
+    (newChecked: boolean, selected: string) => {
       const nextSelectedPalettes = new Set([...formState.palettesSelected]);
       const paletteOptionValuesToAdd = new Set([...formState.paletteOptionValuesToAdd]);
       const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
+
       if (newChecked) {
-        nextSelectedPalettes.add(paletteId);
-        paletteOptionValuesToAdd.add(paletteId);
-        paletteOptionValuesToRemove.delete(paletteId);
+        nextSelectedPalettes.add(selected);
+        paletteOptionValuesToAdd.add(selected);
+        paletteOptionValuesToRemove.delete(selected);
       } else {
-        nextSelectedPalettes.delete(paletteId);
-        paletteOptionValuesToAdd.delete(paletteId);
-        paletteOptionValuesToRemove.add(paletteId);
+        nextSelectedPalettes.delete(selected);
+        paletteOptionValuesToAdd.delete(selected);
+        paletteOptionValuesToRemove.add(selected);
       }
       setFormState({
         ...formState,
@@ -77,12 +77,6 @@ export const PaletteSection = ({
     : null;
   }
 
-  function getDisplayName(backendId: string) {
-    return formState.paletteBackendIdToName.customMap[backendId] != null
-      ? formState.paletteBackendIdToName.customMap[backendId]
-      : formState.paletteBackendIdToName.defaultMap[backendId]
-  }
-
   return (
     <>
       <Text as="h3" variant="headingMd">
@@ -92,23 +86,17 @@ export const PaletteSection = ({
         Choose what color palettes you want to offer.
       </Text>
       <BlockStack gap="500" align="start">
-        {sortedPalettes.map((palette) => {
-            const paletteId: string = palette.id.toString();
-            const paletteName: string = getDisplayName(paletteId);
-            return (
-            <PaletteChoice
-              key={paletteName}
-              paletteId={paletteId}
-              paletteName={paletteName}
-              isChecked={formState.palettesSelected.some(selected => selected === paletteId)}
-              setIsChecked={updateSelection}
-              color1={palette.color1}
-              color2={palette.color2}
-              color3={palette.color3}
+        {sortedPalettes.map((palette) => (
+          <PaletteChoice
+            key={palette.name}
+            paletteName={palette.name}
+            isChecked={formState.palettesSelected.includes(palette.name)}
+            setIsChecked={updateSelection}
+            color1={palette.color1}
+            color2={palette.color2}
+            color3={palette.color3}
           />
-          );
-        }
-        )}
+        ))}
       </BlockStack>
       {inlineError(errors)}
     </>

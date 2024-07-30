@@ -1,4 +1,4 @@
-import { SMALL, MEDIUM, LARGE, EXTRA_LARGE} from "~/size";
+import { ProductMetadata } from "./types";
 
 export const FOXTAIL_NAMESPACE = "foxtail";
 export const STORE_METADATA_CUSTOM_PRODUCT_KEY = "customProductId";
@@ -21,7 +21,7 @@ export const PALETTE_CUSTOMIZATION_SECTION_NAME = "palettes";
 export const SIZE_CUSTOMIZATION_SECTION_NAME = "sizes";
 
 // default size values in different forms
-export const SIZE_OPTION_VALUES = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
+export const SIZE_OPTION_VALUES = ["Small", "Medium", "Large", "Extra-Large"];
 export const SIZE_TO_PRICE_DEFAULT_VALUES: {[key: string]: number} = {
     "Small": 40,
     "Medium": 50,
@@ -47,9 +47,7 @@ export const OPTION_TO_NAME_DEFAULT_VALUES: {[key: string]: string} = {
 export const PRODUCT_METADATA_DEFAULT_VALUES: ProductMetadata = {
     sizeToPrice: SIZE_TO_PRICE_DEFAULT_VALUES,
     flowerToPrice: FLOWER_TO_PRICE_DEFAULT_VALUES,
-    optionToName: OPTION_TO_NAME_DEFAULT_VALUES,
-    paletteToName: {},
-    paletteCustomNameToId: {}
+    optionToName: OPTION_TO_NAME_DEFAULT_VALUES
 };
 
 export const PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED = JSON.stringify(PRODUCT_METADATA_DEFAULT_VALUES);
