@@ -4,7 +4,7 @@ import type {
   ProductMetadata,
 } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./graphql";
-import type { StoreOptions} from "~/models/StoreSetting.server";
+import type { StoreOptions } from "~/models/StoreSetting.server";
 import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
 import { getSelectedCustomValues, getSelectedValues as getSelectedValues} from "./createProductOptions";
@@ -67,7 +67,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
       },
     );
     customProduct = (await customProductResponse.json()).data.product;
-    
+
     if (customProduct == null) {
       // if custom product is missing, create new custom product and add to store metadata
       customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
@@ -93,7 +93,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     // retrieve selected options
     const flowerDisplayName = productMetadata.optionToName[FLOWER_OPTION_NAME];
     const flowerOption = customProduct.options.find(
-     (option) => option.name === flowerDisplayName,
+      (option) => option.name === flowerDisplayName,
     );
 
     const sizeDisplayName = productMetadata.optionToName[SIZE_OPTION_NAME];
@@ -121,6 +121,10 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
 
+  const productImageIds = customProduct.media?.nodes
+    ?.filter((media) => media.mediaContentType === "IMAGE")
+    ?.map((media) => media.id);
+
   const byobOptions: ByobCustomizerOptions = {
     destination: "product",
     productName: "BYOB",
@@ -134,7 +138,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     flowersAvailable: allCustomOptions.flowersAvailable,
     flowersSelected: flowersSelected,
     productMetadata: productMetadata,
-    productImages: customProduct.images?.nodes,
+    productImageIds,
   };
   return byobOptions;
 };

@@ -78,19 +78,12 @@ export async function action({ request, params }) {
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
-  // remove all images
-  if (data.productImages?.length) {
-    const mediaIds = data.productImages.map((image) =>
-        image.id
-      );
-
-    console.log(mediaIds)
-    console.log(data.product.id)
-
-    await deleteProductMedia(admin, mediaIds, data.product.id);
+  // delete all existing images
+  if (data.productImageIds?.length) {
+    await deleteProductMedia(admin, data.productImageIds, data.product.id);
   }
 
-  // add images for palettes
+  // add new images for palette bouquets
   if (data.palettesSelected.length > 0) {
     const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
       (palette) => data.palettesSelected.includes(palette.name),
@@ -103,7 +96,6 @@ export async function action({ request, params }) {
     });
 
     await createProductMedia(admin, createMediaInput, data.product.id);
-    // todo: re-order media
     // todo: set media on variants
   }
 
@@ -167,7 +159,7 @@ export default function ByobCustomizationForm() {
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
       productMetadata: byobCustomizer.productMetadata,
-      productImages: byobCustomizer.productImages
+      productImageIds: byobCustomizer.productImageIds
     };
 
     const serializedData = JSON.stringify(data);
