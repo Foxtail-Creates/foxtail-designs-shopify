@@ -5,22 +5,12 @@ import { updateOptionAndValueNames } from "./updateOptionAndValueNames";
 import { updateVariants } from "./updateVariants";
 import { setProductMetadata } from "./setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
-import { JsonConvert, OperationMode, ValueCheckingMode } from "json2typescript"
+import { convertJsonToTypescript } from "~/jsonToTypescript";
+import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 
 export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
-  let jsonConvert: JsonConvert = new JsonConvert();
-  jsonConvert.operationMode = OperationMode.LOGGING; // print some debug data
-  jsonConvert.ignorePrimitiveChecks = true;
-  jsonConvert.valueCheckingMode = ValueCheckingMode.ALLOW_NULL; // allow null
 
-  // Map to the TwoWayFallbackMap class
-  let paletteNameToIdMap: TwoWayFallbackMap;
-  try {
-    paletteNameToIdMap = jsonConvert.deserializeObject(data.paletteBackendIdToName, TwoWayFallbackMap);
-  } catch (e) {
-    console.log(e);
-    throw "Error converting json palette map to object. Contact Support for help.";
-  }
+  const paletteNameToIdMap: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
 
   // Note that order of operations matters. For example when updating prices and option names in the same form,
   // we update price variants using the old option names first, and then update the option names to the new values
