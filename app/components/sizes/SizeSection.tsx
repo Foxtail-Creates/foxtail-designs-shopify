@@ -32,6 +32,12 @@ export const SizeSection = ({
       : null;
   }
 
+
+  function getDisplayName(sizeEnum: string) {
+    return formState.sizeEnumToName.customMap[sizeEnum] != null
+      ? formState.sizeEnumToName.customMap[sizeEnum]
+      : formState.sizeEnumToName.defaultMap[sizeEnum]
+  }
   return (
     <>
       <Text as={"h3"} variant="headingMd">
@@ -41,7 +47,7 @@ export const SizeSection = ({
         title="Choose what bouquet sizes you want to offer."
         allowMultiple
         choices={allSizesAvailable.map((option) => {
-          return { label: option, value: option };
+          return { label: getDisplayName(option), value: option };
         })}
         selected={formState.sizesSelected}
         onChange={handleChange}

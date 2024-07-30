@@ -9,11 +9,11 @@ export type ByobCustomizerOptions = {
   productName: string;
   customProduct: Product;
   sizesAvailable: string[];
-  sizesSelected: string[];
+  sizesSelected: string[]; // enums of sizes selected
   palettesAvailable: Palette[];
   palettesSelected: string[]; // backend ids of palettes, as strings
   paletteBackendIdToName: TwoWayFallbackMap;
-  sizeBackendIdToName: TwoWayFallbackMap;
+  sizeEnumToName: TwoWayFallbackMap;
   flowersAvailable: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
@@ -32,6 +32,7 @@ export type BouquetSettingsForm = {
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
   paletteBackendIdToName: TwoWayFallbackMap;
+  sizeEnumToName: TwoWayFallbackMap;
   allFocalFlowerOptions: string[];
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
@@ -50,6 +51,7 @@ export type SerializedSettingForm = {
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
   paletteBackendIdToName: SerializedTwoWayFallbackMap;
+  sizeEnumToName: SerializedTwoWayFallbackMap;
   allFocalFlowerOptions: string[];
   flowersSelected: string[];
   flowerOptionValuesToRemove: string[];
@@ -72,6 +74,8 @@ export type SerializedCustomizeForm = {
   optionToNameUpdates: { [key: string]: string };
   paletteToNameUpdates: { [key: string]: string };
   paletteBackendIdToName: SerializedTwoWayFallbackMap;
+  sizeToNameUpdates: { [key: string]: string };
+  sizeEnumToName: SerializedTwoWayFallbackMap;
 }
 
 export type FocalFlowersSectionProps = {
@@ -123,6 +127,7 @@ export type BouquetCustomizationForm = {
   flowerToPriceUpdates: { [key: string]: number };
   optionToNameUpdates: { [key: string]: string };
   paletteToNameUpdates: { [key: string]: string };
+  sizeToNameUpdates: { [key: string]: string };
 };
 
 export type OptionCustomization = {
@@ -159,4 +164,5 @@ export type ProductMetadata = {
   flowerToPrice: { [key: string]: number };
   optionToName: { [key: string]: string };
   paletteToName: { [key: string]: string }; // backend palette id (as string) to custom palette name
+  sizeToName: { [key: string]: string }; // size enum to custom name
 }
