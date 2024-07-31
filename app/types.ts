@@ -17,6 +17,7 @@ export type ByobCustomizerOptions = {
   flowersAvailable: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
+  productImageIds: string[] | undefined;
 };
 
 export type BouquetSettingsForm = {
@@ -46,7 +47,7 @@ export type SerializedSettingForm = {
   sizesSelected: string[];
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
-  allPaletteColorOptions: string[];
+  allPaletteColorOptions: Palette[];
   palettesSelected: string[];
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
@@ -57,6 +58,7 @@ export type SerializedSettingForm = {
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
   productMetadata: ProductMetadata;
+  productImageIds: string[] | undefined;
 }
 
 export type SerializedTwoWayFallbackMap = {

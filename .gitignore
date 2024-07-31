@@ -11,5 +11,7 @@ node_modules
 /prisma/data/sqlite
 database.sqlite
 app/types/
+.DS_Store
+/*/.DS_Store
 
 .env

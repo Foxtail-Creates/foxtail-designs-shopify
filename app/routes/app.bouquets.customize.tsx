@@ -56,7 +56,6 @@ export async function action({ request, params }) {
   return redirect(`/app`);
 }
 
-
 const createSizeValueCustomizationsObject = (sizeEnumsAvailable: string[], selectedSizeEnums: string[],
   sizeEnumToPrice: { [key: string]: number }, sizeEnumToName: SerializedTwoWayFallbackMap) => {
   if (!selectedSizeEnums) {

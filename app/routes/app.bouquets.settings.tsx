@@ -39,6 +39,8 @@ import type { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
+import { CreateMediaInput, createProductMedia } from "~/server/createProductMedia";
+import { deleteProductMedia } from "~/server/deleteProductMedia";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -75,6 +77,28 @@ export async function action({ request, params }) {
     data.sizesSelected, (sizeEnum) => TwoWayFallbackMap.getValue(sizeEnum, data.sizeEnumToName.customMap, data.sizeEnumToName.defaultMap));
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
+
+  const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
+  // delete all existing images
+  if (data.productImageIds?.length && shouldUpdatePaletteImages) {
+    await deleteProductMedia(admin, data.productImageIds, data.product.id);
+  }
+
+  // add new images for palette bouquets
+  if (data.palettesSelected.length > 0 && shouldUpdatePaletteImages) {
+    const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
+      (palette) => data.palettesSelected.includes(palette.id.toString()),
+    ).map((palette) => {
+      return {
+        alt: `Palette ${palette.name}`,
+        originalSource: palette.imageLink,
+        mediaContentType: "IMAGE"
+      };
+    });
+
+    await createProductMedia(admin, createMediaInput, data.product.id);
+    // todo: set media on variants
+  }
 
   return redirect(`/app/bouquets/customize`);
 }
@@ -126,7 +150,7 @@ export default function ByobCustomizationForm() {
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
       sizeOptionValuesToRemove: formState.sizeOptionValuesToRemove,
       sizeEnumToName: formState.sizeEnumToName,
-      allPaletteColorOptions: formState.allPaletteColorOptions,
+      allPaletteColorOptions: byobCustomizer.palettesAvailable,
       palettesSelected: formState.palettesSelected,
       paletteOptionValuesToRemove: formState.paletteOptionValuesToRemove,
       paletteOptionValuesToAdd: formState.paletteOptionValuesToAdd,
@@ -135,7 +159,8 @@ export default function ByobCustomizationForm() {
       flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
-      productMetadata: byobCustomizer.productMetadata
+      productMetadata: byobCustomizer.productMetadata,
+      productImageIds: byobCustomizer.productImageIds
     };
 
     const serializedData = JSON.stringify(data);
