@@ -12,7 +12,8 @@ export async function createVariants(
     sizeToPrice: { [key: string]: number },
     flowerToPrice: { [key: string]: number },
     optionToName: { [key: string]: string },
-    backendIdToName: TwoWayFallbackMap
+    paletteBackendIdToName: TwoWayFallbackMap,
+    sizeEnumToName: TwoWayFallbackMap
  ) {
     const variants = [];
     for (let f = 0; f < flowerValues.length; f++) {
@@ -32,11 +33,11 @@ export async function createVariants(
                         },
                         {
                             optionName: optionToName[SIZE_OPTION_NAME],
-                            name: sizeValues[s]
+                            name: sizeEnumToName.getValue(sizeValues[s])
                         },
                         {
                             optionName: optionToName[PALETTE_OPTION_NAME],
-                            name: backendIdToName.getValue(paletteValues[p])
+                            name: paletteBackendIdToName.getValue(paletteValues[p])
                         }
                     ],
                     price: (sizePrice + flowerPrice).toString()

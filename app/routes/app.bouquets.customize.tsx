@@ -57,6 +57,24 @@ export async function action({ request, params }) {
 }
 
 
+const createSizeValueCustomizationsObject = (sizeEnumsAvailable: string[], selectedSizeEnums: string[],
+  sizeEnumToPrice: { [key: string]: number }, sizeEnumToName: SerializedTwoWayFallbackMap) => {
+  if (!selectedSizeEnums) {
+    return {};
+  }
+  const rv = {};
+  sizeEnumsAvailable.forEach((sizeEnum) => {
+    if (selectedSizeEnums.includes(sizeEnum)) {
+      rv[sizeEnum] = {
+        name: TwoWayFallbackMap.getValue(sizeEnum, sizeEnumToName.customMap, sizeEnumToName.defaultMap),
+        price: sizeEnumToPrice[sizeEnum] != undefined ? sizeEnumToPrice[sizeEnum] : 0,
+        connectedLeft: null
+      }
+    }
+  });
+  return rv;
+}
+
 const createValueCustomizationsObject = (optionValues: string[], optionValueToPrice: { [key: string]: number }) => {
   if (!optionValues) {
     return {};
@@ -64,7 +82,7 @@ const createValueCustomizationsObject = (optionValues: string[], optionValueToPr
   return optionValues.reduce((acc: OptionValueCustomizations, value) => {
     acc[value] = {
       name: value,
-      price: optionValueToPrice[value] != undefined ? optionValueToPrice[value] : 0, //todo: default prices
+      price: optionValueToPrice[value] != undefined ? optionValueToPrice[value] : 0,
       connectedLeft: null
     };
     return acc;
@@ -116,7 +134,12 @@ export default function ByobCustomizationForm() {
     optionCustomizations: {
       [SIZE_OPTION_NAME]: {
         optionName: formOptions.productMetadata.optionToName[SIZE_OPTION_NAME],
-        optionValueCustomizations: createValueCustomizationsObject(formOptions.sizesSelected, formOptions.productMetadata.sizeToPrice),
+        optionValueCustomizations: createSizeValueCustomizationsObject(
+          formOptions.sizesAvailable,
+          formOptions.sizesSelected,
+          formOptions.productMetadata.sizeToPrice,
+          formOptions.sizeEnumToName
+        ),
       },
       [PALETTE_OPTION_NAME]: {
         optionName: formOptions.productMetadata.optionToName[PALETTE_OPTION_NAME],
@@ -136,6 +159,7 @@ export default function ByobCustomizationForm() {
     sizeToPriceUpdates: {},
     flowerToPriceUpdates: {},
     paletteToNameUpdates: {},
+    sizeToNameUpdates: {}
   }
 
   const [formState, setFormState] = useState(form);
@@ -157,7 +181,9 @@ export default function ByobCustomizationForm() {
       flowerToPriceUpdates: formState.flowerToPriceUpdates,
       optionToNameUpdates: formState.optionToNameUpdates,
       paletteToNameUpdates: formState.paletteToNameUpdates,
-      paletteBackendIdToName: formOptions.paletteBackendIdToName
+      paletteBackendIdToName: formOptions.paletteBackendIdToName,
+      sizeToNameUpdates: formState.sizeToNameUpdates,
+      sizeEnumToName: formOptions.sizeEnumToName
     };
 
     const serializedData = JSON.stringify(data);

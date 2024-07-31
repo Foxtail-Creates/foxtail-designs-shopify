@@ -72,7 +72,7 @@ export async function action({ request, params }) {
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected, (x) => x);
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
-    data.sizesSelected, (x) => x);
+    data.sizesSelected, (sizeEnum) => TwoWayFallbackMap.getValue(sizeEnum, data.sizeEnumToName.customMap, data.sizeEnumToName.defaultMap));
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
@@ -91,6 +91,7 @@ export default function ByobCustomizationForm() {
     allSizeOptions: byobCustomizer.sizesAvailable,
     sizeOptionValuesToAdd: [],
     sizeOptionValuesToRemove: [],
+    sizeEnumToName: byobCustomizer.sizeEnumToName,
     allPaletteColorOptions: byobCustomizer.palettesAvailable.map(
       (palette) => palette.name,
     ),
@@ -124,6 +125,7 @@ export default function ByobCustomizationForm() {
       sizesSelected: formState.sizesSelected,
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
       sizeOptionValuesToRemove: formState.sizeOptionValuesToRemove,
+      sizeEnumToName: formState.sizeEnumToName,
       allPaletteColorOptions: formState.allPaletteColorOptions,
       palettesSelected: formState.palettesSelected,
       paletteOptionValuesToRemove: formState.paletteOptionValuesToRemove,
