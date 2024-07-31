@@ -25,17 +25,18 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
   function clearValidationErrors() {
     setValidationError("");
   }
+
   const updatePrice = useCallback(
     (value: string) => {
       let parsedPrice: number = parseFloat(value);
-      if (parsedPrice < 0) {
-        setValidationError("Enter a non-negative number");
-        return;
-      } else {
+      const validPrice = parsedPrice >= 0;
+      if (validPrice) {
         clearValidationErrors();
+        optionValueToPriceUpdates[optionValueKey] = parsedPrice;
+      } else {
+        setValidationError("Enter a non-negative number");
       }
 
-      optionValueToPriceUpdates[optionValueKey] = parsedPrice;
       setFormState(
         {
           ...formState,
@@ -52,12 +53,12 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
               }
             }
           },
-          sizeToPriceUpdates: optionKey === SIZE_CUSTOMIZATION_SECTION_NAME
-            ? optionValueToPriceUpdates
-            : formState.sizeToPriceUpdates,
-          flowerToPriceUpdates: optionKey === FLOWER_CUSTOMIZATION_SECTION_NAME
-            ? optionValueToPriceUpdates
-            : formState.flowerToPriceUpdates
+          ...(validPrice && optionKey === SIZE_CUSTOMIZATION_SECTION_NAME
+            && { sizeToPriceUpdates: optionValueToPriceUpdates }
+          ),
+          ...(validPrice && optionKey === FLOWER_CUSTOMIZATION_SECTION_NAME
+            && { flowerToPriceUpdates: optionValueToPriceUpdates }
+          )
         }
       )
     },
