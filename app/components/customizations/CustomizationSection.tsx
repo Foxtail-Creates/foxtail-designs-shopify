@@ -1,6 +1,6 @@
 import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
 import { useCallback } from "react";
-import { FLOWER_CUSTOMIZATION_SECTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME } from "~/constants";
+import { FLOWER_CUSTOMIZATION_SECTION_NAME, PALETTE_OPTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
 
@@ -55,12 +55,22 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
 
   const updateOptionValueName = useCallback(
     (value: string) => {
+      let customValueName: string | null = null;
+      if ((optionKey) === PALETTE_OPTION_NAME) {
+        customValueName = "paletteToNameUpdates";
+      } else if ((optionKey) === SIZE_OPTION_NAME) {
+        customValueName = "sizeToNameUpdates";
+      }
       setFormState({
         ...formState,
-        paletteToNameUpdates: {
-          ...formState.paletteToNameUpdates,
-          [optionValueKey]: value
-        },
+        ...(customValueName != null &&
+          {
+            [customValueName]: {
+              ...formState[customValueName],
+              [optionValueKey]: value
+            }
+          }
+        ),
         optionCustomizations: {
           ...formState.optionCustomizations,
           [optionKey]: {

@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://recommends-fate-complications-k.trycloudflare.com"
+application_url = "https://blink-portland-niagara-valued.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_products,write_products"
 
 [auth]
 redirect_urls = [
-  "https://recommends-fate-complications-k.trycloudflare.com/auth/callback",
-  "https://recommends-fate-complications-k.trycloudflare.com/auth/shopify/callback",
-  "https://recommends-fate-complications-k.trycloudflare.com/api/auth/callback"
+  "https://blink-portland-niagara-valued.trycloudflare.com/auth/callback",
+  "https://blink-portland-niagara-valued.trycloudflare.com/auth/shopify/callback",
+  "https://blink-portland-niagara-valued.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

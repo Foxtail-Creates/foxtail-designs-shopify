@@ -1,13 +1,14 @@
 import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED } from "~/constants";
 import { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "./graphql";
 import { createVariants } from "./createVariants";
+import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 
 /**
  * Creates a new product
  */
 export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], optionToName: { [key: string]: string},
   selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number },
-  backendIdToName: FallbackMap) {
+  paletteBackendIdToName: TwoWayFallbackMap, sizeEnumToName: TwoWayFallbackMap) {
     const customProductWithOptionsResponse = await admin.graphql(
       CREATE_PRODUCT_WITH_OPTIONS_QUERY,
       {
@@ -19,11 +20,11 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
           flowerValues: selectedFlowers.map((value: string) => ({ "name": value })),
           sizeOptionName: optionToName[SIZE_OPTION_NAME],
           sizePosition: SIZE_POSITION,
-          sizeValues: selectedSizes.map((value: string) => ({ "name": value })),
+          sizeValues: selectedSizes.map((sizeEnum: string) => ({ "name": sizeEnumToName.getValue(sizeEnum) })),
           paletteOptionName: optionToName[PALETTE_OPTION_NAME],
           palettePosition: PALETTE_POSITION,
           paletteValues: selectedPalettes.map((id: string) => {
-            return { "name": backendIdToName.getValue(id) };
+            return { "name": paletteBackendIdToName.getValue(id) };
           }),
           metafieldNamespace: FOXTAIL_NAMESPACE,
           metafieldKey: PRODUCT_METADATA_PRICES,
@@ -44,6 +45,8 @@ export async function createProductWithOptionsAndVariants(admin, selectedFlowers
         throw "Error creating new product. Contact Support for help.";
     }
 
-    const customProductWithVariants = await createVariants(admin, customProductWithOptionsBody.data.productCreate.product.id, selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice, optionToName, backendIdToName);
+    const customProductWithVariants = await createVariants(admin, customProductWithOptionsBody.data.productCreate.product.id,
+      selectedFlowers, selectedSizes, selectedPalettes, sizeToPrice, flowerToPrice, optionToName, paletteBackendIdToName, sizeEnumToName
+    );
     return customProductWithVariants;
   }

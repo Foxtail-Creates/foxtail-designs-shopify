@@ -10,7 +10,8 @@ import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 
 export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
 
-  const paletteNameToIdMap: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
+  const paletteBackendIdToName: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
+  const sizeEnumToName: TwoWayFallbackMap = convertJsonToTypescript(data.sizeEnumToName, TwoWayFallbackMap);
 
   // Note that order of operations matters. For example when updating prices and option names in the same form,
   // we update price variants using the old option names first, and then update the option names to the new values
@@ -30,16 +31,20 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
     await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], updatedName, data.paletteToNameUpdates)
   }
 
-  if (data.optionToNameUpdates[SIZE_OPTION_NAME] != null
-    && data.productMetadata.optionToName[SIZE_OPTION_NAME] != data.optionToNameUpdates[SIZE_OPTION_NAME]) {
-    await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], data.optionToNameUpdates[SIZE_OPTION_NAME], {});
+  const updateSizeName: boolean = data.optionToNameUpdates[SIZE_OPTION_NAME] != null && data.productMetadata.optionToName[SIZE_OPTION_NAME] != data.optionToNameUpdates[SIZE_OPTION_NAME];
+  const updateSizeValueNames: boolean = Object.entries(data.sizeToNameUpdates).length != 0;
+  if (updateSizeName || updateSizeValueNames) {
+    const updatedName: string = updateSizeName ? data.optionToNameUpdates[SIZE_OPTION_NAME] : data.productMetadata.optionToName[SIZE_OPTION_NAME];
+    await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], updatedName, data.sizeToNameUpdates);
   }
 
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
   updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);
   updateMap(data.productMetadata.optionToName, data.optionToNameUpdates);
 
-  updateIdMap(data.productMetadata.paletteToName, data.paletteToNameUpdates, paletteNameToIdMap);
+  updateIdMap(data.productMetadata.paletteToName, data.paletteToNameUpdates, paletteBackendIdToName);
+  updateIdMap(data.productMetadata.sizeToName, data.sizeToNameUpdates, sizeEnumToName);
+
   await setProductMetadata(admin, data.product.id,
     FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
 }
