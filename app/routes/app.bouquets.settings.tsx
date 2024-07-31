@@ -86,7 +86,7 @@ export async function action({ request, params }) {
   // add new images for palette bouquets
   if (data.palettesSelected.length > 0) {
     const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
-      (palette) => data.palettesSelected.includes(palette.name),
+      (palette) => data.palettesSelected.includes(palette.id.toString()),
     ).map((palette) => {
       return {
         alt: `Palette ${palette.name}`,

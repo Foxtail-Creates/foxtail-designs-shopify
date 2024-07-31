@@ -56,12 +56,6 @@ export async function action({ request, params }) {
   return redirect(`/app`);
 }
 
-export function updateMap<T>(original: { [key: string]: T }, updates: { [key: string]: T }) {
-  for (const optionValue in updates) {
-    original[optionValue] = updates[optionValue];
-  }
-}
-
 const createSizeValueCustomizationsObject = (sizeEnumsAvailable: string[], selectedSizeEnums: string[],
   sizeEnumToPrice: { [key: string]: number }, sizeEnumToName: SerializedTwoWayFallbackMap) => {
   if (!selectedSizeEnums) {

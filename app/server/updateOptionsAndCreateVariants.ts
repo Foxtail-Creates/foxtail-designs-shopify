@@ -1,4 +1,3 @@
-import invariant from "tiny-invariant";
 import { createProductOptions } from "./createProductOptions";
 import { UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY } from "./graphql";
 
@@ -67,8 +66,16 @@ export async function updateOptionsAndCreateVariants(
         );
 
         const updateProductOptionBody = await updateProductOptionAndVariantsResponse.json();
-        invariant(updateProductOptionBody.data?.productOptionUpdate?.userErrors.length == 0,
-            "Error creating new product options. Contact Support for help."
-        );
+
+        const hasErrors: boolean = updateProductOptionBody.data?.productOptionUpdate?.userErrors.length != 0;
+
+        if (hasErrors) {
+            console.log("Error creating new product options. Message {"
+                + updateProductOptionBody.data?.productOptionUpdate.userErrors[0].message
+                + "} on field {"
+                + updateProductOptionBody.data?.productOptionUpdate.userErrors[0].field
+                + "}");
+            throw "Error creating new product options. Contact Support for help.";
+        }
     }
 }

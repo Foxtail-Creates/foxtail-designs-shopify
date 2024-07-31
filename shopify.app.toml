@@ -3,7 +3,7 @@
 client_id = "04647ec21da57e20574c4c98d2ce4ce5"
 name = "foxtail-designs"
 handle = "foxtail-designs"
-application_url = "https://fork-civilization-dining-knock.trycloudflare.com"
+application_url = "https://commander-formal-algebra-single.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://fork-civilization-dining-knock.trycloudflare.com/auth/callback",
-  "https://fork-civilization-dining-knock.trycloudflare.com/auth/shopify/callback",
-  "https://fork-civilization-dining-knock.trycloudflare.com/api/auth/callback"
+  "https://commander-formal-algebra-single.trycloudflare.com/auth/callback",
+  "https://commander-formal-algebra-single.trycloudflare.com/auth/shopify/callback",
+  "https://commander-formal-algebra-single.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
