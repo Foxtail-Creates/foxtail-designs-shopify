@@ -7,7 +7,7 @@ import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./grap
 import type { StoreOptions } from "~/models/StoreSetting.server";
 import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
-import { getSelectedCustomValues, getSelectedValues as getSelectedValues} from "./createProductOptions";
+import { getSelectedCustomValues, getSelectedValues as getSelectedValues } from "./createProductOptions";
 import { createVariants } from "./createVariants";
 import { setProductMetadata } from "./setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
@@ -28,7 +28,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
   // set default selections
   let flowersSelected = [firstFlower.name];
-  let sizesSelected = SIZE_OPTION_VALUES;  
+  let sizesSelected = SIZE_OPTION_VALUES;
   let palettesSelected: string[] = [firstPalette.id.toString()];
 
   const paletteBackendIdToDefaultName: Record<string, string> = {};
@@ -50,8 +50,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   let customProduct;
 
   const productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
-  let paletteBackendIdToName: TwoWayFallbackMap= new TwoWayFallbackMap({}, paletteBackendIdToDefaultName);
-  let sizeEnumToName: TwoWayFallbackMap= new TwoWayFallbackMap({}, sizeEnumToDefaultName);
+  let paletteBackendIdToName: TwoWayFallbackMap = new TwoWayFallbackMap({}, paletteBackendIdToDefaultName);
+  let sizeEnumToName: TwoWayFallbackMap = new TwoWayFallbackMap({}, sizeEnumToDefaultName);
 
   const productId = shopMetadataBody.data?.shop.metafield?.value
   if (productId) {
@@ -121,9 +121,11 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
 
-  const productImageIds = customProduct.media?.nodes
+  const productImages = customProduct.media?.nodes
     ?.filter((media) => media.mediaContentType === "IMAGE")
-    ?.map((media) => media.id);
+    ?.map((media) => {
+      return { id: media.id, alt: media.alt }
+    });
 
   const byobOptions: ByobCustomizerOptions = {
     destination: "product",
@@ -138,7 +140,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     flowersAvailable: allCustomOptions.flowersAvailable,
     flowersSelected: flowersSelected,
     productMetadata: productMetadata,
-    productImageIds: productImageIds,
+    productImages: productImages,
   };
   return byobOptions;
 };

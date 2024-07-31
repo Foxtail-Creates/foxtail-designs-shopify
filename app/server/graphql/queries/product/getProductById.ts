@@ -15,6 +15,7 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
           nodes {
             id
             mediaContentType
+            alt
           }
         }
         variants(first:100) { # TODO: limit number of variants/pagination

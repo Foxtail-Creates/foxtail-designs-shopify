@@ -80,8 +80,9 @@ export async function action({ request, params }) {
 
   const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
   // delete all existing images
-  if (data.productImageIds?.length && shouldUpdatePaletteImages) {
-    await deleteProductMedia(admin, data.productImageIds, data.product.id);
+  if (data.productImages?.length && shouldUpdatePaletteImages) {
+    const mediaIds = data.productImages.map((media) => media.id);
+    await deleteProductMedia(admin, mediaIds, data.product.id);
   }
 
   // add new images for palette bouquets
@@ -90,14 +91,13 @@ export async function action({ request, params }) {
       (palette) => data.palettesSelected.includes(palette.id.toString()),
     ).map((palette) => {
       return {
-        alt: `Palette ${palette.name}`,
+        alt: `${palette.name}`,
         originalSource: palette.imageLink,
         mediaContentType: "IMAGE"
       };
     });
 
     await createProductMedia(admin, createMediaInput, data.product.id);
-    // todo: set media on variants
   }
 
   return redirect(`/app/bouquets/customize`);
@@ -160,7 +160,7 @@ export default function ByobCustomizationForm() {
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
       productMetadata: byobCustomizer.productMetadata,
-      productImageIds: byobCustomizer.productImageIds
+      productImages: byobCustomizer.productImages
     };
 
     const serializedData = JSON.stringify(data);

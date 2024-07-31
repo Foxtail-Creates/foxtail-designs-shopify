@@ -4,6 +4,11 @@ import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
 import { TwoWayFallbackMap } from "./server/TwoWayFallbackMap";
 
+export type ProductImage = {
+  id: string;
+  alt: string;
+}
+
 export type ByobCustomizerOptions = {
   destination: string;
   productName: string;
@@ -17,7 +22,7 @@ export type ByobCustomizerOptions = {
   flowersAvailable: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
-  productImageIds: string[] | undefined;
+  productImages: ProductImage[] | undefined;
 };
 
 export type BouquetSettingsForm = {
@@ -58,7 +63,7 @@ export type SerializedSettingForm = {
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
   productMetadata: ProductMetadata;
-  productImageIds: string[] | undefined;
+  productImages: ProductImage[] | undefined;
 }
 
 export type SerializedTwoWayFallbackMap = {

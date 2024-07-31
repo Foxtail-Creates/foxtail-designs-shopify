@@ -7,6 +7,7 @@ import { setProductMetadata } from "./setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
 import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { updateMediaVariants } from "./updateMediaForVariants";
 
 export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
 
@@ -37,6 +38,9 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
     const updatedName: string = updateSizeName ? data.optionToNameUpdates[SIZE_OPTION_NAME] : data.productMetadata.optionToName[SIZE_OPTION_NAME];
     await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], updatedName, data.sizeToNameUpdates);
   }
+
+  // update media for all product variants
+  await updateMediaVariants(admin, data.product.id);
 
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
   updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);
