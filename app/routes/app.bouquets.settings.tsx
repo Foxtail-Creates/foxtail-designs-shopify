@@ -78,13 +78,14 @@ export async function action({ request, params }) {
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
     data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
+  const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
   // delete all existing images
-  if (data.productImageIds?.length) {
+  if (data.productImageIds?.length && shouldUpdatePaletteImages) {
     await deleteProductMedia(admin, data.productImageIds, data.product.id);
   }
 
   // add new images for palette bouquets
-  if (data.palettesSelected.length > 0) {
+  if (data.palettesSelected.length > 0 && shouldUpdatePaletteImages) {
     const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
       (palette) => data.palettesSelected.includes(palette.id.toString()),
     ).map((palette) => {
