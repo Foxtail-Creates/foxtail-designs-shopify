@@ -1,5 +1,5 @@
 import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { FLOWER_CUSTOMIZATION_SECTION_NAME, PALETTE_OPTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
@@ -20,10 +20,23 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
     optionValueToPriceUpdates
    } = props;
 
+  const [validationError, setValidationError] = useState("");
+
+  function clearValidationErrors() {
+    setValidationError("");
+  }
+
   const updatePrice = useCallback(
     (value: string) => {
-      const parsedPrice: number = parseFloat(value);
-      optionValueToPriceUpdates[optionValueKey] = parsedPrice;
+      let parsedPrice: number = parseFloat(value);
+      const validPrice = parsedPrice >= 0;
+      if (validPrice) {
+        clearValidationErrors();
+        optionValueToPriceUpdates[optionValueKey] = parsedPrice;
+      } else {
+        setValidationError("Enter a non-negative number");
+      }
+
       setFormState(
         {
           ...formState,
@@ -40,12 +53,12 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
               }
             }
           },
-          sizeToPriceUpdates: optionKey === SIZE_CUSTOMIZATION_SECTION_NAME
-            ? optionValueToPriceUpdates
-            : formState.sizeToPriceUpdates,
-          flowerToPriceUpdates: optionKey === FLOWER_CUSTOMIZATION_SECTION_NAME
-            ? optionValueToPriceUpdates
-            : formState.flowerToPriceUpdates
+          ...(validPrice && optionKey === SIZE_CUSTOMIZATION_SECTION_NAME
+            && { sizeToPriceUpdates: optionValueToPriceUpdates }
+          ),
+          ...(validPrice && optionKey === FLOWER_CUSTOMIZATION_SECTION_NAME
+            && { flowerToPriceUpdates: optionValueToPriceUpdates }
+          )
         }
       )
     },
@@ -111,6 +124,7 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
             value={formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey].price.toString()}
             onChange={updatePrice}
             autoComplete="off"
+            error={validationError}
           />)}
       </InlineStack>
     </>
