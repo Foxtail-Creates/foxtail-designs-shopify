@@ -1,5 +1,5 @@
 import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { FLOWER_CUSTOMIZATION_SECTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
 
@@ -20,9 +20,21 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
     optionValueToPriceUpdates
    } = props;
 
+  const [validationError, setValidationError] = useState("");
+
+  function clearValidationErrors() {
+    setValidationError("");
+  }
   const updatePrice = useCallback(
     (value: string) => {
-      const parsedPrice: number = parseFloat(value);
+      let parsedPrice: number = parseFloat(value);
+      if (parsedPrice < 0) {
+        setValidationError("Enter a non-negative number");
+        return;
+      } else {
+        clearValidationErrors();
+      }
+
       optionValueToPriceUpdates[optionValueKey] = parsedPrice;
       setFormState(
         {
@@ -101,6 +113,7 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
             value={formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey].price.toString()}
             onChange={updatePrice}
             autoComplete="off"
+            error={validationError}
           />)}
       </InlineStack>
     </>
