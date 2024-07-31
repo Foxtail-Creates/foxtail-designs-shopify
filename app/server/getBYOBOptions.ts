@@ -19,8 +19,12 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers are available. Contact Support for help.");
   invariant(allCustomOptions.palettesAvailable.length > 0, "No palettes are available. Contact Support for help.");
 
-  const [firstFlower,] = allCustomOptions.flowersAvailable;
-  const [firstPalette,] = allCustomOptions.palettesAvailable;
+  const [firstFlower,] = allCustomOptions.flowersAvailable.sort((a, b) =>
+    a.name < b.name ? -1 : 1
+  );
+  const [firstPalette,] = allCustomOptions.palettesAvailable.sort((a, b) =>
+    a.name < b.name ? -1 : 1
+  );
 
   // set default selections
   let flowersSelected = [firstFlower.name];
