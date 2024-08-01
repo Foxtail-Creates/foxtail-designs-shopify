@@ -2,7 +2,7 @@ import type {
   SerializedCustomizeForm
 } from "~/types";
 import { updateOptionAndValueNames } from "./updateOptionAndValueNames";
-import { updateVariants } from "./updateVariants";
+import { updateVariantPrices } from "./updateVariantPrices";
 import { setProductMetadata } from "./setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
@@ -14,34 +14,28 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
   const paletteBackendIdToName: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
   const sizeEnumToName: TwoWayFallbackMap = convertJsonToTypescript(data.sizeEnumToName, TwoWayFallbackMap);
 
-  // Note that order of operations matters. For example when updating prices and option names in the same form,
-  // we update price variants using the old option names first, and then update the option names to the new values
-  await updateVariants(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
-    data.sizeToPriceUpdates, data.flowerToPriceUpdates);
+  // update option and option value names
+  await updateCustomOptionandValueNames(admin, data.product, {},
+    data.productMetadata.optionToName[FLOWER_OPTION_NAME], data.optionToNameUpdates[FLOWER_OPTION_NAME]);
 
-  if (data.optionToNameUpdates[FLOWER_OPTION_NAME] != null
-    && data.productMetadata.optionToName[FLOWER_OPTION_NAME] != data.optionToNameUpdates[FLOWER_OPTION_NAME]) {
-    await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], data.optionToNameUpdates[FLOWER_OPTION_NAME], {});
-  }
+  await updateCustomOptionandValueNames(admin, data.product, data.paletteToNameUpdates,
+    data.productMetadata.optionToName[PALETTE_OPTION_NAME], data.optionToNameUpdates[PALETTE_OPTION_NAME]);
 
-  const updatePaletteName: boolean = data.optionToNameUpdates[PALETTE_OPTION_NAME] != null && data.productMetadata.optionToName[PALETTE_OPTION_NAME] != data.optionToNameUpdates[PALETTE_OPTION_NAME];
-  const updatePaletteValueNames: boolean = Object.entries(data.paletteToNameUpdates).length != 0;
-  if (updatePaletteName || updatePaletteValueNames) {
-    // update option and option value names
-    const updatedName: string = updatePaletteName ? data.optionToNameUpdates[PALETTE_OPTION_NAME] : data.productMetadata.optionToName[PALETTE_OPTION_NAME];
-    await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], updatedName, data.paletteToNameUpdates)
-  }
+  await updateCustomOptionandValueNames(admin, data.product, data.sizeToNameUpdates,
+    data.productMetadata.optionToName[SIZE_OPTION_NAME], data.optionToNameUpdates[SIZE_OPTION_NAME]);
 
-  const updateSizeName: boolean = data.optionToNameUpdates[SIZE_OPTION_NAME] != null && data.productMetadata.optionToName[SIZE_OPTION_NAME] != data.optionToNameUpdates[SIZE_OPTION_NAME];
-  const updateSizeValueNames: boolean = Object.entries(data.sizeToNameUpdates).length != 0;
-  if (updateSizeName || updateSizeValueNames) {
-    const updatedName: string = updateSizeName ? data.optionToNameUpdates[SIZE_OPTION_NAME] : data.productMetadata.optionToName[SIZE_OPTION_NAME];
-    await updateOptionAndValueNames(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], updatedName, data.sizeToNameUpdates);
-  }
+  const customSizeToPriceUpdate: { [key:string] : number } = {};
+  for (const size in data.sizeToPriceUpdates) {
+    customSizeToPriceUpdate[sizeEnumToName.getValue(size)] = data.sizeToPriceUpdates[size];
+  };
 
   // update media for all product variants
   await updateMediaForVariants(admin, data.product.id);
 
+  // adjust variants to have the proper prices and tracking status
+  await updateVariantPrices(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
+    customSizeToPriceUpdate, data.flowerToPriceUpdates);
+  
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
   updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);
   updateMap(data.productMetadata.optionToName, data.optionToNameUpdates);
@@ -53,13 +47,29 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
     FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
 }
 
-export function updateMap<T>(original: { [key: string]: T }, updates: { [key: string]: T }) {
+async function updateCustomOptionandValueNames(
+  admin,
+  product,
+  optionValueToNameUpdates: { [key:string]: string },
+  currentOptionName: string,
+  newOptionName?: string
+) {
+  const updateOptionName: boolean = newOptionName != null && currentOptionName != newOptionName;
+  const updateOptionValueNames: boolean = Object.entries(optionValueToNameUpdates).length != 0;
+  if (updateOptionName || updateOptionValueNames) {
+    // update option and option value names
+    const updatedName: string = updateOptionName ? newOptionName : currentOptionName;
+    await updateOptionAndValueNames(admin, product, currentOptionName, updatedName, optionValueToNameUpdates);
+  }
+} 
+
+function updateMap<T>(original: { [key: string]: T }, updates: { [key: string]: T }) {
   for (const optionValue in updates) {
     original[optionValue] = updates[optionValue];
   }
 }
 
-export function updateIdMap(oldBackendIdToCustomName: { [key: string]: string }, nameToNewName: { [key: string]: string },
+function updateIdMap(oldBackendIdToCustomName: { [key: string]: string }, nameToNewName: { [key: string]: string },
   backendIdToName: TwoWayFallbackMap) {
   for (const oldName in nameToNewName) {
     const backendId: string = backendIdToName.getReverseValue(oldName);

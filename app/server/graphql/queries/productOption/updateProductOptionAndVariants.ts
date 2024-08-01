@@ -26,6 +26,7 @@ export const UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY = `#graphql
                     displayName
                     id
                     price
+                    inventoryPolicy
                     selectedOptions {
                     name
                     optionValue {

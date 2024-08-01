@@ -22,6 +22,7 @@ export const CREATE_PRODUCT_OPTIONS_QUERY = `#graphql
                   displayName
                   id
                   price
+                  inventoryPolicy
                   selectedOptions {
                     name
                     optionValue {

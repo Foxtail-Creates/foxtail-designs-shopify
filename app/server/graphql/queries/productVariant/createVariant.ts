@@ -18,6 +18,7 @@ export const CREATE_VARIANTS_QUERY = `#graphql
                   displayName
                   id
                   price
+                  inventoryPolicy
                   selectedOptions {
                     name
                     optionValue {

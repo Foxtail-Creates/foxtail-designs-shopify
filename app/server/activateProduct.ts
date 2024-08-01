@@ -5,7 +5,7 @@ export async function activateProduct(admin, productId) {
         ACTIVATE_PRODUCT_QUERY,
         {
           variables: {
-            productId: productId
+            id: productId
           },
         },
       );
