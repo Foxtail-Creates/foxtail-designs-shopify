@@ -7,6 +7,7 @@ export const BULK_CREATE_VARIANTS_QUERY = `#graphql
         ) {
         product {
             id
+            status
             options {
             id
             name

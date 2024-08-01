@@ -3,6 +3,7 @@ export const CREATE_VARIANTS_QUERY = `#graphql
         productVariantsBulkCreate(variants: $variants, productId: $productId, strategy: REMOVE_STANDALONE_VARIANT) {
           product {
               id
+              status
               options {
                 id
                 name

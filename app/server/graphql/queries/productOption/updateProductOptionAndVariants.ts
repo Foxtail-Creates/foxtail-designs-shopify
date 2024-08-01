@@ -11,6 +11,7 @@ export const UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY = `#graphql
         ) {
             product {
                 id
+                status
                 options {
                 id
                 name

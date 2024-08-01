@@ -6,6 +6,7 @@ export const BULK_UPDATE_VARIANTS_QUERY = `#graphql
     ) {
       product {
         id
+        status
         options {
           id
           name

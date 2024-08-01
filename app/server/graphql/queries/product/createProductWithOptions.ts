@@ -17,6 +17,7 @@ export const CREATE_PRODUCT_WITH_OPTIONS_QUERY= `#graphql
           ) {
             product {
               id
+              status
               options {
                 id
                 name

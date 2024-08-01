@@ -34,6 +34,7 @@ import { Palette as PaletteComponent } from "~/components/palettes/Palette";
 import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/sanitizeData";
+import { activateProduct } from "~/server/activateQueries";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -52,6 +53,9 @@ export async function action({ request, params }) {
 
   sanitizeData(data);
   saveCustomizations(admin, data);
+  if (data.product.status !== "ACTIVE") {
+    activateProduct(admin, data.product.id);
+  }
 
   return redirect(`/app`);
 }

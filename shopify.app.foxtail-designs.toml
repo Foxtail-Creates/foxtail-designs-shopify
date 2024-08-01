@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://glad-bruce-sao-initiatives.trycloudflare.com"
+application_url = "https://posing-possible-waiting-performs.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,13 +13,13 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_products"
+scopes = "read_inventory,read_products,write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://glad-bruce-sao-initiatives.trycloudflare.com/auth/callback",
-  "https://glad-bruce-sao-initiatives.trycloudflare.com/auth/shopify/callback",
-  "https://glad-bruce-sao-initiatives.trycloudflare.com/api/auth/callback"
+  "https://posing-possible-waiting-performs.trycloudflare.com/auth/callback",
+  "https://posing-possible-waiting-performs.trycloudflare.com/auth/shopify/callback",
+  "https://posing-possible-waiting-performs.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

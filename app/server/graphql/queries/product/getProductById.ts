@@ -2,6 +2,7 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
     query getProductById($id: ID!, $namespace: String!, $key: String!) { 
       product(id:$id) {
         id
+        status
         options {
           id
           name
