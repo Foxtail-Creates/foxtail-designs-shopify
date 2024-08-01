@@ -71,7 +71,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     if (customProduct == null) {
       // if custom product is missing, create new custom product and add to store metadata
       customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
-        paletteBackendIdToName);
+        paletteBackendIdToName, sizeEnumToName);
       await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
     }
 
@@ -117,7 +117,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   } else {
     // otherwise create new custom product and add to store metadata
     customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
-      paletteBackendIdToName);
+      paletteBackendIdToName, sizeEnumToName);
     await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
   }
 
