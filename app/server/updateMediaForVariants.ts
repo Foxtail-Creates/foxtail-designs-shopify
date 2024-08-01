@@ -3,7 +3,7 @@ import { BULK_UPDATE_VARIANTS_QUERY } from "./graphql/queries/productVariant/bul
 import { ProductMetadata } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY } from "./graphql";
 
-export async function updateMediaVariants(
+export async function updateMediaForVariants(
     admin,
     productId: string,
 ) {
@@ -33,14 +33,14 @@ export async function updateMediaVariants(
             return { id: media.id, alt: media.alt }
         });
 
-
     // variants
     const newVariants = [];
 
     customProduct.variants.nodes.forEach((variantNode) => {
         const palette: string = variantNode.selectedOptions.find((option) => option.name == productMetadata.optionToName[PALETTE_OPTION_NAME]).value;
-        const mediaId: string = productImages.find((media) => media.alt == palette).id;
-        if (mediaId) {
+        const mediaId: string = productImages.find((media) => media.alt == palette)?.id;
+        const doesExistingMediaMatch = variantNode.media.nodes?.find((media) => media.id == mediaId);
+        if (mediaId && !doesExistingMediaMatch) {
             newVariants.push({
                 id: variantNode.id,
                 mediaId: mediaId
@@ -48,7 +48,7 @@ export async function updateMediaVariants(
         }
     });
 
-    if (newVariants.length == 0) {
+    if (newVariants.length > 0) {
         const updateVariantsResponse = await admin.graphql(
             BULK_UPDATE_VARIANTS_QUERY,
             {

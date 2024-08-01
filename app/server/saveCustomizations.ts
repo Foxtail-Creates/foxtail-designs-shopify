@@ -7,7 +7,7 @@ import { setProductMetadata } from "./setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
 import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
-import { updateMediaVariants } from "./updateMediaForVariants";
+import { updateMediaForVariants } from "./updateMediaForVariants";
 
 export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
 
@@ -40,7 +40,7 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
   }
 
   // update media for all product variants
-  await updateMediaVariants(admin, data.product.id);
+  await updateMediaForVariants(admin, data.product.id);
 
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
   updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);

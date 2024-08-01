@@ -105,9 +105,13 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     const paletteOption = customProduct.options.find(
       (option) => option.name === paletteDisplayName,
     );
-    flowersSelected = await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, flowersSelected);
-    sizesSelected = await getSelectedCustomValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES, sizeEnumToName);
-    palettesSelected = await getSelectedCustomValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, paletteBackendIdToName);
+    // filtering out undefined values if existing metadata is a bad state
+    flowersSelected = (await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, flowersSelected))
+      .filter((flower) => flower != undefined);
+    sizesSelected = (await getSelectedCustomValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES, sizeEnumToName))
+      .filter((size) => size != undefined);
+    palettesSelected = (await getSelectedCustomValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, paletteBackendIdToName))
+      .filter((palette) => palette != undefined);
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
