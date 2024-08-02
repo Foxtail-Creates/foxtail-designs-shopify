@@ -2,7 +2,7 @@ import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRI
 import { BULK_UPDATE_VARIANTS_QUERY } from "./graphql/queries/productVariant/bulkUpdateVariants";
 import { ProductMetadata } from "~/types";
 
-export async function updateVariantPrices(
+export async function updateVariantsPriceAndStatus(
   admin,
   productId: string,
   variantNodes,

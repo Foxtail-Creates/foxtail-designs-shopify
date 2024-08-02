@@ -2,7 +2,7 @@ import type {
   SerializedCustomizeForm
 } from "~/types";
 import { updateOptionAndValueNames } from "./updateOptionAndValueNames";
-import { updateVariantPrices } from "./updateVariantPrices";
+import { updateVariantsPriceAndStatus } from "./updateVariantsPriceAndStatus";
 import { setProductMetadata } from "./setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
@@ -33,7 +33,7 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
   await updateMediaForVariants(admin, data.product.id);
 
   // adjust variants to have the proper prices and tracking status
-  await updateVariantPrices(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
+  await updateVariantsPriceAndStatus(admin, data.product.id, data.product.variants.nodes, data.productMetadata,
     customSizeToPriceUpdate, data.flowerToPriceUpdates);
   
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
