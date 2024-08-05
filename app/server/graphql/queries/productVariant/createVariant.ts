@@ -1,50 +1,16 @@
+import { PRODUCT_FRAGMENT } from "../../fragments/product";
+
 export const CREATE_VARIANTS_QUERY = `#graphql
-    mutation createVariants($variants: [ProductVariantsBulkInput!]!, $productId: ID!) {
-        productVariantsBulkCreate(variants: $variants, productId: $productId, strategy: REMOVE_STANDALONE_VARIANT) {
-          product {
-              id
-              status
-              options {
-                id
-                name
-                position
-                optionValues {
-                  id
-                  name
-                }
-              }
-              media(first:100) {
-                nodes {
-                  id
-                  mediaContentType
-                  alt
-                }
-              }
-              variants(first:100) { # TODO: limit number of variants/pagination
-                nodes {
-                  media(first:1) {
-                    nodes {
-                      id
-                    }
-                  }
-                  displayName
-                  id
-                  price
-                  inventoryPolicy
-                  selectedOptions {
-                    name
-                    optionValue {
-                      id
-                      name
-                    }
-                    value
-                  }
-                }
-              }
-            }
-            userErrors {
-                message
-                field
-            }
-        }
-    }`;
+  ${PRODUCT_FRAGMENT}
+  mutation createVariants($variants: [ProductVariantsBulkInput!]!, $productId: ID!) {
+    productVariantsBulkCreate(variants: $variants, productId: $productId, strategy: REMOVE_STANDALONE_VARIANT) {
+      product {
+        ...ProductFields
+        
+      }
+      userErrors {
+        message
+        field
+      }
+    }
+  }`;

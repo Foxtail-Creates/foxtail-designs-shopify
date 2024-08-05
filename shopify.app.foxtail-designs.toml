@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://fork-editions-chronicles-marriott.trycloudflare.com"
+application_url = "https://magazines-dressed-jeff-shorter.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://fork-editions-chronicles-marriott.trycloudflare.com/auth/callback",
-  "https://fork-editions-chronicles-marriott.trycloudflare.com/auth/shopify/callback",
-  "https://fork-editions-chronicles-marriott.trycloudflare.com/api/auth/callback"
+  "https://magazines-dressed-jeff-shorter.trycloudflare.com/auth/callback",
+  "https://magazines-dressed-jeff-shorter.trycloudflare.com/auth/shopify/callback",
+  "https://magazines-dressed-jeff-shorter.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
