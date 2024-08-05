@@ -12,7 +12,7 @@ export async function activateProduct(admin, productId) {
       const activateProductBody = await activateProductResponse.json();
       const hasErrors: boolean = activateProductBody.data?.productChangeStatus.userErrors.length != 0;
       if (hasErrors) {
-          console.log("Error updating variants. Message {"
+          console.log("Error activating product. Message {"
               + activateProductBody.data?.productChangeStatus.userErrors[0].message
               + "} on field {"
               + activateProductBody.data?.productChangeStatus.userErrors[0].field
