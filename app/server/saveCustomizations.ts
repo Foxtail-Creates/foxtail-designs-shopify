@@ -27,7 +27,7 @@ export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
 
   // adjust variants to have the proper prices, tracking status and media
   await updateVariantsPriceStatusMedia(admin, updatedProduct, updatedProduct.variants.nodes, data.productMetadata,
-    data.sizeToPriceUpdates, sizeEnumToName, data.flowerToPriceUpdates, data.optionToNameUpdates);
+    data.sizeToPriceUpdates, sizeEnumToName, data.flowerToPriceUpdates, paletteBackendIdToName, data.optionToNameUpdates);
   
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
   updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);

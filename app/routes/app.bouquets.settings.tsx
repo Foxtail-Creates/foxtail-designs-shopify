@@ -91,7 +91,7 @@ export async function action({ request, params }) {
       (palette) => data.palettesSelected.includes(palette.id.toString()),
     ).map((palette) => {
       return {
-        alt: `${palette.name}`,
+        alt: `${palette.id}`,
         originalSource: palette.imageLink,
         mediaContentType: "IMAGE"
       };

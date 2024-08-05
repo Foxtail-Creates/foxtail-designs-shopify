@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://ge-urw-violations-specs.trycloudflare.com"
+application_url = "https://fork-editions-chronicles-marriott.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://ge-urw-violations-specs.trycloudflare.com/auth/callback",
-  "https://ge-urw-violations-specs.trycloudflare.com/auth/shopify/callback",
-  "https://ge-urw-violations-specs.trycloudflare.com/api/auth/callback"
+  "https://fork-editions-chronicles-marriott.trycloudflare.com/auth/callback",
+  "https://fork-editions-chronicles-marriott.trycloudflare.com/auth/shopify/callback",
+  "https://fork-editions-chronicles-marriott.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

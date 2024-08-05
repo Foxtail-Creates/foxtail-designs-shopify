@@ -11,6 +11,7 @@ export async function updateVariantsPriceStatusMedia(
   sizeToPriceUpdates: { [key: string]: number },
   sizeEnumToName: TwoWayFallbackMap,
   flowerToPriceUpdates: { [key: string]: number },
+  paletteIdToName: TwoWayFallbackMap,
   optionToNameUpdates: { [key: string]: string },
 ) {
   const productId: string = product.id;
@@ -54,8 +55,8 @@ export async function updateVariantsPriceStatusMedia(
     }
 
     // update media 
-    const palette: string = variantNode.selectedOptions.find((option) => option.name === paletteOptionName).value;
-    const mediaId: string = productImages.find((media) => media.alt == palette)?.id;
+    const paletteId: string = paletteIdToName.getReverseValue(variantNode.selectedOptions.find((option) => option.name === paletteOptionName).value);
+    const mediaId: string = productImages.find((media) => media.alt == paletteId)?.id;
     const doesExistingMediaMatch = variantNode.media.nodes?.find((media) => media.id == mediaId);
     if (mediaId && !doesExistingMediaMatch) {
         variant['mediaId'] = mediaId;
