@@ -31,6 +31,7 @@ import {
   FLOWER_POSITION,
   PALETTE_OPTION_NAME,
   PALETTE_POSITION,
+  PRODUCT_MAIN_IMAGE_SOURCE,
   SIZE_OPTION_NAME,
   SIZE_POSITION
 } from "../constants";
@@ -87,7 +88,7 @@ export async function action({ request, params }) {
 
   // add new images for palette bouquets
   if (data.palettesSelected.length > 0 && shouldUpdatePaletteImages) {
-    const createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
+    let createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
       (palette) => data.palettesSelected.includes(palette.id.toString()),
     ).map((palette) => {
       return {
@@ -96,6 +97,13 @@ export async function action({ request, params }) {
         mediaContentType: "IMAGE"
       };
     });
+
+    // add main image for product as first image in list
+    createMediaInput = [{
+      alt: `Custom Order`,
+      originalSource: PRODUCT_MAIN_IMAGE_SOURCE,
+      mediaContentType: "IMAGE"
+    }].concat(createMediaInput)
 
     await createProductMedia(admin, createMediaInput, data.product.id);
   }

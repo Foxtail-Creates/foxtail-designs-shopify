@@ -58,3 +58,5 @@ export const PRODUCT_METADATA_DEFAULT_VALUES: ProductMetadata = {
 };
 
 export const PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED = JSON.stringify(PRODUCT_METADATA_DEFAULT_VALUES);
+
+export const PRODUCT_MAIN_IMAGE_SOURCE = "https://lh3.googleusercontent.com/pw/AP1GczM3XFw0Hp76BeWNRd_ibc6CsYduHL_uq8t7R-XRyTSlf8_DTbUuhRAEsJNSgSY32vMQsB0OhTqaIzWn-BDdeRM_uEjz6HtBQIFENf-xjuZJpVqHkTBd3qBJE_71mBljqb7bvnGZzIlhF9i3xqg2I-ZlsA=w1024-h1024-s-no-gm"
