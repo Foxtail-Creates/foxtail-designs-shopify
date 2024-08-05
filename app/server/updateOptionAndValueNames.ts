@@ -49,4 +49,5 @@ export async function updateOptionAndValueNames(
       + "}");
     throw "Error renaming option. Contact Support for help.";
   }
+  return updateProductOptionNameBody.data.productOptionUpdate.product;
 }

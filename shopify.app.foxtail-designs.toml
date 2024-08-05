@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://glad-bruce-sao-initiatives.trycloudflare.com"
+application_url = "https://fork-editions-chronicles-marriott.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,13 +13,13 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_products"
+scopes = "write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://glad-bruce-sao-initiatives.trycloudflare.com/auth/callback",
-  "https://glad-bruce-sao-initiatives.trycloudflare.com/auth/shopify/callback",
-  "https://glad-bruce-sao-initiatives.trycloudflare.com/api/auth/callback"
+  "https://fork-editions-chronicles-marriott.trycloudflare.com/auth/callback",
+  "https://fork-editions-chronicles-marriott.trycloudflare.com/auth/shopify/callback",
+  "https://fork-editions-chronicles-marriott.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
