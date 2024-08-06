@@ -110,7 +110,7 @@ const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], pa
   }, {});
 };
 
-const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], optionValues: string[]) => {
+const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], optionValues: string[], optionValueToPrice: { [key: string]: number }) => {
   if (!optionValues) {
     return {};
   }
@@ -119,7 +119,7 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
 
     acc[value] = {
       name: value,
-      price: 0,
+      price: optionValueToPrice[value] != undefined ? optionValueToPrice[value] : 0,
       connectedLeft: <Thumbnail
         size="large"
         alt={"Photo of " + value}
@@ -154,7 +154,11 @@ export default function ByobCustomizationForm() {
       },
       [FLOWER_OPTION_NAME]: {
         optionName: formOptions.productMetadata.optionToName[FLOWER_OPTION_NAME],
-        optionValueCustomizations: createValueCustomizationsObject(formOptions.flowersSelected, formOptions.productMetadata.flowerToPrice),
+        optionValueCustomizations: createFlowerValueCustomizationsObject(
+          formOptions.flowersAvailable, 
+          formOptions.flowersSelected, 
+          formOptions.productMetadata.flowerToPrice
+        ),
       }
     },
     productMetadata: formOptions.productMetadata,
