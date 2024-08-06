@@ -7,9 +7,9 @@ export const PRODUCT_METADATA_PRICES = "prices";
 export const GRAPHQL_API_VERSION = "2024-07";
 
 // positions for Shopify product options
-export const FLOWER_POSITION = 1;
-export const SIZE_POSITION = 2;
-export const PALETTE_POSITION = 3;
+export const SIZE_POSITION = 1;
+export const PALETTE_POSITION = 2;
+export const FLOWER_POSITION = 3;
 
 // option names for Shopify product
 export const FLOWER_OPTION_NAME = "Focal Flower";
