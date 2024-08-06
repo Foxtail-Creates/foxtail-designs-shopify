@@ -10,7 +10,7 @@ export type StoreOptions = {
 
 export async function createStoreOptions() {
     // get flower options from database
-    const flowers: Flower[] = await db.flower.findMany();
+    const flowers: Flower[] = (await db.flower.findMany()).filter((flower) => flower.imageLink?.length);
 
     // get palette options from database
     const palettes: Palette[] = await db.palette.findMany();
