@@ -2,17 +2,15 @@ import {
   Text,
   BlockStack,
   Checkbox,
-  InlineGrid,
-  InlineError,
+  InlineGrid
 } from "@shopify/polaris";
-import { useCallback } from "react";
-import { FormErrors } from "~/errors";
+import { useCallback, useState } from "react";
 import type {
   PaletteChoiceProps,
   PaletteSectionProps,
 } from "~/types";
 import { Palette } from "./Palette";
-
+import { inlineError } from "../errors/Error"
 const PaletteChoice = ({
   paletteId,
   paletteName,
@@ -20,7 +18,7 @@ const PaletteChoice = ({
   setIsChecked: setCheckedPalette,
   color1,
   color2,
-  color3
+  color3,
 }: PaletteChoiceProps) => {
   return (
     <>
@@ -43,6 +41,12 @@ export const PaletteSection = ({
   setFormState,
   errors
 }: PaletteSectionProps) => {
+  const [validationError, setValidationError] = useState("");
+
+  function clearValidationErrors() {
+    setValidationError("");
+  }
+
   const sortedPalettes = allPaletteOptions.sort((a, b) =>
     a.name < b.name ? -1 : 1,
   );
@@ -61,6 +65,12 @@ export const PaletteSection = ({
         paletteOptionValuesToAdd.delete(paletteId);
         paletteOptionValuesToRemove.add(paletteId);
       }
+
+      if (nextSelectedPalettes.size > 5) {
+        setValidationError("More than 5 palette options selected. Please keep selections to 5.");
+      } else {
+        clearValidationErrors();
+      }
       setFormState({
         ...formState,
         palettesSelected: Array.from(nextSelectedPalettes),
@@ -70,12 +80,6 @@ export const PaletteSection = ({
     },
     [formState, setFormState],
   );
-
-  function inlineError(errors: FormErrors) {
-    return (errors != null && errors.palettes != null)
-    ? (<InlineError message={errors.palettes} fieldID="palettes" />)
-    : null;
-  }
 
   function getDisplayName(backendId: string) {
     return formState.paletteBackendIdToName.customMap[backendId] != null
@@ -91,7 +95,9 @@ export const PaletteSection = ({
       <Text as={"p"} variant="bodyMd">
         Choose what color palettes you want to offer.
       </Text>
-      <BlockStack gap="500" align="start">
+        {inlineError(errors?.palettes, "palettes")}
+        {inlineError(validationError, "palettes")}
+      <BlockStack gap="500" align="start" id="palettes">
         {sortedPalettes.map((palette) => {
             const paletteId: string = palette.id.toString();
             const paletteName: string = getDisplayName(paletteId);
@@ -110,7 +116,6 @@ export const PaletteSection = ({
         }
         )}
       </BlockStack>
-      {inlineError(errors)}
     </>
   );
 };

@@ -1,5 +1,4 @@
 import {
-  InlineError,
   InlineStack,
   Tag,
   Listbox,
@@ -9,8 +8,8 @@ import {
   Text,
 } from "@shopify/polaris";
 import { useCallback, useMemo, useState } from "react";
-import type { FormErrors } from "~/errors";
 import type { FocalFlowersSectionProps } from "~/types";
+import { inlineError } from "../errors/Error";
 
 export const FocalFlowersSection = ({
   allFocalFlowerOptions,
@@ -20,6 +19,12 @@ export const FocalFlowersSection = ({
 }: FocalFlowersSectionProps) => {
   const [value, setValue] = useState("");
   const [suggestion, setSuggestion] = useState("");
+  const [validationError, setValidationError] = useState("");
+
+  function clearValidationErrors() {
+    setValidationError("");
+  }
+
   const allFocalFlowerNames = allFocalFlowerOptions.map(
     (flower) => flower.name,
   );
@@ -59,6 +64,11 @@ export const FocalFlowersSection = ({
         focalFlowersToAdd.delete(selected);
       } else {
         nextSelectedFocalFlowers.add(selected);
+        if (nextSelectedFocalFlowers.size > 5) {
+          setValidationError("More than 5 flower options selected. Please keep selections to 5.");
+        } else {
+          clearValidationErrors();
+        }
         focalFlowersToAdd.add(selected);
         focalFlowersToDelete.delete(selected);
       }
@@ -185,22 +195,19 @@ export const FocalFlowersSection = ({
       </Listbox>
     ) : null;
 
-  function inlineError(errors: FormErrors) {
-    return (errors != null && errors.flowers != null)
-    ? (<InlineError message={errors.flowers} fieldID="flowerId" />)
-    : null;
-  }
-
   return (
     <>
       <Text as={"h3"} variant="headingMd">
         Focal flower options
       </Text>
+      {inlineError(errors?.flowers, "flowers")}
+      {inlineError(validationError, "flowers")}
       <Combobox
         allowMultiple
         preferredPosition="below"
         activator={
           <Combobox.TextField
+            id="flowers"
             autoComplete="off"
             label="Choose what focal flowers you want to offer. The customer will be allowed to choose one (1) focal flower for their bouquet."
             value={value}
@@ -213,7 +220,6 @@ export const FocalFlowersSection = ({
       >
         {listboxMarkup}
       </Combobox>
-      {inlineError(errors)}
     </>
   );
 };

@@ -59,13 +59,15 @@ export async function action({ request, params }) {
   const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
   if (data.flowersSelected.length == 0) {
-    errors.flowers = "Invalid flower selection. Select at least one focal flower to offer to customers.";
+    errors.flowers = "No flowers selected. Select at least one focal flower to offer to customers.";
   }
   if (data.sizesSelected.length == 0) {
-    errors.sizes = "Invalid size selection. Select at least one size option to offer to customers.";
+    errors.sizes = "No sizes selected. Select at least one size option to offer to customers.";
   }
   if (data.palettesSelected.length == 0) {
-    errors.palettes = "Invalid palette selection. Select at least one palette option to offer to customers.";
+    errors.palettes = "No palettes selected. Select at least one palette option to offer to customers.";
+  } else if (data.palettesSelected.length > 5) {
+    errors.palettes = "Too many palettes selected. Select at most five palette options to offer to customers.";
   }
 
   if (Object.keys(errors).length > 0) {
