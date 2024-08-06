@@ -9,9 +9,9 @@ export const CREATE_PRODUCT_WITH_OPTIONS_QUERY= `#graphql
     productCreate(
       input: {title: $productName,productType: $productType, status: DRAFT,
         productOptions: [
-          {name: $flowerOptionName, position: $flowerPosition, values: $flowerValues},
           {name: $sizeOptionName, position: $sizePosition, values: $sizeValues},
           {name: $paletteOptionName, position: $palettePosition, values: $paletteValues},
+          {name: $flowerOptionName, position: $flowerPosition, values: $flowerValues}
         ],
         metafields: [
           {namespace: $metafieldNamespace, key: $metafieldKey, value: $metafieldValue, type: "json"}
