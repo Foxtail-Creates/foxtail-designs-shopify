@@ -2,7 +2,7 @@
   "name": "foxtail-designs-shopify",
   "private": true,
   "scripts": {
-    "build": "remix vite:build",
+    "build": "graphql-codegen && remix vite:build",
     "dev": "graphql-codegen && shopify app dev",
     "ci-build": "npx tsc",
     "config:link": "shopify app config link",
@@ -22,7 +22,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=18.20.0"
+    "node": ">=20.10.0"
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",
