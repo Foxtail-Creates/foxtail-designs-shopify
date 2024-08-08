@@ -66,8 +66,6 @@ export async function action({ request, params }) {
   }
   if (data.palettesSelected.length == 0) {
     errors.palettes = "No palettes selected. Select at least one palette option to offer to customers.";
-  } else if (data.palettesSelected.length > 5) {
-    errors.palettes = "Too many palettes selected. Select at most five palette options to offer to customers.";
   }
 
   if (Object.keys(errors).length > 0) {
