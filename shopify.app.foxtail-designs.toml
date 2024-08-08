@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://off-lg-rolled-gardening.trycloudflare.com"
+application_url = "https://dad-logged-peru-gamma.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://off-lg-rolled-gardening.trycloudflare.com/auth/callback",
-  "https://off-lg-rolled-gardening.trycloudflare.com/auth/shopify/callback",
-  "https://off-lg-rolled-gardening.trycloudflare.com/api/auth/callback"
+  "https://dad-logged-peru-gamma.trycloudflare.com/auth/callback",
+  "https://dad-logged-peru-gamma.trycloudflare.com/auth/shopify/callback",
+  "https://dad-logged-peru-gamma.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
