@@ -194,7 +194,7 @@ export const FocalFlowersSection = ({
   return (
     <>
       <Text as={"h3"} variant="headingMd">
-        Focal flower options
+        Main flower options
       </Text>
       <Combobox
         allowMultiple
@@ -202,10 +202,10 @@ export const FocalFlowersSection = ({
         activator={
           <Combobox.TextField
             autoComplete="off"
-            label="Choose what focal flowers you want to offer. The customer will be allowed to choose one (1) focal flower for their bouquet."
+            label="Choose what main flowers you want to offer. The customer will be allowed to choose one (1) main flower for their bouquet."
             value={value}
             suggestion={suggestion}
-            placeholder="Add focal flowers"
+            placeholder="Add main flowers"
             verticalContent={verticalContentMarkup}
             onChange={setValue}
           />

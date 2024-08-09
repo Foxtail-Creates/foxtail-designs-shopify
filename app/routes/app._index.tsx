@@ -5,7 +5,7 @@ import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout,
 import { deleteProduct } from "~/server/deleteProduct";
 import { deleteShopMetafield } from "~/server/deleteShopMetafield";
 import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
-import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
+import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { useState } from "react";
 import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
@@ -53,7 +53,7 @@ export async function loader({ request }) {
         },
       },
     );
-    productPreviewUrl = (await customProductResponse.json()).data.product.onlineStorePreviewUrl;
+    productPreviewUrl = (await customProductResponse.json())?.data?.product?.onlineStorePreviewUrl;
   }
 
   return json({
