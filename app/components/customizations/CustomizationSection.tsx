@@ -164,7 +164,7 @@ export const CustomizationSection = ({
 
       {instructions}
       <Text as={"h3"} variant="headingMd">
-        optionCustomizations.optionName
+        {optionCustomizations.optionName}
       </Text>
       {/* <TextField
         label={`Edit category name`}

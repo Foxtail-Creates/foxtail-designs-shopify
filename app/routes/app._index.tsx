@@ -53,7 +53,7 @@ export async function loader({ request }) {
         },
       },
     );
-    productPreviewUrl = (await customProductResponse.json()).data.product.onlineStorePreviewUrl;
+    productPreviewUrl = (await customProductResponse.json())?.data?.product?.onlineStorePreviewUrl;
   }
 
   return json({

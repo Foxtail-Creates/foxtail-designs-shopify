@@ -59,7 +59,7 @@ export async function action({ request, params }) {
   const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
   if (data.flowersSelected.length == 0) {
-    errors.flowers = "Invalid flower selection. Select at least one focal flower to offer to customers.";
+    errors.flowers = "Invalid flower selection. Select at least one main flower to offer to customers.";
   }
   if (data.sizesSelected.length == 0) {
     errors.sizes = "Invalid size selection. Select at least one size option to offer to customers.";
