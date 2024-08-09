@@ -83,6 +83,7 @@ export type SerializedCustomizeForm = {
   paletteBackendIdToName: SerializedTwoWayFallbackMap;
   sizeToNameUpdates: { [key: string]: string };
   sizeEnumToName: SerializedTwoWayFallbackMap;
+  shouldOpenPreview: boolean;
 }
 
 export type FocalFlowersSectionProps = {

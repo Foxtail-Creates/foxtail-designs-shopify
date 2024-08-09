@@ -12,7 +12,7 @@ export const PALETTE_POSITION = 2;
 export const FLOWER_POSITION = 3;
 
 // option names for Shopify product
-export const FLOWER_OPTION_NAME = "Focal Flower";
+export const FLOWER_OPTION_NAME = "Main Flower";
 export const SIZE_OPTION_NAME = "Size";
 export const PALETTE_OPTION_NAME = "Palette";
 

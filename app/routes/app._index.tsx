@@ -1,7 +1,7 @@
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
+import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text, TextField } from "@shopify/polaris";
 import { deleteProduct } from "~/server/deleteProduct";
 import { deleteShopMetafield } from "~/server/deleteShopMetafield";
 import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";

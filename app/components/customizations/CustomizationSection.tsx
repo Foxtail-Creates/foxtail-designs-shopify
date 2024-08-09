@@ -1,4 +1,4 @@
-import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
+import { InlineGrid, InlineStack, Text, TextField } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import { FLOWER_CUSTOMIZATION_SECTION_NAME, PALETTE_OPTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";
@@ -118,7 +118,7 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
         {shouldSetPrice && (
           <TextField
             label={`Price for ${value.name}`}
-            type="number"
+            type="currency"
             prefix="$"
             placeholder={value.price.toString()}
             value={formState.optionCustomizations[optionKey].optionValueCustomizations[optionValueKey].price.toString()}
@@ -163,14 +163,17 @@ export const CustomizationSection = ({
     <>
 
       {instructions}
-      <TextField
+      <Text as={"h3"} variant="headingMd">
+        optionCustomizations.optionName
+      </Text>
+      {/* <TextField
         label={`Edit category name`}
         placeholder={optionCustomizations.optionName}
         value={formState.optionCustomizations[optionKey].optionName}
         onChange={updateOptionName}
         autoComplete="off"
         selectTextOnFocus={true}
-      />
+      /> */}
       {optionCustomizations.optionValueCustomizations &&
         <InlineGrid columns={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }} gap="400" >
           {Object

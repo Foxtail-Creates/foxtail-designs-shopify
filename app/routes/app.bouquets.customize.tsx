@@ -35,6 +35,7 @@ import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/con
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/sanitizeData";
 import { activateProduct } from "~/server/activateProduct";
+import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 
 export async function loader({ request, params }) {
   const { admin } = await authenticate.admin(request);
@@ -53,6 +54,21 @@ export async function action({ request, params }) {
 
   sanitizeData(data);
   saveCustomizations(admin, data);
+
+  if (data.shouldOpenPreview) {
+    const customProductResponse = await admin.graphql(
+      GET_PRODUCT_PREVIEW_BY_ID_QUERY,
+      {
+        variables: {
+          id: data.product.id
+        },
+      },
+    );
+    const productPreviewUrl = (await customProductResponse.json()).data.product.onlineStorePreviewUrl;
+
+    return window.open(productPreviewUrl)?.focus()
+  }
+
   if (data.product.status !== "ACTIVE") {
     activateProduct(admin, data.product.id);
   }
@@ -104,7 +120,11 @@ const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], pa
     acc[selectedName] = {
       name: selectedName,
       price: 0,
-      connectedLeft: (palette && <PaletteComponent color1={palette.color1} color2={palette?.color2} color3={palette?.color3} />),
+      connectedLeft: (palette && <Thumbnail
+        size="large"
+        alt={"Photo of palette " + selectedName}
+        source={palette.imageLink}
+      />),
     };
     return acc;
   }, {});
@@ -155,8 +175,8 @@ export default function ByobCustomizationForm() {
       [FLOWER_OPTION_NAME]: {
         optionName: formOptions.productMetadata.optionToName[FLOWER_OPTION_NAME],
         optionValueCustomizations: createFlowerValueCustomizationsObject(
-          formOptions.flowersAvailable, 
-          formOptions.flowersSelected, 
+          formOptions.flowersAvailable,
+          formOptions.flowersSelected,
           formOptions.productMetadata.flowerToPrice
         ),
       }
@@ -180,7 +200,7 @@ export default function ByobCustomizationForm() {
   const submit = useSubmit();
   // TODO: https://linear.app/foxtail-creates/issue/FOX-35/shopify-app-frontend-edit-preset-names-and-descriptions
 
-  function submitFormData() {
+  function submitFormData(shouldOpenPreview: boolean) {
     const data: SerializedCustomizeForm = {
       product: formOptions.customProduct,
       productMetadata: formOptions.productMetadata,
@@ -190,7 +210,8 @@ export default function ByobCustomizationForm() {
       paletteToNameUpdates: formState.paletteToNameUpdates,
       paletteBackendIdToName: formOptions.paletteBackendIdToName,
       sizeToNameUpdates: formState.sizeToNameUpdates,
-      sizeEnumToName: formOptions.sizeEnumToName
+      sizeEnumToName: formOptions.sizeEnumToName,
+      shouldOpenPreview
     };
 
     const serializedData = JSON.stringify(data);
@@ -228,7 +249,7 @@ export default function ByobCustomizationForm() {
                       </Text>
                       <List type="number">
                         <List.Item>
-                          Customize the naming for your size options -- for example, rename 'Size' to 'Bouquet Size' and 'Small' to 'Petite'.
+                          Customize the naming for your size options -- for example, rename 'Small' to 'Petite'.
                         </List.Item>
                         <List.Item>
                           Edit the prices for each bouquet size. This will be the base price for the product.
@@ -254,7 +275,7 @@ export default function ByobCustomizationForm() {
                       </Text>
                       <List type="number">
                         <List.Item>
-                          Customize the naming for your palette options - for example, rename 'Palette' to 'Color Scheme' and 'Pastel' to 'Soft'.
+                          Customize the naming for your palette options - for example, rename 'Pastel' to 'Soft'.
                         </List.Item>
                       </List>
                     </>
@@ -277,9 +298,6 @@ export default function ByobCustomizationForm() {
                       </Text>
                       <List type="number">
                         <List.Item>
-                          Customize the naming for your focal flower options - for example, rename 'Focal Flower' to 'Main Flower'.
-                        </List.Item>
-                        <List.Item>
                           Edit the add-on price for each focal flower. If the customer chooses a focal flower with an add-on price, this will be in addition to the base price for the product.
                         </List.Item>
                       </List>
@@ -296,12 +314,21 @@ export default function ByobCustomizationForm() {
         </Layout.Section>
         <Layout.Section>
           <PageActions
-            primaryAction={{
-              content: "Save and continue",
-              loading: isSaving,
-              disabled: isSaving,
-              onAction: submitFormData,
-            }}
+            primaryAction={
+              {
+                content: "Save and continue",
+                loading: isSaving,
+                disabled: isSaving,
+                onAction: () => { submitFormData(false) },
+              }}
+            secondaryActions={[
+              {
+                content: "Save and preview",
+                loading: isSaving,
+                disabled: isSaving,
+                onAction: () => { submitFormData(true) },
+              }
+            ]}
           />
         </Layout.Section>
       </Layout>
