@@ -1,0 +1,5 @@
+# For the sqlite database, resolve merge conflicts by favoring the foreign branch.
+# See this stackoverflow discussion for context:
+# https://stackoverflow.com/questions/33809881/whats-a-good-way-to-version-control-an-sqlite-database-schema
+prisma/dev.sqlite merge=keepTheirs*.db diff=sqlite3
+*.sqlite diff=sqlite3
