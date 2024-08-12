@@ -1,0 +1,8 @@
+# Resolve conflicts for binary database by keeping the foreign branch
+[merge "keepTheirs"]
+	name = A custom merge driver used to resolve conflicts for sqlite database by keeping the foreign branch.
+	driver = ./scripts/keepTheirs.sh %O %A %B
+
+# Output readable database diff instead of binary
+[diff "sqlite3"]
+    textconv = "f(){ sqlite3 \"$1\" .dump; }; f"

@@ -22,7 +22,7 @@ const PaletteChoice = ({
 }: PaletteChoiceProps) => {
   return (
     <>
-      <InlineGrid gap="100" columns="5">
+      <InlineGrid gap="100" columns="2">
         <Checkbox
           id={paletteId}
           label={paletteName}

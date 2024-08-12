@@ -16,7 +16,7 @@ import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
 export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   // find existing shop metadata if it exists
   const allCustomOptions: StoreOptions = await createStoreOptions();
-  invariant(allCustomOptions.flowersAvailable.length > 0, "No focal flowers are available. Contact Support for help.");
+  invariant(allCustomOptions.flowersAvailable.length > 0, "No main flowers are available. Contact Support for help.");
   invariant(allCustomOptions.palettesAvailable.length > 0, "No palettes are available. Contact Support for help.");
 
   const [firstFlower,] = allCustomOptions.flowersAvailable.sort((a, b) =>

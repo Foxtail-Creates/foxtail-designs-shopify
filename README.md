@@ -18,6 +18,16 @@ sqlite3
 .import palettes.csv Palette
 ```
 
+### Managing binary data
+
+The sqlite database is version controlled, but git is not optimized for binary diffs.
+There are two git modifications made to improve our workflow.
+
+1. Use a custom merge driver to keep the upstream changes for the binary when merging. This prevents messy binary merges.
+2. Configure `.gitattributes` so that files  with `.sqlite` extensions are output in human-readable text instead of binary.
+
+This was inspired by [existing](https://stackoverflow.com/questions/33809881/whats-a-good-way-to-version-control-an-sqlite-database-schema) [solutions] (https://web.archive.org/web/20220705215454/https://claassen.net/geek/blog/2011/02/git-merge-strategytheirs.html).
+
 # Shopify App Template - Remix
 
 This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) using the [Remix](https://remix.run) framework.
@@ -59,6 +69,12 @@ pnpm install
 ```
 
 ### Local Development
+
+Use `shopify app config use` to to use the local development config file `shopify.app.dev.toml`:
+
+```shell
+npm run shopify app config use
+```
 
 Using yarn:
 

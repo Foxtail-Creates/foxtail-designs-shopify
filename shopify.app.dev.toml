@@ -3,7 +3,7 @@
 client_id = "276741cc496195767e491f77bc719d46"
 name = "foxtail-designs"
 handle = "foxtail-designs-1"
-application_url = "https://foxtail-designs-shopify.onrender.com"
+application_url = "https://vc-mac-firewire-carmen.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://foxtail-designs-shopify.onrender.com/auth/callback",
-  "https://foxtail-designs-shopify.onrender.com/auth/shopify/callback",
-  "https://foxtail-designs-shopify.onrender.com/api/auth/callback"
+  "https://vc-mac-firewire-carmen.trycloudflare.com/auth/callback",
+  "https://vc-mac-firewire-carmen.trycloudflare.com/auth/shopify/callback",
+  "https://vc-mac-firewire-carmen.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
