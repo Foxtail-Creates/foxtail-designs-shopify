@@ -3,6 +3,7 @@ import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
 import { TwoWayFallbackMap } from "./server/TwoWayFallbackMap";
+import { Error } from "@shopify/polaris";
 
 export type ProductImage = {
   id: string;
@@ -89,6 +90,7 @@ export type FocalFlowersSectionProps = {
   allFocalFlowerOptions: Flower[];
   formState: BouquetSettingsForm;
   setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
+  errors: FormErrors;
 };
 
 export type PaletteSectionProps = {
