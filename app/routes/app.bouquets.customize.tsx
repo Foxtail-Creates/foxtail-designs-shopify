@@ -135,7 +135,7 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
 };
 
 export default function ByobCustomizationForm() {
-  const formOptions: ByobCustomizerOptions = useLoaderData();
+  const formOptions: ByobCustomizerOptions = useLoaderData<typeof loader>();
 
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
@@ -177,7 +177,7 @@ export default function ByobCustomizationForm() {
 
   const nav = useNavigation();
   const isSaving =
-    nav.state === "submitting";
+    nav.state === "submitting" || nav.state === "loading";
 
   const navigate = useNavigate();
 
