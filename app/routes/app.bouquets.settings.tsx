@@ -37,6 +37,7 @@ import {
 } from "../constants";
 
 import type { FormErrors } from "~/errors";
+import { errorBanner } from "~/components/errors/Banner";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
@@ -178,6 +179,7 @@ export default function ByobCustomizationForm() {
 
   return (
     <Page>
+      {errors ? errorBanner(errors) : null }
       <ui-title-bar
         title={byobCustomizer.productName !== "" ? "Edit Settings" : "Create New BYOB Product"}
       >
