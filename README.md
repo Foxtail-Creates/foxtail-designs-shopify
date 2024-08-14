@@ -70,7 +70,7 @@ pnpm install
 
 ### Local Development
 
-Use `shopify app config use` to to use the local development config file `shopify.app.dev.toml`:
+Use `shopify app config use` to use the local development config file `shopify.app.dev.toml`:
 
 ```shell
 npm run shopify app config use

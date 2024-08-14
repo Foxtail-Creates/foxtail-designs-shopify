@@ -144,7 +144,7 @@ export default function ByobCustomizationForm() {
 
   const nav = useNavigation();
   const isSaving =
-    nav.state === "submitting";
+    nav.state === "submitting" || nav.state === "loading";
 
   const navigate = useNavigate();
 

@@ -1,5 +1,5 @@
-import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { useFetcher, useLoaderData, useNavigate, useNavigation, useSubmit } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/deleteProduct";
@@ -7,7 +7,6 @@ import { deleteShopMetafield } from "~/server/deleteShopMetafield";
 import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
-import { useState } from "react";
 import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 
 type ByobProductProps = {
@@ -63,7 +62,7 @@ export async function loader({ request }) {
   });
 }
 
-export async function action({ request, params }) {
+export async function action({ request }: ActionFunctionArgs) {
   const { admin } = await authenticate.admin(request);
   const data = {
     ...Object.fromEntries(await request.formData()),
@@ -79,7 +78,7 @@ export async function action({ request, params }) {
       await deleteShopMetafield(admin, data.metafieldId)
     }
   }
-  return redirect(`/app`);
+  return json({ ok: true });
 }
 
 const ByobProduct = (
@@ -132,7 +131,7 @@ const ByobProduct = (
             accessibilityLabel="Create or edit BYOB product"
             icon={(!productId) ? PlusIcon : EditIcon}
             loading={isEditLoading}
-            disabled={isEditLoading} // todo: figure out how to add isDeleteLoading
+            disabled={isEditLoading || isDeleteLoading}
           >
             {(!productId) ? 'Create' : 'Edit'}
           </Button>
@@ -190,20 +189,21 @@ const ContactUs = ({ onAction }) => (
 
 export default function Index() {
   const navigate = useNavigate();
-  const submit = useSubmit();
-  const product: Product = useLoaderData();
+  const fetcher = useFetcher();
+  const product: Product = useLoaderData<typeof loader>();
 
-  const [isEditLoading, setIsEditLoading] = useState(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const nav = useNavigation();
+  const isEditing =
+    nav.state === "loading" && nav.formMethod === undefined;
+
+  const isDeleting = fetcher.state !== "idle";
 
   const onEdit = () => {
-    setIsEditLoading(true);
     navigate("bouquets/settings")
   };
 
   const onDelete = () => {
-    setIsDeleteLoading(true);
-    submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+    fetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
   };
 
   return (
@@ -216,8 +216,8 @@ export default function Index() {
               onEditAction={onEdit}
               onDeleteAction={onDelete}
               productId={product.id}
-              isEditLoading={isEditLoading}
-              isDeleteLoading={isDeleteLoading}
+              isEditLoading={isEditing}
+              isDeleteLoading={isDeleting}
             />
             <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
             <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
