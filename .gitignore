@@ -12,5 +12,6 @@ database.sqlite
 app/types/
 .DS_Store
 /*/.DS_Store
+shopify.app.dev.toml
 
 .env
