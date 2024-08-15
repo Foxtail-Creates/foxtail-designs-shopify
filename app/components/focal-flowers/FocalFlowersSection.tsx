@@ -92,7 +92,7 @@ export const FocalFlowersSection = ({
   );
 
   const getAllFocalFlowers = useCallback(() => {
-    return [...new Set(allFocalFlowerNames.sort())];
+    return [...new Set(allFocalFlowerNames)];
   }, [allFocalFlowerNames]);
 
   const formatOptionText = useCallback(

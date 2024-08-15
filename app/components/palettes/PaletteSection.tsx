@@ -47,10 +47,6 @@ export const PaletteSection = ({
     setValidationError("");
   }
 
-  const sortedPalettes = allPaletteOptions.sort((a, b) =>
-    a.name < b.name ? -1 : 1,
-  );
-
   const updateSelection = useCallback(
     (newChecked: boolean, paletteId: string) => {
       const nextSelectedPalettes = new Set([...formState.palettesSelected]);
@@ -98,7 +94,7 @@ export const PaletteSection = ({
         {/* {inlineError(errors?.palettes, "palettes")}
         {inlineError(validationError, "palettes")} */}
       <BlockStack gap="500" align="start" id="palettes">
-        {sortedPalettes.map((palette) => {
+        {allPaletteOptions.map((palette) => {
             const paletteId: string = palette.id.toString();
             const paletteName: string = getDisplayName(paletteId);
             return (

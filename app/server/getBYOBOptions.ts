@@ -4,8 +4,6 @@ import type {
   ProductMetadata,
 } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./graphql";
-import type { StoreOptions } from "~/models/StoreSetting.server";
-import { createStoreOptions } from "~/models/StoreSetting.server";
 import invariant from "tiny-invariant";
 import { getSelectedCustomValues, getSelectedValues as getSelectedValues } from "./createProductOptions";
 import { createVariants } from "./createVariants";
@@ -13,28 +11,42 @@ import { setProductMetadata } from "./setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
 import { setShopMetafield } from "./setShopMetafield";
 import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
-export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
-  // find existing shop metadata if it exists
-  const allCustomOptions: StoreOptions = await createStoreOptions();
-  invariant(allCustomOptions.flowersAvailable.length > 0, "No main flowers are available. Contact Support for help.");
-  invariant(allCustomOptions.palettesAvailable.length > 0, "No palettes are available. Contact Support for help.");
+import { Flower, Palette } from "@prisma/client";
+import db from "../db.server";
 
-  const [firstFlower,] = allCustomOptions.flowersAvailable.sort((a, b) =>
-    a.name < b.name ? -1 : 1
-  );
-  const [firstPalette,] = allCustomOptions.palettesAvailable.sort((a, b) =>
-    a.name < b.name ? -1 : 1
-  );
+let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
+let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name
+let paletteBackendIdToDefaultName: Record<string, string>; // backend palette id to default palette name
+
+export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
+  if (!flowerCache) {
+    flowerCache = (await db.flower.findMany())
+      .filter((flower) => flower.imageLink?.length)
+      .sort((a, b) => a.name < b.name ? -1 : 1);
+  }
+  const flowersAvailable = flowerCache;
+
+  if (!paletteCache) {
+    paletteCache = (await db.palette.findMany())
+      .sort((a, b) => a.name < b.name ? -1 : 1);
+    paletteBackendIdToDefaultName = {};
+    paletteCache.forEach((palette) => {
+      paletteBackendIdToDefaultName[palette.id] = palette.name;
+    });
+  }
+  const palettesAvailable = paletteCache;
+
+  invariant(flowersAvailable.length > 0, "No main flowers are available. Contact Support for help.");
+  invariant(palettesAvailable.length > 0, "No palettes are available. Contact Support for help.");
+
+  const [firstFlower,] = flowersAvailable;
+  const [firstPalette,] = palettesAvailable;
 
   // set default selections
   let flowersSelected = [firstFlower.name];
   let sizesSelected = SIZE_OPTION_VALUES;
   let palettesSelected: string[] = [firstPalette.id.toString()];
 
-  const paletteBackendIdToDefaultName: Record<string, string> = {};
-  allCustomOptions.palettesAvailable.forEach((palette) => {
-    paletteBackendIdToDefaultName[palette.id] = palette.name;
-  });
   const sizeEnumToDefaultName: Record<string, string> = SIZE_TO_NAME_DEFAULT_VALUES;
 
   const getShopMetadataResponse = await admin.graphql(
@@ -138,10 +150,10 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     sizesSelected: sizesSelected,
     sizesAvailable: SIZE_OPTION_VALUES,
     sizeEnumToName: sizeEnumToName,
-    palettesAvailable: allCustomOptions.palettesAvailable,
+    palettesAvailable: palettesAvailable,
     palettesSelected: palettesSelected,
     paletteBackendIdToName: paletteBackendIdToName,
-    flowersAvailable: allCustomOptions.flowersAvailable,
+    flowersAvailable: flowersAvailable,
     flowersSelected: flowersSelected,
     productMetadata: productMetadata,
     productImages: productImages,
