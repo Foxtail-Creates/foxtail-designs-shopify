@@ -3,7 +3,6 @@ import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
 import { TwoWayFallbackMap } from "./server/TwoWayFallbackMap";
-import { Error } from "@shopify/polaris";
 
 export type ProductImage = {
   id: string;
@@ -16,11 +15,11 @@ export type ByobCustomizerOptions = {
   customProduct: Product;
   sizesAvailable: string[];
   sizesSelected: string[]; // enums of sizes selected
-  palettesAvailable: Palette[];
+  palettesAvailableSorted: Palette[];
   palettesSelected: string[]; // backend ids of palettes, as strings
   paletteBackendIdToName: TwoWayFallbackMap;
   sizeEnumToName: TwoWayFallbackMap;
-  flowersAvailable: Flower[];
+  flowersAvailableSorted: Flower[];
   flowersSelected: string[];
   productMetadata: ProductMetadata;
   productImages: ProductImage[] | undefined;
@@ -34,13 +33,13 @@ export type BouquetSettingsForm = {
   sizesSelected: string[];
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
-  allPaletteColorOptions: string[];
+  allPaletteOptionsSorted: string[];
   palettesSelected: string[];
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
   paletteBackendIdToName: TwoWayFallbackMap;
   sizeEnumToName: TwoWayFallbackMap;
-  allFocalFlowerOptions: string[];
+  allFlowerOptionsSorted: string[];
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
@@ -87,14 +86,14 @@ export type SerializedCustomizeForm = {
 }
 
 export type FocalFlowersSectionProps = {
-  allFocalFlowerOptions: Flower[];
+  allFlowerOptionsSorted: Flower[];
   formState: BouquetSettingsForm;
   setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
   errors: FormErrors;
 };
 
 export type PaletteSectionProps = {
-  allPaletteOptions: Palette[];
+  allPaletteOptionsSorted: Palette[];
   formState: BouquetSettingsForm;
   setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
   errors: FormErrors;
