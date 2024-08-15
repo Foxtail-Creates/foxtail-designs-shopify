@@ -52,7 +52,7 @@ export const SizeSection = ({
         selected={formState.sizesSelected}
         onChange={handleChange}
       />
-      {inlineError(errors)}
+      {/* {inlineError(errors)} */}
     </>
   );
 };

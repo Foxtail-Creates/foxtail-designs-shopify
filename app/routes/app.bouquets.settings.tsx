@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import {
-  useActionData,
   useLoaderData,
   useNavigation,
   useSubmit,
@@ -16,6 +15,7 @@ import {
   TextField,
   BlockStack,
   PageActions,
+  BannerHandles,
 } from "@shopify/polaris";
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
@@ -37,40 +37,26 @@ import {
 } from "../constants";
 
 import type { FormErrors } from "~/errors";
+import { errorBanner } from "~/components/errors/Banner";
 import { getBYOBOptions } from "~/server/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
 import { CreateMediaInput, createProductMedia } from "~/server/createProductMedia";
 import { deleteProductMedia } from "~/server/deleteProductMedia";
 
-export async function loader({ request, params }) {
+export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
   const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
 
   return json(byobOptions);
 }
 
-export async function action({ request, params }) {
-  const { admin, session } = await authenticate.admin(request);
+export async function action({ request }) {
+  const { admin } = await authenticate.admin(request);
 
   const serializedData = await request.formData();
-  const errors: FormErrors = {};
 
   const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
-
-  if (data.flowersSelected.length == 0) {
-    errors.flowers = "No flowers selected. Select at least one focal flower to offer to customers.";
-  }
-  if (data.sizesSelected.length == 0) {
-    errors.sizes = "No sizes selected. Select at least one size option to offer to customers.";
-  }
-  if (data.palettesSelected.length == 0) {
-    errors.palettes = "No palettes selected. Select at least one palette option to offer to customers.";
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return json({ errors });
-  }
 
   await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
     data.flowersSelected, (x) => x);
@@ -112,7 +98,6 @@ export async function action({ request, params }) {
 }
 
 export default function ByobCustomizationForm() {
-  const errors: FormErrors = useActionData()?.errors || {};
   const byobCustomizer: ByobCustomizerOptions = useLoaderData();
 
   const byobCustomizerForm: BouquetSettingsForm = {
@@ -140,6 +125,7 @@ export default function ByobCustomizationForm() {
     productMetadata: byobCustomizer.productMetadata
   };
 
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formState, setFormState] = useState(byobCustomizerForm);
 
   const nav = useNavigation();
@@ -150,7 +136,11 @@ export default function ByobCustomizationForm() {
 
   const submit = useSubmit();
 
-  function submitFormData() {
+  const banner = useRef<BannerHandles>(null);
+
+  useEffect(() => banner.current?.focus(), [errors]);
+
+  function submitFormData(setErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
       productName: formState.productName,
       product: byobCustomizer.customProduct,
@@ -171,21 +161,51 @@ export default function ByobCustomizationForm() {
       productImages: byobCustomizer.productImages
     };
 
-    const serializedData = JSON.stringify(data);
+    const errors: FormErrors = {};
 
+    if (data.flowersSelected.length == 0) {
+      errors.flowers = "No flowers selected. Select at least one focal flower to offer to customers.";
+    }
+    if (data.flowersSelected.length > 5) {
+      errors.flowers = "More than 5 flower options selected. Please select 5 or fewer options.";
+    }
+    if (data.sizesSelected.length == 0) {
+      errors.sizes = "No sizes selected. Select at least one size option to offer to customers.";
+    }
+    if (data.palettesSelected.length == 0) {
+      errors.palettes = "No palettes selected. Select at least one palette option to offer to customers.";
+    }
+    if (data.palettesSelected.length > 5) {
+      errors.palettes = "More than 5 palette options selected. Please select 5 or fewer options.";
+    }
+
+    setErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+    const serializedData = JSON.stringify(data);
     submit({ data: serializedData }, { method: "post" });
   }
 
   return (
-    <Page>
-      <ui-title-bar
-        title={byobCustomizer.productName !== "" ? "Edit Settings" : "Create New BYOB Product"}
-      >
-        <button variant="breadcrumb" onClick={() => navigate("/app")}>
-          Home
-        </button>
-      </ui-title-bar>
+    <Page
+      backAction={{ content: 'Home', url: '/app' }}
+      title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
+      subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
+      compactTitle
+      pagination={{
+        hasPrevious: true,
+        hasNext: true,
+        onPrevious: () => navigate("/app"),
+        onNext: () => submitFormData(setErrors),
+      }}
+    >
       <Layout>
+        {(Object.keys(errors).length > 0) && <Layout.Section>
+          {errorBanner({ errors, banner, setErrors })}
+        </Layout.Section>
+        }
         <Layout.Section>
           <BlockStack gap="500">
             <Card>
@@ -249,7 +269,7 @@ export default function ByobCustomizationForm() {
               content: "Save and continue",
               loading: isSaving,
               disabled: isSaving,
-              onAction: submitFormData,
+              onAction: () => { submitFormData(setErrors) },
             }}
           />
         </Layout.Section>

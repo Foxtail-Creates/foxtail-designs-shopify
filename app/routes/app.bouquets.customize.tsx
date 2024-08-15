@@ -35,7 +35,7 @@ import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/sanitizeData";
 import { activateProduct } from "~/server/activateProduct";
 
-export async function loader({ request, params }) {
+export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
   const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
 
@@ -43,8 +43,8 @@ export async function loader({ request, params }) {
 }
 
 
-export async function action({ request, params }) {
-  const { admin, session } = await authenticate.admin(request);
+export async function action({ request }) {
+  const { admin } = await authenticate.admin(request);
 
   const serializedData = await request.formData();
 
@@ -77,20 +77,6 @@ const createSizeValueCustomizationsObject = (sizeEnumsAvailable: string[], selec
   });
   return rv;
 }
-
-const createValueCustomizationsObject = (optionValues: string[], optionValueToPrice: { [key: string]: number }) => {
-  if (!optionValues) {
-    return {};
-  }
-  return optionValues.reduce((acc: OptionValueCustomizations, value) => {
-    acc[value] = {
-      name: value,
-      price: optionValueToPrice[value] != undefined ? optionValueToPrice[value] : 0,
-      connectedLeft: null
-    };
-    return acc;
-  }, {});
-};
 
 const createPaletteValueCustomizationsObject = (availablePalettes: Palette[], paletteIdsSelected: string[],
   backendIdToName: SerializedTwoWayFallbackMap) => {
@@ -202,15 +188,18 @@ export default function ByobCustomizationForm() {
   }
 
   return (
-    <Page>
-      <ui-title-bar title={"Customize product variations"}>
-        <button
-          variant="breadcrumb"
-          onClick={() => navigate("/app/bouquets/settings")}
-        >
-          Go back to settings
-        </button>
-      </ui-title-bar>
+    <Page
+      backAction={{ content: 'Settings', url: '/app/bouquets/settings' }}
+      title="Customize"
+      subtitle="Customize your Build-Your-Own-Bouquet Product"
+      compactTitle
+      pagination={{
+        hasPrevious: true,
+        hasNext: true,
+        onPrevious: () => navigate('/app/bouquets/settings'),
+        onNext: () => submitFormData(),
+      }}
+    >
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
@@ -231,7 +220,7 @@ export default function ByobCustomizationForm() {
                       </Text>
                       <List type="number">
                         <List.Item>
-                          Customize the naming for your size options -- for example, rename 'Small' to 'Petite'.
+                          {"Customize the naming for your size options -- for example, rename \"Small\" to \"Modest\"."}
                         </List.Item>
                         <List.Item>
                           Edit the prices for each bouquet size. This will be the base price for the product.
@@ -257,7 +246,7 @@ export default function ByobCustomizationForm() {
                       </Text>
                       <List type="number">
                         <List.Item>
-                          Customize the naming for your palette options - for example, rename 'Pastel' to 'Soft'.
+                          {"Customize the naming for your palette options - for example, rename \"Pastel\" to \"Soft\"."}
                         </List.Item>
                       </List>
                     </>
