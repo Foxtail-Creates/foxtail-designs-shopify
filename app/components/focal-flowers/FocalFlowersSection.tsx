@@ -12,7 +12,7 @@ import type { FocalFlowersSectionProps } from "~/types";
 import { inlineError } from "../errors/Error";
 
 export const FocalFlowersSection = ({
-  allFocalFlowerOptions,
+  allFlowerOptionsSorted,
   setFormState,
   formState,
   errors
@@ -25,7 +25,7 @@ export const FocalFlowersSection = ({
     setValidationError("");
   }
 
-  const allFocalFlowerNames = allFocalFlowerOptions.map(
+  const allFocalFlowerNames = allFlowerOptionsSorted.map(
     (flower) => flower.name,
   );
 

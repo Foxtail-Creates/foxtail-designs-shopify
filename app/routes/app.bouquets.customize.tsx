@@ -137,7 +137,7 @@ export default function ByobCustomizationForm() {
       [PALETTE_OPTION_NAME]: {
         optionName: formOptions.productMetadata.optionToName[PALETTE_OPTION_NAME],
         optionValueCustomizations: createPaletteValueCustomizationsObject(
-          formOptions.palettesAvailable,
+          formOptions.palettesAvailableSorted,
           formOptions.palettesSelected,
           formOptions.paletteBackendIdToName
         ),
@@ -145,7 +145,7 @@ export default function ByobCustomizationForm() {
       [FLOWER_OPTION_NAME]: {
         optionName: formOptions.productMetadata.optionToName[FLOWER_OPTION_NAME],
         optionValueCustomizations: createFlowerValueCustomizationsObject(
-          formOptions.flowersAvailable,
+          formOptions.flowersAvailableSorted,
           formOptions.flowersSelected,
           formOptions.productMetadata.flowerToPrice
         ),

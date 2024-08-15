@@ -36,7 +36,7 @@ const PaletteChoice = ({
 };
 
 export const PaletteSection = ({
-  allPaletteOptions,
+  allPaletteOptionsSorted,
   formState,
   setFormState,
   errors
@@ -94,7 +94,7 @@ export const PaletteSection = ({
         {/* {inlineError(errors?.palettes, "palettes")}
         {inlineError(validationError, "palettes")} */}
       <BlockStack gap="500" align="start" id="palettes">
-        {allPaletteOptions.map((palette) => {
+        {allPaletteOptionsSorted.map((palette) => {
             const paletteId: string = palette.id.toString();
             const paletteName: string = getDisplayName(paletteId);
             return (

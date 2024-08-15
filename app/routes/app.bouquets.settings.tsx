@@ -109,14 +109,14 @@ export default function ByobCustomizationForm() {
     sizeOptionValuesToAdd: [],
     sizeOptionValuesToRemove: [],
     sizeEnumToName: byobCustomizer.sizeEnumToName,
-    allPaletteColorOptions: byobCustomizer.palettesAvailable.map(
+    allPaletteOptionsSorted: byobCustomizer.palettesAvailableSorted.map(
       (palette) => palette.name,
     ),
     palettesSelected: byobCustomizer.palettesSelected,
     paletteOptionValuesToRemove: [],
     paletteOptionValuesToAdd: [],
     paletteBackendIdToName: byobCustomizer.paletteBackendIdToName,
-    allFocalFlowerOptions: byobCustomizer.flowersAvailable.map(
+    allFlowerOptionsSorted: byobCustomizer.flowersAvailableSorted.map(
       (flower) => flower.name,
     ),
     flowersSelected: byobCustomizer.flowersSelected,
@@ -148,12 +148,12 @@ export default function ByobCustomizationForm() {
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
       sizeOptionValuesToRemove: formState.sizeOptionValuesToRemove,
       sizeEnumToName: formState.sizeEnumToName,
-      allPaletteColorOptions: byobCustomizer.palettesAvailable,
+      allPaletteColorOptions: byobCustomizer.palettesAvailableSorted,
       palettesSelected: formState.palettesSelected,
       paletteOptionValuesToRemove: formState.paletteOptionValuesToRemove,
       paletteOptionValuesToAdd: formState.paletteOptionValuesToAdd,
       paletteBackendIdToName: formState.paletteBackendIdToName,
-      allFocalFlowerOptions: formState.allFocalFlowerOptions,
+      allFocalFlowerOptions: formState.allFlowerOptionsSorted,
       flowersSelected: formState.flowersSelected,
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
@@ -245,16 +245,14 @@ export default function ByobCustomizationForm() {
                 />
                 <Divider />
                 <PaletteSection
-                  allPaletteOptions={byobCustomizer.palettesAvailable}
+                  allPaletteOptionsSorted={byobCustomizer.palettesAvailableSorted}
                   formState={formState}
                   setFormState={setFormState}
                   errors={errors}
                 />
                 <Divider />
                 <FocalFlowersSection
-                  allFocalFlowerOptions={byobCustomizer.flowersAvailable.sort(
-                    (a, b) => a.name.localeCompare(b.name),
-                  )}
+                  allFlowerOptionsSorted={byobCustomizer.flowersAvailableSorted}
                   formState={formState}
                   setFormState={setFormState}
                   errors={errors}
