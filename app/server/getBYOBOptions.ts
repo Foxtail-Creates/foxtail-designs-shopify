@@ -133,7 +133,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
   const byobOptions: ByobCustomizerOptions = {
     destination: "product",
-    productName: "BYOB",
+    productName: "Build Your Own Bouquet",
     customProduct: customProduct,
     sizesSelected: sizesSelected,
     sizesAvailable: SIZE_OPTION_VALUES,

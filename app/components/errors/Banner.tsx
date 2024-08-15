@@ -1,20 +1,26 @@
-import {Banner, List} from '@shopify/polaris';
-import FormErrors from '~/errors';
+import { Banner, BannerHandles, List } from '@shopify/polaris';
+import { FormErrors } from '~/errors';
 
-export function errorBanner(errors: FormErrors) {
+export type BannerProps = {
+  errors: FormErrors;
+  banner: React.RefObject<BannerHandles>;
+  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
+}
+
+export function errorBanner({ errors, banner, setErrors }: BannerProps) {
   return (
     <Banner
-      title=""
-      action={{content: 'Fix selection'}}
-      tone="critical"
+      title="Please correct the following errors:"
+      onDismiss={() => { setErrors({}) }}
+      tone="warning"
+      ref={banner}
     >
       <p>
-        Please correct the following errors:
         <List type="bullet">
-          {errors.sizes != null ? (<List.Item>Green shirt</List.Item>) : null}
-          {errors.palettes != null ? (<List.Item>Green shirt</List.Item>) : null}
-          {errors.flowers != null ? (<List.Item>Green shirt</List.Item>) : null}
-        </List> 
+          {errors.sizes && (<List.Item>{errors.sizes}</List.Item>)}
+          {errors.palettes && (<List.Item>{errors.palettes}</List.Item>)}
+          {errors.flowers && (<List.Item>{errors.flowers}</List.Item>)}
+        </List>
       </p>
     </Banner>
   );

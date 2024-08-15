@@ -142,7 +142,11 @@ const ByobProduct = (
   </Card>
 );
 
-const Foxtail = ({ onAction }) => (
+type ActionProps = {
+  onAction: () => void;
+};
+
+const Foxtail = ({ onAction }: ActionProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
@@ -166,7 +170,7 @@ const Foxtail = ({ onAction }) => (
   </Card>
 );
 
-const ContactUs = ({ onAction }) => (
+const ContactUs = ({ onAction }: ActionProps ) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
