@@ -3,7 +3,7 @@
 client_id = "226b7db4be96cc6154d0eeb8aaa17f28"
 name = "foxtail-designs dev"
 handle = "foxtail-designs-dev"
-application_url = "https://updates-terms-subtle-identify.trycloudflare.com"
+application_url = "https://newman-ascii-dispatched-laughing.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products"
 
 [auth]
 redirect_urls = [
-  "https://updates-terms-subtle-identify.trycloudflare.com/auth/callback",
-  "https://updates-terms-subtle-identify.trycloudflare.com/auth/shopify/callback",
-  "https://updates-terms-subtle-identify.trycloudflare.com/api/auth/callback"
+  "https://newman-ascii-dispatched-laughing.trycloudflare.com/auth/callback",
+  "https://newman-ascii-dispatched-laughing.trycloudflare.com/auth/shopify/callback",
+  "https://newman-ascii-dispatched-laughing.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
