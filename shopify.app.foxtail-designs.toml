@@ -6,11 +6,6 @@ handle = "foxtail-designs-1"
 application_url = "https://foxtail-designs-shopify.onrender.com"
 embedded = true
 
-[build]
-automatically_update_urls_on_dev = true
-dev_store_url = "quickstart-e05d69eb.myshopify.com"
-include_config_on_deploy = true
-
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_inventory,write_products"
