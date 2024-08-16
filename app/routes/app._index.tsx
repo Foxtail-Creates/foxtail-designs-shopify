@@ -16,9 +16,9 @@ type ByobProductProps = {
   onDeleteAction: () => void;
   onPreviewAction: () => void;
   productId: string | undefined | null;
-
   isEditLoading: boolean;
   isDeleteLoading: boolean;
+  isBannerDismissed: boolean;
 };
 
 type Product = {
@@ -90,7 +90,8 @@ const ByobProduct = (
     onPreviewAction,
     productId,
     isEditLoading,
-    isDeleteLoading
+    isDeleteLoading,
+    isBannerDismissed,
   }: ByobProductProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
@@ -98,7 +99,7 @@ const ByobProduct = (
         <Text as="h2" variant="headingMd">
           Build-Your-Own-Bouquet
         </Text>
-        {(!!productId) &&
+        {(!!productId && isBannerDismissed) &&
           <Button
             onClick={onPreviewAction}
             accessibilityLabel="Preview BYOB product"
@@ -198,7 +199,6 @@ export default function Index() {
   const fetcher = useFetcher();
   const product: Product = useLoaderData<typeof loader>();
   const nav = useNavigation();
-  const [isFirstLoad, setFirstLoad] = useState(true);
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
   const isEditing =
@@ -207,16 +207,14 @@ export default function Index() {
   const isDeleting = fetcher.state !== "idle";
 
   const onEdit = () => {
-    setFirstLoad(false);
-    navigate("bouquets/settings")
+    navigate("bouquets/settings");
   };
 
   const onDelete = () => {
     fetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
   };
 
-  const showBanner = false
-  // const showBanner = !isFirstLoad && !isBannerDismissed && product.onlineStorePreviewUrl !== undefined && nav.state === "idle";
+  const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl !== undefined && nav.state === "idle";
 
   return (
     <Page>
@@ -229,6 +227,7 @@ export default function Index() {
         <Layout.Section>
           <InlineGrid gap="300" columns={2}>
             <ByobProduct
+              isBannerDismissed={isBannerDismissed}
               onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
               onEditAction={onEdit}
               onDeleteAction={onDelete}

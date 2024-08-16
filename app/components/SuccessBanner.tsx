@@ -1,4 +1,4 @@
-import { Banner } from "@shopify/polaris";
+import { Banner, Link } from "@shopify/polaris";
 
 export type SuccessBannerProps = {
     previewLink: string;
@@ -8,10 +8,10 @@ export type SuccessBannerProps = {
   export const SuccessBanner = ({ previewLink, setIsDismissed }: SuccessBannerProps) => {
     return (
       <Banner
-        title="Your product preview is ready!"
         onDismiss={() => { setIsDismissed(true) }}
-        tone="success"
-        action={{ content: 'Preview', url: previewLink }}
-      />
+        tone="info"
+      >
+        <p> Your <Link url={previewLink} target="_blank">product preview</Link> is available!</p>
+      </Banner>
     );
   }
