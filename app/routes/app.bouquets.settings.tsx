@@ -4,7 +4,6 @@ import {
   useLoaderData,
   useNavigation,
   useSubmit,
-  useNavigate,
 } from "@remix-run/react";
 import {
   Card,
@@ -37,12 +36,12 @@ import {
 } from "../constants";
 
 import type { FormErrors } from "~/errors";
-import { errorBanner } from "~/components/errors/Banner";
 import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/controllers/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { CreateMediaInput, createProductMedia } from "~/server/services/createProductMedia";
 import { deleteProductMedia } from "~/server/services/deleteProductMedia";
+import { ErrorBanner } from "~/components/errors/ErrorBanner";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
@@ -132,8 +131,6 @@ export default function ByobCustomizationForm() {
   const isSaving =
     nav.state === "submitting" || nav.state === "loading";
 
-  const navigate = useNavigate();
-
   const submit = useSubmit();
 
   const banner = useRef<BannerHandles>(null);
@@ -195,15 +192,13 @@ export default function ByobCustomizationForm() {
       subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
       compactTitle
       pagination={{
-        hasPrevious: true,
         hasNext: true,
-        onPrevious: () => navigate("/app"),
         onNext: () => submitFormData(setErrors),
       }}
     >
       <Layout>
         {(Object.keys(errors).length > 0) && <Layout.Section>
-          {errorBanner({ errors, banner, setErrors })}
+          <ErrorBanner errors={errors} banner={banner} setErrors={setErrors} />
         </Layout.Section>
         }
         <Layout.Section>

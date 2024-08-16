@@ -200,8 +200,8 @@ export const FocalFlowersSection = ({
       <Text as={"h3"} variant="headingMd">
         Main flower options
       </Text>
-      {/* {inlineError(errors?.flowers, "flowers")}
-      {inlineError(validationError, "flowers")} */}
+      {inlineError(errors?.flowers, "flowers")}
+      {inlineError(validationError, "flowers")}
       <Combobox
         allowMultiple
         preferredPosition="below"

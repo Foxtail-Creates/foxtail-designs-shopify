@@ -8,6 +8,8 @@ import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from 
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
+import { useState } from "react";
+import { SuccessBanner } from "~/components/SuccessBanner";
 
 type ByobProductProps = {
   onEditAction: () => void;
@@ -169,7 +171,7 @@ const Foxtail = ({ onAction }: ActionProps) => (
   </Card>
 );
 
-const ContactUs = ({ onAction }: ActionProps ) => (
+const ContactUs = ({ onAction }: ActionProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
@@ -195,14 +197,17 @@ export default function Index() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const product: Product = useLoaderData<typeof loader>();
-
   const nav = useNavigation();
+  const [isFirstLoad, setFirstLoad] = useState(true);
+  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
+
   const isEditing =
     nav.state === "loading" && nav.formMethod === undefined;
 
   const isDeleting = fetcher.state !== "idle";
 
   const onEdit = () => {
+    setFirstLoad(false);
     navigate("bouquets/settings")
   };
 
@@ -210,9 +215,17 @@ export default function Index() {
     fetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
   };
 
+  const showBanner = false
+  // const showBanner = !isFirstLoad && !isBannerDismissed && product.onlineStorePreviewUrl !== undefined && nav.state === "idle";
+
   return (
     <Page>
       <Layout>
+        <Layout.Section>
+          {showBanner && (
+            <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={product.onlineStorePreviewUrl!} />
+          )}
+        </Layout.Section>
         <Layout.Section>
           <InlineGrid gap="300" columns={2}>
             <ByobProduct
