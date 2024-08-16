@@ -64,11 +64,6 @@ export const FocalFlowersSection = ({
         focalFlowersToAdd.delete(selected);
       } else {
         nextSelectedFocalFlowers.add(selected);
-        if (nextSelectedFocalFlowers.size > 5) {
-          setValidationError("More than 5 flower options selected. Please keep selections to 5.");
-        } else {
-          clearValidationErrors();
-        }
         focalFlowersToAdd.add(selected);
         focalFlowersToDelete.delete(selected);
       }
