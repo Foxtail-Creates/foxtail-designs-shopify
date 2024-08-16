@@ -70,28 +70,33 @@ pnpm install
 
 ### Local Development
 
-Use `shopify app config use` to use the local development config file `shopify.app.foxtail-designs-dev.toml`:
+Developers should use separate environments for local development.
+We have two separate dev environments, each consisting of a unique app and store pair:
+
+ * `quickstart-e05d69eb.myshopify.com` store with `foxtail-design dev` app and `shopify.app.foxtail-designs-dev.toml` config file
+
+ * `foxtail-dev-2.myshopify.com` store with `foxtail-design dev 2` app and `shopify.app.foxtail-designs-dev-2.toml` config file
+
+To select a default environment for app-related CLI commands, run `shopify app config use` and select the desired config file:
 
 ```shell
 npm run shopify app config use
 ```
 
-Using yarn:
+Then commands like `shopify app dev` will use the default environment. 
+
+Alternatively, you can use the npm scripts to run commands on other envionments.
+
+For deploying `foxtail-design dev` app to `quickstart-e05d69eb.myshopify.com` store with `shopify.app.foxtail-designs-dev.toml` config file:
 
 ```shell
-yarn dev
+npm run dev1
 ```
 
-Using npm:
+For deploying `foxtail-design dev 2` app to `foxtail-dev-2.myshopify.com` store with `shopify.app.foxtail-designs-dev-2.toml` config file:
 
 ```shell
-npm run dev
-```
-
-Using pnpm:
-
-```shell
-pnpm run dev
+npm run dev2
 ```
 
 Press P to open the URL to your app. Once you click install, you can start development.

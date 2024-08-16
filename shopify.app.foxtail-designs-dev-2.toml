@@ -1,0 +1,29 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "ff76bcd4fb1407f5be050deaaaf74190"
+name = "foxtail-designs dev 2"
+handle = "foxtail-designs-dev-2"
+application_url = "https://enhance-techniques-retro-strengthen.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "foxtail-dev-2.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_inventory,write_products"
+
+[auth]
+redirect_urls = [
+  "https://enhance-techniques-retro-strengthen.trycloudflare.com/auth/callback",
+  "https://enhance-techniques-retro-strengthen.trycloudflare.com/auth/shopify/callback",
+  "https://enhance-techniques-retro-strengthen.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-07"
+
+[pos]
+embedded = false

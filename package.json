@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "remix vite:build",
-    "dev": "graphql-codegen && shopify app dev --config shopify.app.foxtail-designs-dev.toml",
+    "dev1": "graphql-codegen && shopify app dev --config shopify.app.foxtail-designs-dev.toml",
+    "dev2": "graphql-codegen && shopify app dev --config shopify.app.foxtail-designs-dev-2.toml",
     "ci-build": "npx tsc",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
