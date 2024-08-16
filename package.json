@@ -3,11 +3,11 @@
   "private": true,
   "scripts": {
     "build": "remix vite:build",
-    "dev": "graphql-codegen && shopify app dev",
+    "dev": "graphql-codegen && shopify app dev --config shopify.app.foxtail-designs-dev.toml",
     "ci-build": "npx tsc",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
-    "deploy": "shopify app deploy",
+    "deploy": "shopify app deploy --config shopify.app.foxtail-designs.toml",
     "config:use": "shopify app config use",
     "env": "shopify app env",
     "start": "remix-serve ./build/server/index.js",
