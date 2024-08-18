@@ -3,16 +3,16 @@ import type {
   ByobCustomizerOptions,
   ProductMetadata,
 } from "~/types";
-import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./graphql";
+import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "../graphql";
 import invariant from "tiny-invariant";
-import { getSelectedCustomValues, getSelectedValues as getSelectedValues } from "./createProductOptions";
-import { createVariants } from "./createVariants";
-import { setProductMetadata } from "./setProductMetadata";
-import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
-import { setShopMetafield } from "./setShopMetafield";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { getSelectedCustomValues, getSelectedValues as getSelectedValues } from "../services/createProductOptions";
+import { createVariants } from "../services/createVariants";
+import { setProductMetadata } from "../services/setProductMetadata";
+import { createProductWithOptionsAndVariants } from "../createProductWithOptionsAndCreateVariants";
+import { setShopMetafield } from "../services/setShopMetafield";
+import { TwoWayFallbackMap } from "../models/TwoWayFallbackMap";
 import { Flower, Palette } from "@prisma/client";
-import db from "../db.server";
+import db from "../../db.server";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
 let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name

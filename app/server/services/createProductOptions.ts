@@ -1,5 +1,5 @@
-import { CREATE_PRODUCT_OPTIONS_QUERY } from "./graphql";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { CREATE_PRODUCT_OPTIONS_QUERY } from "../graphql";
+import { TwoWayFallbackMap } from "../models/TwoWayFallbackMap";
 
 export async function createProductOptions(
   admin,

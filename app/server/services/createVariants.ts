@@ -1,7 +1,7 @@
 import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
-import { CREATE_VARIANTS_QUERY } from "./graphql";
+import { CREATE_VARIANTS_QUERY } from "../graphql";
 import invariant from "tiny-invariant";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "../models/TwoWayFallbackMap";
 
 export async function createVariants(
     admin,

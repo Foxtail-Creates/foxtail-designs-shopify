@@ -1,7 +1,7 @@
 import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED } from "~/constants";
 import { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "./graphql";
-import { createVariants } from "./createVariants";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { createVariants } from "./services/createVariants";
+import { TwoWayFallbackMap } from "./models/TwoWayFallbackMap";
 
 /**
  * Creates a new product

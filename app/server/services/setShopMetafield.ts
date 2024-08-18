@@ -1,6 +1,6 @@
 import invariant from "tiny-invariant";
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
-import { SET_SHOP_METAFIELDS_QUERY } from "./graphql";
+import { SET_SHOP_METAFIELDS_QUERY } from "../graphql";
 
 export async function setShopMetafield(admin, shopId, productId) {
     const setStoreMetafieldResponse = await admin.graphql(

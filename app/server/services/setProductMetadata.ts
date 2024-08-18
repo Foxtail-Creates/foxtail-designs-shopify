@@ -1,5 +1,5 @@
 import invariant from "tiny-invariant";
-import { SET_PRODUCT_METAFIELD_QUERY } from "./graphql";
+import { SET_PRODUCT_METAFIELD_QUERY } from "../graphql";
 
 export async function setProductMetadata(
     admin,

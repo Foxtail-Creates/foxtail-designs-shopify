@@ -1,4 +1,4 @@
-import { DELETE_SHOP_METAFIELD_QUERY } from "./graphql";
+import { DELETE_SHOP_METAFIELD_QUERY } from "../graphql";
 
 export async function deleteShopMetafield(admin, metafieldId) {
     const deleteStoreMetafieldResponse = await admin.graphql(

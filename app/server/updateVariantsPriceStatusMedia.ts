@@ -1,7 +1,7 @@
 import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
 import { BULK_UPDATE_VARIANTS_QUERY } from "./graphql/queries/productVariant/bulkUpdateVariants";
 import { ProductMetadata } from "~/types";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "./models/TwoWayFallbackMap";
 
 export async function updateVariantsPriceStatusMedia(
   admin,

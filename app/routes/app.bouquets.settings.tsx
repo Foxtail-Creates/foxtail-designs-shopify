@@ -38,11 +38,11 @@ import {
 
 import type { FormErrors } from "~/errors";
 import { errorBanner } from "~/components/errors/Banner";
-import { getBYOBOptions } from "~/server/getBYOBOptions";
-import { updateOptionsAndCreateVariants } from "~/server/updateOptionsAndCreateVariants";
-import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
-import { CreateMediaInput, createProductMedia } from "~/server/createProductMedia";
-import { deleteProductMedia } from "~/server/deleteProductMedia";
+import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
+import { updateOptionsAndCreateVariants } from "~/server/services/updateOptionsAndCreateVariants";
+import { TwoWayFallbackMap } from "~/server/models/TwoWayFallbackMap";
+import { CreateMediaInput, createProductMedia } from "~/server/services/createProductMedia";
+import { deleteProductMedia } from "~/server/services/deleteProductMedia";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);

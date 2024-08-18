@@ -1,4 +1,4 @@
-import { UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY } from "./graphql";
+import { UPDATE_PRODUCT_OPTION_AND_VARIANTS_QUERY } from "../graphql";
 
 export async function updateOptionAndValueNames(
   admin,

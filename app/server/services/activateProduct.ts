@@ -1,4 +1,4 @@
-import { ACTIVATE_PRODUCT_QUERY } from "./graphql";
+import { ACTIVATE_PRODUCT_QUERY } from "../graphql";
 
 export async function activateProduct(admin, productId) {
     const activateProductResponse = await admin.graphql(

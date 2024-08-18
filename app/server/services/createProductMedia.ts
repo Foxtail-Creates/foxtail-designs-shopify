@@ -1,5 +1,5 @@
 import invariant from "tiny-invariant";
-import { CREATE_PRODUCT_MEDIA_QUERY } from "./graphql";
+import { CREATE_PRODUCT_MEDIA_QUERY } from "../graphql";
 
 export type CreateMediaInput = {
     alt: string,

@@ -1,4 +1,4 @@
-import { DELETE_PRODUCT_QUERY } from "./graphql";
+import { DELETE_PRODUCT_QUERY } from "../graphql";
 
 export async function deleteProduct(admin, productId) {
     const deleteProductResponse = await admin.graphql(

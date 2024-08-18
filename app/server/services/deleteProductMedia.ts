@@ -1,5 +1,5 @@
 import invariant from "tiny-invariant";
-import { DELETE_PRODUCT_MEDIA_QUERY } from "./graphql";
+import { DELETE_PRODUCT_MEDIA_QUERY } from "../graphql";
 
 export async function deleteProductMedia(
     admin,
