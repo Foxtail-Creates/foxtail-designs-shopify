@@ -91,8 +91,8 @@ export const PaletteSection = ({
       <Text as={"p"} variant="bodyMd">
         Choose what color palettes you want to offer.
       </Text>
-        {/* {inlineError(errors?.palettes, "palettes")}
-        {inlineError(validationError, "palettes")} */}
+        {inlineError(errors?.palettes, "palettes")}
+        {!errors?.palettes && inlineError(validationError, "palettes")}
       <BlockStack gap="500" align="start" id="palettes">
         {allPaletteOptionsSorted.map((palette) => {
             const paletteId: string = palette.id.toString();

@@ -42,7 +42,6 @@ export async function loader({ request }) {
   return json(byobOptions);
 }
 
-
 export async function action({ request }) {
   const { admin } = await authenticate.admin(request);
 
@@ -195,9 +194,7 @@ export default function ByobCustomizationForm() {
       compactTitle
       pagination={{
         hasPrevious: true,
-        hasNext: true,
         onPrevious: () => navigate('/app/bouquets/settings'),
-        onNext: () => submitFormData(),
       }}
     >
       <Layout>

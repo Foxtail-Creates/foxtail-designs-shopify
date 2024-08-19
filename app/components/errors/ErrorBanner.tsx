@@ -1,13 +1,13 @@
 import { Banner, BannerHandles, List } from '@shopify/polaris';
 import { FormErrors } from '~/errors';
 
-export type BannerProps = {
+export type ErrorBannerProps = {
   errors: FormErrors;
   banner: React.RefObject<BannerHandles>;
   setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
 }
 
-export function errorBanner({ errors, banner, setErrors }: BannerProps) {
+export const ErrorBanner =({ errors, banner, setErrors }: ErrorBannerProps) =>{
   return (
     <Banner
       title="Please correct the following errors:"
@@ -25,3 +25,4 @@ export function errorBanner({ errors, banner, setErrors }: BannerProps) {
     </Banner>
   );
 }
+
