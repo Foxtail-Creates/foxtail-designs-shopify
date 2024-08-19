@@ -21,4 +21,4 @@ export { CREATE_PRODUCT_MEDIA_QUERY } from "./queries/product/createProductMedia
 export { DELETE_PRODUCT_MEDIA_QUERY } from "./queries/product/deleteProductMedia";
 
 export { GET_PUBLICATIONS_QUERY } from "./queries/publication/getPublications";
-export { PUBLISH_PUBLISHABLE_QUERY } from "./queries/publication/publishPublishable";
+export { PUBLISH_PRODUCT_QUERY } from "./queries/publication/publishProduct";

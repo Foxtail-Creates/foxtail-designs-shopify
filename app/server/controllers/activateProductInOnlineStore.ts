@@ -1,6 +1,6 @@
 import { activateProduct } from "../services/activateProduct";
 import { getPublications } from "../services/getPublications";
-import { publishPublishable } from "../services/publishPublishable";
+import { publishProduct } from "../services/publishProduct";
 
 export async function activateProductInOnlineStore(admin, product) {
     if (product.status !== "ACTIVE") {
@@ -15,6 +15,6 @@ export async function activateProductInOnlineStore(admin, product) {
         + " Please confirm that Online Store is available.";
       }
 
-      await publishPublishable(admin, product.id, onlineStore.id);
+      await publishProduct(admin, product.id, onlineStore.id);
     }
   }
