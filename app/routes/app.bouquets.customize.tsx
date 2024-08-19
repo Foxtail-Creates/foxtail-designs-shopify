@@ -33,7 +33,7 @@ import { Flower, Palette } from "@prisma/client";
 import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/utils/sanitizeData";
-import { activateProduct } from "~/server/services/activateProduct";
+import { activateProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
@@ -51,10 +51,7 @@ export async function action({ request }) {
 
   sanitizeData(data);
   await saveCustomizations(admin, data);
-
-  if (data.product.status !== "ACTIVE") {
-    await activateProduct(admin, data.product.id);
-  }
+  await activateProductInOnlineStore(admin, data.product);
 
   return redirect(`/app`);
 }

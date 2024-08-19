@@ -19,3 +19,6 @@ export { DELETE_SHOP_METAFIELD_QUERY } from "./queries/shop/deleteShopMetafield"
 
 export { CREATE_PRODUCT_MEDIA_QUERY } from "./queries/product/createProductMedia";
 export { DELETE_PRODUCT_MEDIA_QUERY } from "./queries/product/deleteProductMedia";
+
+export { GET_PUBLICATIONS_QUERY } from "./queries/publication/getPublications";
+export { PUBLISH_PUBLISHABLE_QUERY } from "./queries/publication/publishPublishable";

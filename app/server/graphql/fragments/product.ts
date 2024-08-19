@@ -2,6 +2,7 @@ export const PRODUCT_FRAGMENT = `#graphql
   fragment ProductFields on Product {
     id
     status
+    publishedAt
     options {
       id
       name
@@ -18,7 +19,7 @@ export const PRODUCT_FRAGMENT = `#graphql
         alt
       }
     }
-    variants(first:100) { # TODO: limit number of variants/pagination
+    variants(first:100) { # max number of variants
       nodes {
         media(first:1) {
           nodes {

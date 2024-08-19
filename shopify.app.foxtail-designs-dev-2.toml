@@ -3,7 +3,7 @@
 client_id = "ff76bcd4fb1407f5be050deaaaf74190"
 name = "foxtail-designs dev 2"
 handle = "foxtail-designs-dev-2"
-application_url = "https://enhance-techniques-retro-strengthen.trycloudflare.com"
+application_url = "https://bookstore-pct-arrested-severe.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,13 +13,13 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_inventory,write_products"
+scopes = "write_inventory,write_products,write_publications"
 
 [auth]
 redirect_urls = [
-  "https://enhance-techniques-retro-strengthen.trycloudflare.com/auth/callback",
-  "https://enhance-techniques-retro-strengthen.trycloudflare.com/auth/shopify/callback",
-  "https://enhance-techniques-retro-strengthen.trycloudflare.com/api/auth/callback"
+  "https://bookstore-pct-arrested-severe.trycloudflare.com/auth/callback",
+  "https://bookstore-pct-arrested-severe.trycloudflare.com/auth/shopify/callback",
+  "https://bookstore-pct-arrested-severe.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
