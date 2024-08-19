@@ -39,8 +39,8 @@ import {
 import type { FormErrors } from "~/errors";
 import { errorBanner } from "~/components/errors/Banner";
 import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
-import { updateOptionsAndCreateVariants } from "~/server/services/updateOptionsAndCreateVariants";
-import { TwoWayFallbackMap } from "~/server/models/TwoWayFallbackMap";
+import { updateOptionsAndCreateVariants } from "~/server/controllers/updateOptionsAndCreateVariants";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { CreateMediaInput, createProductMedia } from "~/server/services/createProductMedia";
 import { deleteProductMedia } from "~/server/services/deleteProductMedia";
 

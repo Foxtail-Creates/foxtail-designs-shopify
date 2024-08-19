@@ -1,5 +1,5 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { useFetcher, useLoaderData, useNavigate, useNavigation, useSubmit } from "@remix-run/react";
+import { ActionFunctionArgs, json } from "@remix-run/node";
+import { useFetcher, useLoaderData, useNavigate, useNavigation } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/services/deleteProduct";

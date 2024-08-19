@@ -31,7 +31,7 @@ import { saveCustomizations } from "~/server/controllers/saveCustomizations";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
 import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
-import { TwoWayFallbackMap } from "~/server/models/TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/utils/sanitizeData";
 import { activateProduct } from "~/server/services/activateProduct";
 
@@ -51,10 +51,10 @@ export async function action({ request }) {
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
   sanitizeData(data);
-  saveCustomizations(admin, data);
+  await saveCustomizations(admin, data);
 
   if (data.product.status !== "ACTIVE") {
-    activateProduct(admin, data.product.id);
+    await activateProduct(admin, data.product.id);
   }
 
   return redirect(`/app`);
