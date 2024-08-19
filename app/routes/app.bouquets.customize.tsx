@@ -26,14 +26,14 @@ import type {
 } from "~/types";
 import { authenticate } from "../shopify.server";
 
-import { getBYOBOptions } from "~/server/getBYOBOptions";
-import { saveCustomizations } from "~/server/saveCustomizations";
+import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
+import { saveCustomizations } from "~/server/controllers/saveCustomizations";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
 import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
-import { TwoWayFallbackMap } from "~/server/TwoWayFallbackMap";
-import { sanitizeData } from "~/server/sanitizeData";
-import { activateProduct } from "~/server/activateProduct";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
+import { sanitizeData } from "~/server/utils/sanitizeData";
+import { activateProduct } from "~/server/services/activateProduct";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
@@ -51,10 +51,10 @@ export async function action({ request }) {
   const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
   sanitizeData(data);
-  saveCustomizations(admin, data);
+  await saveCustomizations(admin, data);
 
   if (data.product.status !== "ACTIVE") {
-    activateProduct(admin, data.product.id);
+    await activateProduct(admin, data.product.id);
   }
 
   return redirect(`/app`);

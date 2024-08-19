@@ -1,7 +1,7 @@
 import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
-import { BULK_UPDATE_VARIANTS_QUERY } from "./graphql/queries/productVariant/bulkUpdateVariants";
 import { ProductMetadata } from "~/types";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
+import { bulkUpdateVariants } from "../services/bulkUpdateVariants";
 
 export async function updateVariantsPriceStatusMedia(
   admin,
@@ -69,26 +69,6 @@ export async function updateVariantsPriceStatusMedia(
   });
 
   if (newVariants.length > 0) {
-
-    const updateVariantsResponse = await admin.graphql(
-      BULK_UPDATE_VARIANTS_QUERY,
-      {
-        variables: {
-          productId: productId,
-          variantsToBulkUpdate: newVariants
-        }
-      }
-    );
-    const updateVariantsBody = await updateVariantsResponse.json();
-
-    const hasErrors: boolean = updateVariantsBody.data?.productVariantsBulkUpdate.userErrors.length != 0;
-    if (hasErrors) {
-      console.log("Error updating variants. Message {"
-        + updateVariantsBody.data?.productVariantsBulkUpdate.userErrors[0].message
-        + "} on field {"
-        + updateVariantsBody.data?.productVariantsBulkUpdate.userErrors[0].field
-        + "}");
-      throw "Error updating variants. Contact Support for help.";
-    }
+    await bulkUpdateVariants(admin, productId, newVariants);
   }
 }

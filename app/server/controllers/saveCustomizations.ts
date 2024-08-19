@@ -3,10 +3,10 @@ import type {
 } from "~/types";
 import { updateOptionAndValueNames } from "./updateOptionAndValueNames";
 import { updateVariantsPriceStatusMedia } from "./updateVariantsPriceStatusMedia";
-import { setProductMetadata } from "./setProductMetadata";
+import { setProductMetadata } from "../services/setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
 
 export async function saveCustomizations(admin, data: SerializedCustomizeForm) {
 

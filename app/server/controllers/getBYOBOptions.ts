@@ -1,18 +1,19 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FOXTAIL_NAMESPACE, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, STORE_METADATA_CUSTOM_PRODUCT_KEY, PRODUCT_METADATA_DEFAULT_VALUES, SIZE_TO_NAME_DEFAULT_VALUES } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FOXTAIL_NAMESPACE, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, PRODUCT_METADATA_DEFAULT_VALUES, SIZE_TO_NAME_DEFAULT_VALUES } from "~/constants";
 import type {
   ByobCustomizerOptions,
   ProductMetadata,
 } from "~/types";
-import { GET_PRODUCT_BY_ID_QUERY, GET_SHOP_METAFIELD_BY_KEY_QUERY } from "./graphql";
 import invariant from "tiny-invariant";
-import { getSelectedCustomValues, getSelectedValues as getSelectedValues } from "./createProductOptions";
-import { createVariants } from "./createVariants";
-import { setProductMetadata } from "./setProductMetadata";
+import { createProductOptions } from "../services/createProductOptions";
+import { createVariants } from "../services/createVariants";
+import { setProductMetadata } from "../services/setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
-import { setShopMetafield } from "./setShopMetafield";
-import { TwoWayFallbackMap } from "./TwoWayFallbackMap";
+import { setShopMetafield } from "../services/setShopMetafield";
+import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
 import { Flower, Palette } from "@prisma/client";
-import db from "../db.server";
+import db from "../../db.server";
+import { getShopWithMetafield } from "../services/getShopMetafield";
+import { getProduct } from "../services/getProduct";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
 let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name
@@ -49,42 +50,25 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
   const sizeEnumToDefaultName: Record<string, string> = SIZE_TO_NAME_DEFAULT_VALUES;
 
-  const getShopMetadataResponse = await admin.graphql(
-    GET_SHOP_METAFIELD_BY_KEY_QUERY,
-    {
-      variables: {
-        namespace: FOXTAIL_NAMESPACE,
-        key: STORE_METADATA_CUSTOM_PRODUCT_KEY,
-      },
-    },
-  );
-  const shopMetadataBody = await getShopMetadataResponse.json();
+  const shopWithMetafield = await getShopWithMetafield(admin);
+
   let customProduct;
 
   const productMetadata: ProductMetadata = PRODUCT_METADATA_DEFAULT_VALUES;
   let paletteBackendIdToName: TwoWayFallbackMap = new TwoWayFallbackMap({}, paletteBackendIdToDefaultName);
   let sizeEnumToName: TwoWayFallbackMap = new TwoWayFallbackMap({}, sizeEnumToDefaultName);
 
-  const productId = shopMetadataBody.data?.shop.metafield?.value
+  const productId = shopWithMetafield.metafield?.value;
   if (productId) {
+
     // if shop metadata has custom product id, retrieve it
-    const customProductResponse = await admin.graphql(
-      GET_PRODUCT_BY_ID_QUERY,
-      {
-        variables: {
-          id: productId,
-          namespace: FOXTAIL_NAMESPACE,
-          key: PRODUCT_METADATA_PRICES
-        },
-      },
-    );
-    customProduct = (await customProductResponse.json()).data.product;
+    customProduct = await getProduct(admin, productId);
 
     if (customProduct == null) {
       // if custom product is missing, create new custom product and add to store metadata
       customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
         paletteBackendIdToName, sizeEnumToName);
-      await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
+      await setShopMetafield(admin, shopWithMetafield.id, customProduct.id);
     }
 
     if (customProduct.metafield?.value != null) {
@@ -134,7 +118,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     // otherwise create new custom product and add to store metadata
     customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
       paletteBackendIdToName, sizeEnumToName);
-    await setShopMetafield(admin, shopMetadataBody.data?.shop.id, customProduct.id);
+    await setShopMetafield(admin, shopWithMetafield.id, customProduct.id);
   }
 
   const productImages = customProduct.media?.nodes
@@ -159,4 +143,42 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     productImages: productImages,
   };
   return byobOptions;
+};
+
+
+export async function getSelectedCustomValues(admin, option, customProduct, position: number,
+  optionName: string, defaultValues: string[], backendIdToName: TwoWayFallbackMap): Promise<string[]> {
+  if (option == null) {
+    // create new product option and variants
+    await createProductOptions(
+      admin,
+      customProduct.id,
+      position,
+      optionName,
+      defaultValues
+    );
+    return defaultValues;
+  } else {
+    return option.optionValues.map(
+      (optionValue) => (backendIdToName.getReverseValue(optionValue.name))
+    );
+  }
+};
+
+export async function getSelectedValues(admin, option, customProduct, position: number, optionName: string, defaultValues: string[]): Promise<string[]> {
+  if (option == null) {
+    // create new product option and variants
+    await createProductOptions(
+      admin,
+      customProduct.id,
+      position,
+      optionName,
+      defaultValues
+    );
+    return defaultValues;
+  } else {
+    return option.optionValues.map(
+      (optionValue) => optionValue.name
+    );
+  }
 };
