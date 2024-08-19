@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
-import { useFetcher, useLoaderData, useNavigate, useNavigation } from "@remix-run/react";
+import { PrefetchPageLinks, useFetcher, useLoaderData, useNavigate, useNavigation } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/services/deleteProduct";
@@ -218,6 +218,7 @@ export default function Index() {
 
   return (
     <Page>
+      <PrefetchPageLinks page="/app/bouquets/settings" />
       <Layout>
         <Layout.Section>
           {showBanner && (
