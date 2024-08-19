@@ -24,7 +24,7 @@ type ByobProductProps = {
 type Product = {
   id: string | null;
   metafieldId: string;
-  onlineStorePreviewUrl: string | undefined;
+  onlineStorePreviewUrl: string | undefined | null;
 };
 
 export async function loader({ request }) {
@@ -214,7 +214,7 @@ export default function Index() {
     fetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
   };
 
-  const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl !== undefined && nav.state === "idle";
+  const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl && nav.state === "idle";
 
   return (
     <Page>
