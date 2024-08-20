@@ -1,8 +1,10 @@
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { updateProductOptionsAndVariants } from "../services/updateProductOptionsAndVariants";
+import { ProductFieldsFragment } from "~/types/admin.generated";
 
 export async function updateOptionAndValueNames(
-  admin,
-  product,
+  admin: AdminApiContext,
+  product: ProductFieldsFragment,
   currentOptionName: string,
   newDisplayName: string,
   optionValueToNameUpdates: { [key: string]: string }

@@ -1,10 +1,11 @@
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { CREATE_PRODUCT_OPTIONS_QUERY } from "../graphql";
 
 export async function createProductOptions(
-  admin,
-  productId,
-  position,
-  name,
+  admin: AdminApiContext,
+  productId: string,
+  position: number,
+  name: string,
   values
 ) {
   const createProductOptionsResponse = await admin.graphql(
@@ -22,12 +23,9 @@ export async function createProductOptions(
 
   const hasErrors: boolean = createProductOptionsBody.data?.productOptionsCreate.userErrors.length != 0;
   if (hasErrors) {
-    console.log("Error creating new product options. Message {"
-      + createProductOptionsBody.data?.productOptionsCreate.userErrors[0].message
-      + "} on field {"
-      + createProductOptionsBody.data?.productOptionsCreate.userErrors[0].field
-      + "}");
-    throw "Error creating new product options. Contact Support for help.";
+    throw new Error("Error creating new product options. \n User errors: { "
+      + createProductOptionsBody.data?.productOptionsCreate.userErrors
+      + "}"
+    );
   }
-
 };

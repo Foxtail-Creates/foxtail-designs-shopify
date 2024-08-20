@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import {
   Links,
   Meta,
@@ -7,7 +8,7 @@ import {
   useRouteError,
 } from "@remix-run/react";
 
-export default function App() {
+function App() {
   return (
     <html>
       <head>
@@ -30,10 +31,13 @@ export default function App() {
   );
 }
 
+export default withSentry(App);
+
 // global error boundary 
 export function ErrorBoundary() {
   const error = useRouteError();
   console.error(error);
+  captureRemixErrorBoundaryError(error);
   return (
     <html>
       <head>

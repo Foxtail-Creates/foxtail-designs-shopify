@@ -1,12 +1,16 @@
-import invariant from "tiny-invariant";
 import { DELETE_PRODUCT_MEDIA_QUERY } from "../graphql";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { sendQuery } from "../graphql/client/sendQuery";
+import { DeleteProductMediaMutation } from "~/types/admin.generated";
+import { FetchResponseBody } from "@shopify/admin-api-client";
 
 export async function deleteProductMedia(
-  admin,
+  admin: AdminApiContext,
   mediaIds: string[],
   productId: string,
 ) {
-  const deleteProductMediaResponse = await admin.graphql(
+  const deleteProductMediaBody: FetchResponseBody<DeleteProductMediaMutation> = await sendQuery(
+    admin,
     DELETE_PRODUCT_MEDIA_QUERY,
     {
       variables: {
@@ -15,8 +19,10 @@ export async function deleteProductMedia(
       },
     },
   );
-  const deleteProductMediaBody = await deleteProductMediaResponse.json();
-  invariant(deleteProductMediaBody.data.productDeleteMedia.mediaUserErrors.length == 0,
-    "Error deleting product images. Contact Support for help."
-  );
+  const hasErrors: boolean = deleteProductMediaBody.data?.productDeleteMedia?.mediaUserErrors.length != 0;
+  if (hasErrors) {
+    throw new Error("Error deleting product images.\n User errors: { "
+      + deleteProductMediaBody.data?.productDeleteMedia?.mediaUserErrors
+      + " }");
+  }
 };

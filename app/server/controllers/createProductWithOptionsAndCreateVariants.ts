@@ -1,11 +1,12 @@
 import { createVariants } from "../services/createVariants";
 import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
 import { createProduct } from "../services/createProduct";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
 /**
  * Creates a new product
  */
-export async function createProductWithOptionsAndVariants(admin, selectedFlowers: string[], optionToName: { [key: string]: string },
+export async function createProductWithOptionsAndVariants(admin: AdminApiContext, selectedFlowers: string[], optionToName: { [key: string]: string },
   selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number },
   paletteBackendIdToName: TwoWayFallbackMap, sizeEnumToName: TwoWayFallbackMap) {
 

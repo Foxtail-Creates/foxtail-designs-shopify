@@ -1,9 +1,17 @@
-import invariant from "tiny-invariant";
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { SET_SHOP_METAFIELDS_QUERY } from "../graphql";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { sendQuery } from "../graphql/client/sendQuery";
+import { SetShopMetafieldsMutation } from "~/types/admin.generated";
+import { FetchResponseBody } from "@shopify/admin-api-client";
 
-export async function setShopMetafield(admin, shopId, productId) {
-  const setStoreMetafieldResponse = await admin.graphql(
+export async function setShopMetafield(
+  admin: AdminApiContext,
+  shopId: string,
+  productId: string
+) {
+  const storeMetafieldBody: FetchResponseBody<SetShopMetafieldsMutation> = await sendQuery(
+    admin,
     SET_SHOP_METAFIELDS_QUERY,
     {
       variables: {
@@ -14,8 +22,11 @@ export async function setShopMetafield(admin, shopId, productId) {
       },
     },
   );
-  const storeMetafieldBody = await setStoreMetafieldResponse.json();
-  invariant(storeMetafieldBody.data.metafieldsSet.userErrors.length == 0,
-    "Error creating new product options. Contact Support for help."
-  );
+
+  const hasErrors: boolean = storeMetafieldBody.data?.metafieldsSet?.userErrors.length != 0;
+  if (hasErrors) {
+    throw new Error("Error setting shop metafield.\n User errors: { "
+      + storeMetafieldBody.data?.metafieldsSet?.userErrors
+      + "}");
+  }
 }

@@ -1,5 +1,6 @@
 import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig, type UserConfig } from "vite";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // Related: https://github.com/remix-run/remix/issues/2835#issuecomment-1144102176
@@ -48,8 +49,15 @@ export default defineConfig({
       ignoredRouteFiles: ["**/.*"],
     }),
     tsconfigPaths(),
+    // Put the Sentry vite plugin after all other plugins
+    sentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: "foxtail-gj",
+      project: "javascript-remix",
+    }),
   ],
   build: {
+    sourcemap: true, // Source map generation must be turned on
     assetsInlineLimit: 0,
   },
 }) satisfies UserConfig;

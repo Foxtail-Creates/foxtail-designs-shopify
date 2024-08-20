@@ -1,53 +1,17 @@
-import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
+import { VariantInput } from "~/types";
 import { CREATE_VARIANTS_QUERY } from "../graphql";
-import invariant from "tiny-invariant";
-import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { sendQuery } from "../graphql/client/sendQuery";
+import { CreateVariantsMutation, ProductFieldsFragment } from "~/types/admin.generated";
+import { FetchResponseBody } from "@shopify/admin-api-client";
 
 export async function createVariants(
-  admin,
+  admin: AdminApiContext,
   productId: string,
-  flowerValues: string[],
-  sizeValues: string[],
-  paletteValues: string[],
-  sizeToPrice: { [key: string]: number },
-  flowerToPrice: { [key: string]: number },
-  optionToName: { [key: string]: string },
-  paletteBackendIdToName: TwoWayFallbackMap,
-  sizeEnumToName: TwoWayFallbackMap
-) {
-  const variants = [];
-  for (let f = 0; f < flowerValues.length; f++) {
-    for (let s = 0; s < sizeValues.length; s++) {
-      for (let p = 0; p < paletteValues.length; p++) {
-        const sizePrice: number = Object.prototype.hasOwnProperty.call(sizeToPrice, sizeValues[s])
-          ? sizeToPrice[sizeValues[s]]
-          : SIZE_TO_PRICE_DEFAULT_VALUES[sizeValues[s]]
-        const flowerPrice: number = Object.prototype.hasOwnProperty.call(flowerToPrice, flowerValues[f])
-          ? flowerToPrice[flowerValues[s]]
-          : DEFAULT_FLOWER_PRICE
-        variants.push({
-          optionValues: [
-            {
-              optionName: optionToName[FLOWER_OPTION_NAME],
-              name: flowerValues[f]
-            },
-            {
-              optionName: optionToName[SIZE_OPTION_NAME],
-              name: sizeEnumToName.getValue(sizeValues[s])
-            },
-            {
-              optionName: optionToName[PALETTE_OPTION_NAME],
-              name: paletteBackendIdToName.getValue(paletteValues[p])
-            }
-          ],
-          price: (sizePrice + flowerPrice).toString()
-        })
-      }
-
-    }
-  }
-
-  const createVariantsResponse = await admin.graphql(
+  variants: VariantInput[]
+): Promise<ProductFieldsFragment | null | undefined> {
+  const createVariantsBody: FetchResponseBody<CreateVariantsMutation> = await sendQuery(
+    admin,
     CREATE_VARIANTS_QUERY,
     {
       variables: {
@@ -57,10 +21,13 @@ export async function createVariants(
       }
     }
   );
-  const createVariantsBody = await createVariantsResponse.json();
 
-  invariant(createVariantsBody.data?.productVariantsBulkCreate.userErrors.length == 0,
-    "Error creating new variant. Contact Support for help."
-  );
-  return createVariantsBody.data.productVariantsBulkCreate.product;
+  const hasErrors: boolean = createVariantsBody.data?.productVariantsBulkCreate?.userErrors.length != 0;
+  if (hasErrors) {
+    throw new Error("Error creating new variant.\n User errors: { "
+      + createVariantsBody.data?.productVariantsBulkCreate?.userErrors
+      + " }");
+  }
+
+  return createVariantsBody.data?.productVariantsBulkCreate?.product;
 }
