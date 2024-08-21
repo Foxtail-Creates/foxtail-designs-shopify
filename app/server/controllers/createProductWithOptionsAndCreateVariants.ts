@@ -1,7 +1,7 @@
-import { createVariants } from "../services/createVariants";
 import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
 import { createProduct } from "../services/createProduct";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { createVariantsFromSelectedValues } from "./createVariantsFromSelectedValues";
 
 /**
  * Creates a new product
@@ -16,7 +16,17 @@ export async function createProductWithOptionsAndVariants(admin: AdminApiContext
 
   const product = await createProduct(admin, optionToName, flowerValues, sizeValues, paletteValues);
 
-  const customProductWithVariants = await createVariants(admin, product.id, selectedFlowers, selectedSizes, selectedPalettes,
-    sizeToPrice, flowerToPrice, optionToName, paletteBackendIdToName, sizeEnumToName);
+  const customProductWithVariants = await createVariantsFromSelectedValues(
+    admin,
+    product.id,
+    selectedFlowers,
+    selectedSizes,
+    selectedPalettes,
+    sizeToPrice,
+    flowerToPrice,
+    optionToName,
+    paletteBackendIdToName,
+    sizeEnumToName
+  );
   return customProductWithVariants;
-  }
+}
