@@ -1,12 +1,14 @@
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import {
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteError,
 } from "@remix-run/react";
 
-export default function App() {
+function App() {
   return (
     <html>
       <head>
@@ -23,6 +25,28 @@ export default function App() {
       <body>
         <Outlet />
         <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export default withSentry(App);
+
+// global error boundary 
+export function ErrorBoundary() {
+  const error = useRouteError();
+  console.error(error);
+  captureRemixErrorBoundaryError(error);
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {/* add the UI you want your users to see */}
         <Scripts />
       </body>
     </html>

@@ -14,12 +14,14 @@ import { Flower, Palette } from "@prisma/client";
 import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";
 import { getProduct } from "../services/getProduct";
+import { ProductFieldsFragment } from "~/types/admin.generated";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
 let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name
 let paletteBackendIdToDefaultName: Record<string, string>; // backend palette id to default palette name
 
-export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
+export async function getBYOBOptions(admin: AdminApiContext): Promise<ByobCustomizerOptions> {
   if (!flowerCache) {
     flowerCache = (await db.flower.findMany())
       .filter((flower) => flower.imageLink?.length)
@@ -146,7 +148,7 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 };
 
 
-export async function getSelectedCustomValues(admin, option, customProduct, position: number,
+export async function getSelectedCustomValues(admin, option, customProduct: ProductFieldsFragment, position: number,
   optionName: string, defaultValues: string[], backendIdToName: TwoWayFallbackMap): Promise<string[]> {
   if (option == null) {
     // create new product option and variants
@@ -165,7 +167,7 @@ export async function getSelectedCustomValues(admin, option, customProduct, posi
   }
 };
 
-export async function getSelectedValues(admin, option, customProduct, position: number, optionName: string, defaultValues: string[]): Promise<string[]> {
+export async function getSelectedValues(admin, option, customProduct: ProductFieldsFragment, position: number, optionName: string, defaultValues: string[]): Promise<string[]> {
   if (option == null) {
     // create new product option and variants
     await createProductOptions(

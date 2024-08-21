@@ -1,7 +1,12 @@
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { DELETE_PRODUCT_QUERY } from "../graphql";
+import { FetchResponseBody } from "@shopify/admin-api-client";
+import { DeleteCustomProductMutation } from "~/types/admin.generated";
+import { sendQuery } from "../graphql/client/sendQuery";
 
-export async function deleteProduct(admin, productId) {
-  const deleteProductResponse = await admin.graphql(
+export async function deleteProduct(admin: AdminApiContext, productId: string) {
+  const deleteProductBody: FetchResponseBody<DeleteCustomProductMutation> = await sendQuery(
+    admin,
     DELETE_PRODUCT_QUERY,
     {
       variables: {
@@ -9,14 +14,10 @@ export async function deleteProduct(admin, productId) {
       },
     },
   );
-  const deleteProductBody = await deleteProductResponse.json();
-  const hasErrors: boolean = deleteProductBody.data?.productDelete.userErrors.length != 0;
+  const hasErrors: boolean = deleteProductBody.data?.productDelete?.userErrors.length != 0;
   if (hasErrors) {
-    console.log("Error updating variants. Message {"
-      + deleteProductBody.data?.productDelete.userErrors[0].message
-      + "} on field {"
-      + deleteProductBody.data?.productDelete.userErrors[0].field
-      + "}");
-    throw "Error deleting product. Contact Support for help.";
+    throw new Error("Error updating variants.\n User errors: { "
+      + deleteProductBody.data?.productDelete?.userErrors
+      + " }");
   }
 }

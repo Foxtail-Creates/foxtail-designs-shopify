@@ -1,12 +1,23 @@
 import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED } from "~/constants";
 import { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "../graphql";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { sendQuery } from "../graphql/client/sendQuery";
+import { CreateProductOptionsMutation, ProductFieldsFragment } from "~/types/admin.generated";
+import { FetchResponseBody } from "@shopify/admin-api-client";
 
 /**
  * Creates a new product
  */
-export async function createProduct(admin, optionToName: { [key: string]: string },
-  flowerValues: [{ [key: string]: string }], sizeValues: [{ [key: string]: string }], paletteValues: [{ [key: string]: string }]) {
-  const customProductWithOptionsResponse = await admin.graphql(
+export async function createProduct(
+  admin: AdminApiContext,
+  optionToName: { [key: string]: string },
+  flowerValues: [{ [key: string]: string }],
+  sizeValues: [{ [key: string]: string }],
+  paletteValues: [{ [key: string]: string }]
+): Promise<ProductFieldsFragment | undefined | null> {
+
+  const customProductWithOptionsBody: FetchResponseBody<CreateProductOptionsMutation> = await sendQuery(
+    admin,
     CREATE_PRODUCT_WITH_OPTIONS_QUERY,
     {
       variables: {
@@ -25,20 +36,15 @@ export async function createProduct(admin, optionToName: { [key: string]: string
         metafieldKey: PRODUCT_METADATA_PRICES,
         metafieldValue: PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED
       },
-    },
+    }
   );
 
-  const customProductWithOptionsBody = await customProductWithOptionsResponse.json();
-
-  const hasErrors: boolean = customProductWithOptionsBody.data?.productCreate.userErrors.length != 0;
+  const hasErrors: boolean = customProductWithOptionsBody.data?.productOptionsCreate?.userErrors.length != 0;
   if (hasErrors) {
-    console.log("Error creating new product. Message {"
-      + customProductWithOptionsBody.data.productCreate.userErrors[0].message
-      + "} on field {"
-      + customProductWithOptionsBody.data.productCreate.userErrors[0].field
+    throw new Error("Error activating product.\n User errors: { "
+      + customProductWithOptionsBody.data?.productOptionsCreate?.userErrors
       + "}");
-    throw "Error creating new product. Contact Support for help.";
   }
 
-  return customProductWithOptionsBody.data.productCreate.product;
+  return customProductWithOptionsBody.data?.productOptionsCreate?.product;
 }

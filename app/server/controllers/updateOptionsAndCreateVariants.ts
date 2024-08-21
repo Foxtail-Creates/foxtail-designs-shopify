@@ -1,9 +1,11 @@
+import { ProductFieldsFragment } from "~/types/admin.generated";
 import { createProductOptions } from "../services/createProductOptions";
 import { updateProductOptionsAndVariants } from "../services/updateProductOptionsAndVariants";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
 export async function updateOptionsAndCreateVariants(
-  admin,
-  product,
+  admin: AdminApiContext,
+  product: ProductFieldsFragment,
   optionName: string,
   optionPosition: number,
   optionIdsToRemove: string[],

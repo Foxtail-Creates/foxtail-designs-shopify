@@ -174,3 +174,13 @@ export type ProductMetadata = {
   paletteToName: { [key: string]: string }; // backend palette id (as string) to custom palette name
   sizeToName: { [key: string]: string }; // size enum to custom name
 }
+
+export type OptionValue = {
+  optionName: string;
+  name: string;
+}
+
+export type VariantInput = {
+  optionValues: OptionValue [];
+  price: string;
+};

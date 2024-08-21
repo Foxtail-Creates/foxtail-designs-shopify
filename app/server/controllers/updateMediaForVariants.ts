@@ -2,9 +2,10 @@ import { FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_DEFAULT_VALUES
 import { ProductMetadata } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY } from "../graphql";
 import { bulkUpdateVariants } from "../services/bulkUpdateVariants";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
 export async function updateMediaForVariants(
-  admin,
+  admin: AdminApiContext,
   productId: string,
 ) {
   // get new product variants

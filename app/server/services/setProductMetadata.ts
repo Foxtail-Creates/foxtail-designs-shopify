@@ -1,14 +1,16 @@
-import invariant from "tiny-invariant";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { SET_PRODUCT_METAFIELD_QUERY } from "../graphql";
+import { sendQuery } from "../graphql/client/sendQuery";
 
 export async function setProductMetadata(
-  admin,
+  admin: AdminApiContext,
   productId: string,
   namespace: string,
   key: string,
   value: string
 ) {
-  const setProductMetadataResponse = await admin.graphql(
+  const setProductMetafieldBody = await sendQuery(
+    admin,
     SET_PRODUCT_METAFIELD_QUERY,
     {
       variables: {
@@ -19,8 +21,10 @@ export async function setProductMetadata(
       },
     },
   );
-  const setProductMetadataBody = await setProductMetadataResponse.json();
-  invariant(setProductMetadataBody.data.metafieldsSet.userErrors.length == 0,
-    "Error setting product metadata. Contact Support for help."
-  );
+  const hasErrors: boolean = setProductMetafieldBody.data.metafieldsSet.userErrors.length != 0;
+  if (hasErrors) {
+    throw new Error("Error setting product metafield.\n User errors: { "
+      + setProductMetafieldBody.data.metafieldsSet.userErrors
+      + "}");
+  }
 };

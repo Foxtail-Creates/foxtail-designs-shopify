@@ -1,8 +1,10 @@
+import { ProductFieldsFragment } from "~/types/admin.generated";
 import { activateProduct } from "../services/activateProduct";
 import { getPublications } from "../services/getPublications";
 import { publishProduct } from "../services/publishProduct";
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
-export async function activateProductInOnlineStore(admin, product) {
+export async function activateProductInOnlineStore(admin: AdminApiContext, product: ProductFieldsFragment) {
     if (product.status !== "ACTIVE") {
       await activateProduct(admin, product.id);
     }

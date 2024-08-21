@@ -1,7 +1,16 @@
+import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { PUBLISH_PRODUCT_QUERY } from "../graphql";
+import { sendQuery } from "../graphql/client/sendQuery";
+import { PublishProductMutation } from "~/types/admin.generated";
+import { FetchResponseBody } from "@shopify/admin-api-client";
 
-export async function publishProduct(admin, id, publicationId) {
-  const publishProductResponse = await admin.graphql(
+export async function publishProduct(
+  admin: AdminApiContext,
+  id: string,
+  publicationId: string
+) {
+  const publishProductResponseBody: FetchResponseBody<PublishProductMutation> = await sendQuery(
+    admin,
     PUBLISH_PRODUCT_QUERY,
     {
       variables: {
@@ -10,14 +19,10 @@ export async function publishProduct(admin, id, publicationId) {
       },
     },
   );
-  const publishProductResponseBody = await publishProductResponse.json();
-  const hasErrors: boolean = publishProductResponseBody.data?.publishablePublish.userErrors.length != 0;
+  const hasErrors: boolean = publishProductResponseBody.data?.publishablePublish?.userErrors.length != 0;
   if (hasErrors) {
-    console.log("Error publishing product. Message {"
-      + publishProductResponseBody.data?.publishablePublish.userErrors[0].message
-      + "} on field {"
-      + publishProductResponseBody.data?.publishablePublish.userErrors[0].field
+    throw new Error("Error publishing product.\n User errors: { "
+      + publishProductResponseBody.data?.publishablePublish?.userErrors
       + "}");
-    throw "Error publishing product. Contact Support for help.";
   }
 }
