@@ -2,8 +2,9 @@ import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, P
 import { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "../graphql";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { sendQuery } from "../graphql/client/sendQuery";
-import { CreateProductOptionsMutation, ProductFieldsFragment } from "~/types/admin.generated";
+import { ProductFieldsFragment } from "~/types/admin.generated";
 import { FetchResponseBody } from "@shopify/admin-api-client";
+import { CreateProductWithOptionsMutation } from "~/types/admin.generated";
 
 /**
  * Creates a new product
@@ -16,7 +17,7 @@ export async function createProduct(
   paletteValues: [{ [key: string]: string }]
 ): Promise<ProductFieldsFragment | undefined | null> {
 
-  const customProductWithOptionsBody: FetchResponseBody<CreateProductOptionsMutation> = await sendQuery(
+  const customProductWithOptionsBody: FetchResponseBody<CreateProductWithOptionsMutation> = await sendQuery(
     admin,
     CREATE_PRODUCT_WITH_OPTIONS_QUERY,
     {
@@ -39,12 +40,12 @@ export async function createProduct(
     }
   );
 
-  const hasErrors: boolean = customProductWithOptionsBody.data?.productOptionsCreate?.userErrors.length != 0;
+  const hasErrors: boolean = customProductWithOptionsBody.data?.productCreate?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error activating product.\n User errors: { "
-      + customProductWithOptionsBody.data?.productOptionsCreate?.userErrors
+      + customProductWithOptionsBody.data?.productCreate?.userErrors
       + "}");
   }
 
-  return customProductWithOptionsBody.data?.productOptionsCreate?.product;
+  return customProductWithOptionsBody.data?.productCreate?.product;
 }
