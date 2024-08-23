@@ -233,7 +233,7 @@ export default function ByobCustomizationForm() {
                       <Text as="h2" variant="headingMd">
                         Sizes
                       </Text>
-                      <List type="number">
+                      <List type="bullet">
                         <List.Item>
                           {"Customize the naming for your size options -- for example, rename \"Small\" to \"Modest\"."}
                         </List.Item>
@@ -259,7 +259,7 @@ export default function ByobCustomizationForm() {
                       <Text as="h2" variant="headingMd">
                         Palettes
                       </Text>
-                      <List type="number">
+                      <List type="bullet">
                         <List.Item>
                           {"Customize the naming for your palette options - for example, rename \"Pastel\" to \"Soft\"."}
                         </List.Item>
@@ -282,11 +282,15 @@ export default function ByobCustomizationForm() {
                       <Text as="h2" variant="headingMd">
                         Main Flowers
                       </Text>
-                      <List type="number">
+                      <List type="bullet">
                         <List.Item>
-                          Edit the add-on price for each main flower. If the customer chooses a main flower with an add-on price, this will be in addition to the base price for the product.
+                          Edit the add-on price for each main flower. 
                         </List.Item>
                       </List>
+                      <Text as="h2" variant="bodyMd">
+                        If the customer chooses a main flower with an add-on price, this will be in addition to the base price for the product.
+                        For example, if the base price for a "Small" bouquet is $40 and the customer chooses a main flower with an add-on price of $5, the total price will be $45.
+                        </ Text>
                     </>
                   }
                   optionCustomizations={form.optionCustomizations[FLOWER_OPTION_NAME]}

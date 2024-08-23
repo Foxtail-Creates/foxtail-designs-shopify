@@ -242,8 +242,8 @@ export default function ByobCustomizationForm() {
                   Customizations
                 </Text>
                 <Text as={"h3"} variant="bodyMd">
-                  Choose which product options are available to a
-                  customer. You can edit names and prices in the next page.
+                  Choose which product options are available to your
+                  customer.
                 </Text>
                 <Divider />
                 <SizeSection

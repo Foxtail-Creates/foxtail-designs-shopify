@@ -44,7 +44,7 @@ export const SizeSection = ({
         Size options
       </Text>
       <ChoiceList
-        title="Choose what bouquet sizes you want to offer."
+        title="Choose what bouquet sizes you want to offer. You can edit the names and prices on the next page."
         allowMultiple
         choices={allSizesAvailable.map((option) => {
           return { label: getDisplayName(option), value: option };

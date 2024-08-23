@@ -97,7 +97,7 @@ const ByobProduct = (
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
         <Text as="h2" variant="headingMd">
-          Build-Your-Own-Bouquet
+          Build-Your-Own-Bouquet Product Generator
         </Text>
         {(!!productId && isBannerDismissed) &&
           <Button
@@ -110,7 +110,7 @@ const ByobProduct = (
         }
       </InlineGrid>
       <Text as="p" variant="bodyMd">
-        Give customers the option to buy a custom arrangement! Select the
+        Give your customers the option to buy a custom arrangement! Select the
         customizations you want to offer and generate all of the Shopify variants
         with a few clicks.
       </Text>
@@ -164,7 +164,7 @@ const Foxtail = ({ onAction }: ActionProps) => (
         </Button>
       </InlineGrid>
       <Text as="p" variant="bodyMd">
-        At Foxtail, we turn floral design ideas into visual images early on in the design process.
+        At Foxtail, we're turning floral design ideas into visual images early on in the design process.
         We’re building online tools to make it easier for clients and florists to understand what
         an order will look like, from color palettes to shape and style.
       </Text>
@@ -217,29 +217,39 @@ export default function Index() {
   const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl && nav.state === "idle";
 
   return (
-    <Page>
-      <Layout>
-        <Layout.Section>
-          {showBanner && (
-            <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={product.onlineStorePreviewUrl!} />
-          )}
-        </Layout.Section>
-        <Layout.Section>
-          <InlineGrid gap="300" columns={2}>
-            <ByobProduct
-              isBannerDismissed={isBannerDismissed}
-              onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
-              onEditAction={onEdit}
-              onDeleteAction={onDelete}
-              productId={product.id}
-              isEditLoading={isEditing}
-              isDeleteLoading={isDeleting}
-            />
-            <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
-            <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
-          </InlineGrid>
-        </Layout.Section>
-      </Layout>
-    </Page>
+    <>
+      <div
+        className="square-color2"
+        style={{ backgroundColor: "#F05F40", padding: "1rem" }}
+      >
+        <Text variant="heading2xl" as="h2" alignment="center" tone="text-inverse">
+          Foxtail Designs
+        </Text>
+      </div>
+      <Page>
+        <Layout>
+          <Layout.Section>
+            {showBanner && (
+              <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={product.onlineStorePreviewUrl!} />
+            )}
+          </Layout.Section>
+          <Layout.Section>
+            <InlineGrid gap="300" columns={2}>
+              <ByobProduct
+                isBannerDismissed={isBannerDismissed}
+                onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+                onEditAction={onEdit}
+                onDeleteAction={onDelete}
+                productId={product.id}
+                isEditLoading={isEditing}
+                isDeleteLoading={isDeleting}
+              />
+              <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
+              <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
+            </InlineGrid>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    </>
   );
 }
