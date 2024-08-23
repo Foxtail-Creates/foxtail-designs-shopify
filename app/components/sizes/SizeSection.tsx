@@ -3,7 +3,6 @@ import type { SizeSectionProps } from "~/types";
 import { useCallback } from "react";
 import { FormErrors } from "~/errors";
 
-
 export const SizeSection = ({
   allSizesAvailable,
   formState,

@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { json, redirect } from "@remix-run/node";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { defer, redirect } from "@remix-run/node";
 import {
+  Await,
+  SubmitFunction,
+  useAsyncValue,
   useLoaderData,
   useNavigation,
   useSubmit,
@@ -15,6 +18,9 @@ import {
   BlockStack,
   PageActions,
   BannerHandles,
+  SkeletonBodyText,
+  SkeletonPage,
+  SkeletonDisplayText,
 } from "@shopify/polaris";
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
@@ -44,10 +50,8 @@ import { deleteProductMedia } from "~/server/services/deleteProductMedia";
 import { ErrorBanner } from "~/components/errors/ErrorBanner";
 
 export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
-  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
-
-  return json(byobOptions);
+  const byobOptions = getBYOBOptions(request);
+  return defer({ byobOptions });
 }
 
 export async function action({ request }) {
@@ -96,9 +100,77 @@ export async function action({ request }) {
   return redirect(`/app/bouquets/customize`);
 }
 
-export default function ByobCustomizationForm() {
-  const byobCustomizer: ByobCustomizerOptions = useLoaderData();
+const Skeleton = () => {
+  return (
+    <SkeletonPage title="Edit" primaryAction backAction>
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="500">
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Product Name
+                </Text>
+                <SkeletonDisplayText size="small" />
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Customizations
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Size options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Palette Color Options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Main flower options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+              </BlockStack>
+            </Card>
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+    </SkeletonPage>
+  );
+}
 
+type SettingsFormProps = {
+  setFormState: React.Dispatch<React.SetStateAction<BouquetSettingsForm | undefined>>;
+  banner: React.RefObject<BannerHandles>;
+  errors: FormErrors;
+  formState: BouquetSettingsForm | undefined;
+  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
+  submitFormData: (
+    formState: BouquetSettingsForm,
+    byobCustomizer: ByobCustomizerOptions,
+    setErrors: React.Dispatch<React.SetStateAction<FormErrors>>
+  ) => void;
+  isSaving: boolean;
+}
+
+const SettingsForm = ({
+  banner,
+  errors,
+  formState,
+  setFormState,
+  setErrors,
+  submitFormData,
+  isSaving,
+}: SettingsFormProps) => {
+  const byobCustomizer: ByobCustomizerOptions = useAsyncValue();
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
@@ -124,8 +196,102 @@ export default function ByobCustomizationForm() {
     productMetadata: byobCustomizer.productMetadata
   };
 
+  setFormState(byobCustomizerForm);
+
+  return (
+    <>
+      {formState && (
+        <Page
+          backAction={{ content: 'Home', url: '/app' }}
+          title={formState.productName !== "" ? "Edit" : "Create"}
+          subtitle={formState.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
+          compactTitle
+          pagination={{
+            hasNext: true,
+            onNext: () => submitFormData(formState, byobCustomizer, setErrors),
+          }}
+        >
+          <Layout>
+            {(Object.keys(errors).length > 0) && <Layout.Section>
+              <ErrorBanner errors={errors} banner={banner} setErrors={setErrors} />
+            </Layout.Section>
+            }
+            <Layout.Section>
+              <BlockStack gap="500">
+                <Card>
+                  <BlockStack gap="500">
+                    <Text as={"h2"} variant="headingLg">
+                      Product Name
+                    </Text>
+                    <TextField
+                      id="title"
+                      label="title"
+                      labelHidden
+                      autoComplete="off"
+                      placeholder="Build Your Own Bouquet"
+                      value={formState.productName}
+                      onChange={(productName) =>
+                        setFormState({ ...formState, productName })
+                      }
+                    // error={errors.productName}
+                    />
+                  </BlockStack>
+                </Card>
+                <Card>
+                  <BlockStack gap="500">
+                    <Text as={"h2"} variant="headingLg">
+                      Customizations
+                    </Text>
+                    <Text as={"h3"} variant="bodyMd">
+                      Choose which product options are available to a
+                      customer. You can edit names and prices in the next page.
+                    </Text>
+                    <Divider />
+                    <SizeSection
+                      allSizesAvailable={byobCustomizer.sizesAvailable}
+                      formState={formState}
+                      setFormState={setFormState}
+                      errors={errors}
+                    />
+                    <Divider />
+                    <PaletteSection
+                      allPaletteOptionsSorted={byobCustomizer.palettesAvailableSorted}
+                      formState={formState}
+                      setFormState={setFormState}
+                      errors={errors}
+                    />
+                    <Divider />
+                    <FocalFlowersSection
+                      allFlowerOptionsSorted={byobCustomizer.flowersAvailableSorted}
+                      formState={formState}
+                      setFormState={setFormState}
+                      errors={errors}
+                    />
+                  </BlockStack>
+                </Card>
+              </BlockStack>
+            </Layout.Section>
+            <Layout.Section>
+              <PageActions
+                primaryAction={{
+                  content: "Save and continue",
+                  loading: isSaving,
+                  disabled: isSaving,
+                  onAction: () => { submitFormData(formState, byobCustomizer, setErrors) },
+                }}
+              />
+            </Layout.Section>
+          </Layout>
+        </Page>
+      )}
+    </>
+  )
+}
+
+export default function ByobCustomizationForm() {
+  const { byobOptions } = useLoaderData<typeof loader>();
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formState, setFormState] = useState(byobCustomizerForm);
+  const [formState, setFormState] = useState<BouquetSettingsForm>();
 
   const nav = useNavigation();
   const isSaving =
@@ -137,7 +303,11 @@ export default function ByobCustomizationForm() {
 
   useEffect(() => banner.current?.focus(), [errors]);
 
-  function submitFormData(setErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
+  function submitFormData(
+    formState: BouquetSettingsForm,
+    byobCustomizer: ByobCustomizerOptions,
+    setErrors: React.Dispatch<React.SetStateAction<FormErrors>>
+  ) {
     const data: SerializedSettingForm = {
       productName: formState.productName,
       product: byobCustomizer.customProduct,
@@ -186,87 +356,18 @@ export default function ByobCustomizationForm() {
   }
 
   return (
-    <Page
-      backAction={{ content: 'Home', url: '/app' }}
-      title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
-      subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
-      compactTitle
-      pagination={{
-        hasNext: true,
-        onNext: () => submitFormData(setErrors),
-      }}
-    >
-      <Layout>
-        {(Object.keys(errors).length > 0) && <Layout.Section>
-          <ErrorBanner errors={errors} banner={banner} setErrors={setErrors} />
-        </Layout.Section>
-        }
-        <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Product Name
-                </Text>
-                <TextField
-                  id="title"
-                  label="title"
-                  labelHidden
-                  autoComplete="off"
-                  placeholder="Build Your Own Bouquet"
-                  value={formState.productName}
-                  onChange={(productName) =>
-                    setFormState({ ...formState, productName })
-                  }
-                // error={errors.productName}
-                />
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Customizations
-                </Text>
-                <Text as={"h3"} variant="bodyMd">
-                  Choose which product options are available to a
-                  customer. You can edit names and prices in the next page.
-                </Text>
-                <Divider />
-                <SizeSection
-                  allSizesAvailable={byobCustomizer.sizesAvailable}
-                  formState={formState}
-                  setFormState={setFormState}
-                  errors={errors}
-                />
-                <Divider />
-                <PaletteSection
-                  allPaletteOptionsSorted={byobCustomizer.palettesAvailableSorted}
-                  formState={formState}
-                  setFormState={setFormState}
-                  errors={errors}
-                />
-                <Divider />
-                <FocalFlowersSection
-                  allFlowerOptionsSorted={byobCustomizer.flowersAvailableSorted}
-                  formState={formState}
-                  setFormState={setFormState}
-                  errors={errors}
-                />
-              </BlockStack>
-            </Card>
-          </BlockStack>
-        </Layout.Section>
-        <Layout.Section>
-          <PageActions
-            primaryAction={{
-              content: "Save and continue",
-              loading: isSaving,
-              disabled: isSaving,
-              onAction: () => { submitFormData(setErrors) },
-            }}
-          />
-        </Layout.Section>
-      </Layout>
-    </Page>
+    <Suspense fallback={<Skeleton />}>
+      <Await resolve={byobOptions}>
+        <SettingsForm
+          banner={banner}
+          errors={errors}
+          setErrors={setErrors}
+          submitFormData={submitFormData}
+          isSaving={isSaving}
+          setFormState={setFormState}
+          formState={formState}
+        />
+      </Await>
+    </Suspense>
   );
 }

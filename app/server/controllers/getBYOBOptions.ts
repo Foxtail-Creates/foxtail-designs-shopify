@@ -15,13 +15,15 @@ import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";
 import { getProduct } from "../services/getProduct";
 import { ProductFieldsFragment } from "~/types/admin.generated";
-import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { authenticate } from "~/shopify.server";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
 let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name
 let paletteBackendIdToDefaultName: Record<string, string>; // backend palette id to default palette name
 
-export async function getBYOBOptions(admin: AdminApiContext): Promise<ByobCustomizerOptions> {
+export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
+  const { admin } = await authenticate.admin(request);
+
   if (!flowerCache) {
     flowerCache = (await db.flower.findMany())
       .filter((flower) => flower.imageLink?.length)

@@ -8,12 +8,12 @@ Sentry.init({
     tracesSampleRate: 1,
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1,
-
     integrations: [Sentry.browserTracingIntegration({
       useEffect,
       useLocation,
       useMatches
-    }), Sentry.replayIntegration()]
+    }), Sentry.replayIntegration()],
+    enabled: process.env.NODE_ENV === "production",
 })
 
 startTransition(() => {

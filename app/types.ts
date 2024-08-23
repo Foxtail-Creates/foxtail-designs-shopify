@@ -88,14 +88,14 @@ export type SerializedCustomizeForm = {
 export type FocalFlowersSectionProps = {
   allFlowerOptionsSorted: Flower[];
   formState: BouquetSettingsForm;
-  setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
+  setFormState: Dispatch<SetStateAction<BouquetSettingsForm | undefined>>;
   errors: FormErrors;
 };
 
 export type PaletteSectionProps = {
   allPaletteOptionsSorted: Palette[];
   formState: BouquetSettingsForm;
-  setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
+  setFormState: Dispatch<SetStateAction<BouquetSettingsForm | undefined>>;
   errors: FormErrors;
 };
 
@@ -116,7 +116,7 @@ export type PaletteSquareInput = {
 export type SizeSectionProps = {
   allSizesAvailable: string[];
   formState: BouquetSettingsForm;
-  setFormState: Dispatch<SetStateAction<BouquetSettingsForm>>;
+  setFormState: Dispatch<SetStateAction<BouquetSettingsForm | undefined>>;
   errors: FormErrors;
 };
 
@@ -181,6 +181,6 @@ export type OptionValue = {
 }
 
 export type VariantInput = {
-  optionValues: OptionValue [];
+  optionValues: OptionValue[];
   price: string;
 };

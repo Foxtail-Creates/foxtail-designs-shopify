@@ -36,8 +36,7 @@ import { sanitizeData } from "~/server/utils/sanitizeData";
 import { activateProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
 
 export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
-  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
+  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(request);
 
   return json(byobOptions);
 }
