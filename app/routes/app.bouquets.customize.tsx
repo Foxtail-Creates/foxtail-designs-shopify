@@ -3,7 +3,6 @@ import {
   useNavigation,
   useSubmit,
   useNavigate,
-  useActionData,
 } from "@remix-run/react";
 import {
   Card,
@@ -15,9 +14,8 @@ import {
   BlockStack,
   PageActions,
   Thumbnail,
-  BannerHandles,
 } from "@shopify/polaris";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import type {
   BouquetCustomizationForm,
@@ -36,8 +34,6 @@ import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/con
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/utils/sanitizeData";
 import { activateProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
-import { captureException } from "@sentry/remix";
-import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
@@ -47,23 +43,17 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  try {
-    const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
 
-    const serializedData = await request.formData();
+  const serializedData = await request.formData();
 
-    const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
+  const data: SerializedCustomizeForm = JSON.parse(serializedData.get("data"));
 
-    sanitizeData(data);
-    await saveCustomizations(admin, data);
-    await activateProductInOnlineStore(admin, data.product);
+  sanitizeData(data);
+  await saveCustomizations(admin, data);
+  await activateProductInOnlineStore(admin, data.product);
 
-    return redirect(`/app`);
-  } catch(err) {
-    console.error(err);
-    captureException(err);
-    return json({ backendError: true });
-  }
+  return redirect(`/app`);
 }
 
 const createSizeValueCustomizationsObject = (sizeEnumsAvailable: string[], selectedSizeEnums: string[],
@@ -128,7 +118,6 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
 
 export default function ByobCustomizationForm() {
   const formOptions: ByobCustomizerOptions = useLoaderData<typeof loader>();
-  const backendError: boolean = useActionData()?.backendError || false;
 
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
@@ -176,9 +165,6 @@ export default function ByobCustomizationForm() {
 
   const submit = useSubmit();
 
-  const backendErrorBanner = useRef<BannerHandles>(null);
-  useEffect(() => backendErrorBanner.current?.focus(), [backendError]);
-
   function submitFormData() {
     const data: SerializedCustomizeForm = {
       product: formOptions.customProduct,
@@ -192,9 +178,6 @@ export default function ByobCustomizationForm() {
       sizeEnumToName: formOptions.sizeEnumToName,
     };
 
-    if (backendError) {
-      return;
-    }
     const serializedData = JSON.stringify(data);
 
     submit({ data: serializedData }, { method: "post" });
@@ -212,10 +195,6 @@ export default function ByobCustomizationForm() {
       }}
     >
       <Layout>
-        {(backendError) && <Layout.Section>
-          <ServerErrorBanner banner={backendErrorBanner} />
-        </Layout.Section>
-        }
         <Layout.Section>
           <BlockStack gap="500">
             <Card>

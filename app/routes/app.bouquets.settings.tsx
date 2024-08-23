@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import {
-  useActionData,
   useLoaderData,
   useNavigation,
   useSubmit,
@@ -42,9 +41,7 @@ import { updateOptionsAndCreateVariants } from "~/server/controllers/updateOptio
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { CreateMediaInput, createProductMedia } from "~/server/services/createProductMedia";
 import { deleteProductMedia } from "~/server/services/deleteProductMedia";
-import { UserErrorBanner } from "~/components/errors/UserErrorBanner";
-import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
-import { captureException } from "@sentry/remix";
+import { ErrorBanner } from "~/components/errors/ErrorBanner";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
@@ -55,58 +52,53 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   const { admin } = await authenticate.admin(request);
-  try {
-    const serializedData = await request.formData();
 
-    const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
+  const serializedData = await request.formData();
 
-    await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
-      data.flowersSelected, (x) => x);
-    await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
-      data.sizesSelected, (sizeEnum) => TwoWayFallbackMap.getValue(sizeEnum, data.sizeEnumToName.customMap, data.sizeEnumToName.defaultMap));
-    await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
-      data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
+  const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
-    const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
-    // delete all existing images
-    if (data.productImages?.length && shouldUpdatePaletteImages) {
-      const mediaIds = data.productImages.map((media) => media.id);
-      await deleteProductMedia(admin, mediaIds, data.product.id);
-    }
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+    data.flowersSelected, (x) => x);
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+    data.sizesSelected, (sizeEnum) => TwoWayFallbackMap.getValue(sizeEnum, data.sizeEnumToName.customMap, data.sizeEnumToName.defaultMap));
+  await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
+    data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
-    // add new images for palette bouquets
-    if (data.palettesSelected.length > 0 && shouldUpdatePaletteImages) {
-      let createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
-        (palette) => data.palettesSelected.includes(palette.id.toString()),
-      ).map((palette) => {
-        return {
-          alt: `${palette.id}`,
-          originalSource: palette.imageLink,
-          mediaContentType: "IMAGE"
-        };
-      });
-
-      // add main image for product as first image in list
-      createMediaInput = [{
-        alt: `Custom Order`,
-        originalSource: PRODUCT_MAIN_IMAGE_SOURCE,
-        mediaContentType: "IMAGE"
-      }].concat(createMediaInput)
-
-      await createProductMedia(admin, createMediaInput, data.product.id);
-    }
-    return redirect(`/app/bouquets/customize`);
-  } catch(err) {
-    console.error(err);
-    captureException(err);
-    return json({ backendError: true });
+  const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
+  // delete all existing images
+  if (data.productImages?.length && shouldUpdatePaletteImages) {
+    const mediaIds = data.productImages.map((media) => media.id);
+    await deleteProductMedia(admin, mediaIds, data.product.id);
   }
 
+  // add new images for palette bouquets
+  if (data.palettesSelected.length > 0 && shouldUpdatePaletteImages) {
+    let createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
+      (palette) => data.palettesSelected.includes(palette.id.toString()),
+    ).map((palette) => {
+      return {
+        alt: `${palette.id}`,
+        originalSource: palette.imageLink,
+        mediaContentType: "IMAGE"
+      };
+    });
+
+    // add main image for product as first image in list
+    createMediaInput = [{
+      alt: `Custom Order`,
+      originalSource: PRODUCT_MAIN_IMAGE_SOURCE,
+      mediaContentType: "IMAGE"
+    }].concat(createMediaInput)
+
+    await createProductMedia(admin, createMediaInput, data.product.id);
+  }
+
+  return redirect(`/app/bouquets/customize`);
 }
 
 export default function ByobCustomizationForm() {
   const byobCustomizer: ByobCustomizerOptions = useLoaderData();
-  const backendError: boolean = useActionData()?.backendError || false;
+
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
@@ -132,7 +124,7 @@ export default function ByobCustomizationForm() {
     productMetadata: byobCustomizer.productMetadata
   };
 
-  const [userErrors, setUserErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formState, setFormState] = useState(byobCustomizerForm);
 
   const nav = useNavigation();
@@ -141,13 +133,11 @@ export default function ByobCustomizationForm() {
 
   const submit = useSubmit();
 
-  const userErrorBanner = useRef<BannerHandles>(null);
-  useEffect(() => userErrorBanner.current?.focus(), [userErrors]);
+  const banner = useRef<BannerHandles>(null);
 
-  const backendErrorBanner = useRef<BannerHandles>(null);
-  useEffect(() => backendErrorBanner.current?.focus(), [backendError]);
+  useEffect(() => banner.current?.focus(), [errors]);
 
-  function submitFormData(setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
+  function submitFormData(setErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
       productName: formState.productName,
       product: byobCustomizer.customProduct,
@@ -168,27 +158,27 @@ export default function ByobCustomizationForm() {
       productImages: byobCustomizer.productImages
     };
 
-    const userErrors: FormErrors = {};
+    const errors: FormErrors = {};
 
     if (data.flowersSelected.length == 0) {
-      userErrors.flowers = "No flowers selected. Select at least one focal flower to offer to customers.";
+      errors.flowers = "No flowers selected. Select at least one focal flower to offer to customers.";
     }
     if (data.flowersSelected.length > 5) {
-      userErrors.flowers = "More than 5 flower options selected. Please select 5 or fewer options.";
+      errors.flowers = "More than 5 flower options selected. Please select 5 or fewer options.";
     }
     if (data.sizesSelected.length == 0) {
-      userErrors.sizes = "No sizes selected. Select at least one size option to offer to customers.";
+      errors.sizes = "No sizes selected. Select at least one size option to offer to customers.";
     }
     if (data.palettesSelected.length == 0) {
-      userErrors.palettes = "No palettes selected. Select at least one palette option to offer to customers.";
+      errors.palettes = "No palettes selected. Select at least one palette option to offer to customers.";
     }
     if (data.palettesSelected.length > 5) {
-      userErrors.palettes = "More than 5 palette options selected. Please select 5 or fewer options.";
+      errors.palettes = "More than 5 palette options selected. Please select 5 or fewer options.";
     }
 
-    setUserErrors(userErrors);
+    setErrors(errors);
 
-    if (backendError || Object.keys(userErrors).length > 0) {
+    if (Object.keys(errors).length > 0) {
       return;
     }
     const serializedData = JSON.stringify(data);
@@ -203,16 +193,12 @@ export default function ByobCustomizationForm() {
       compactTitle
       pagination={{
         hasNext: true,
-        onNext: () => submitFormData(setUserErrors),
+        onNext: () => submitFormData(setErrors),
       }}
     >
       <Layout>
-        {(backendError) && <Layout.Section>
-          <ServerErrorBanner banner={backendErrorBanner} />
-        </Layout.Section>
-        }
-        {(!backendError && Object.keys(userErrors).length > 0) && <Layout.Section>
-          <UserErrorBanner errors={userErrors} banner={userErrorBanner} setUserErrors={setUserErrors} />
+        {(Object.keys(errors).length > 0) && <Layout.Section>
+          <ErrorBanner errors={errors} banner={banner} setErrors={setErrors} />
         </Layout.Section>
         }
         <Layout.Section>
@@ -250,21 +236,21 @@ export default function ByobCustomizationForm() {
                   allSizesAvailable={byobCustomizer.sizesAvailable}
                   formState={formState}
                   setFormState={setFormState}
-                  errors={userErrors}
+                  errors={errors}
                 />
                 <Divider />
                 <PaletteSection
                   allPaletteOptionsSorted={byobCustomizer.palettesAvailableSorted}
                   formState={formState}
                   setFormState={setFormState}
-                  errors={userErrors}
+                  errors={errors}
                 />
                 <Divider />
                 <FocalFlowersSection
                   allFlowerOptionsSorted={byobCustomizer.flowersAvailableSorted}
                   formState={formState}
                   setFormState={setFormState}
-                  errors={userErrors}
+                  errors={errors}
                 />
               </BlockStack>
             </Card>
@@ -276,7 +262,7 @@ export default function ByobCustomizationForm() {
               content: "Save and continue",
               loading: isSaving,
               disabled: isSaving,
-              onAction: () => { submitFormData(setUserErrors) },
+              onAction: () => { submitFormData(setErrors) },
             }}
           />
         </Layout.Section>

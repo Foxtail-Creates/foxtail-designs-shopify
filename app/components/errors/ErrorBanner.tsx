@@ -1,17 +1,17 @@
 import { Banner, BannerHandles, List } from '@shopify/polaris';
 import { FormErrors } from '~/errors';
 
-export type UserErrorBannerProps = {
+export type ErrorBannerProps = {
   errors: FormErrors;
   banner: React.RefObject<BannerHandles>;
-  setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
+  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>;
 }
 
-export const UserErrorBanner =({ errors, banner, setUserErrors }: UserErrorBannerProps) =>{
+export const ErrorBanner =({ errors, banner, setErrors }: ErrorBannerProps) =>{
   return (
     <Banner
       title="Please correct the following errors:"
-      onDismiss={() => { setUserErrors({}) }}
+      onDismiss={() => { setErrors({}) }}
       tone="warning"
       ref={banner}
     >
