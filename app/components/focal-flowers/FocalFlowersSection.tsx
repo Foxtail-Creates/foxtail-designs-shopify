@@ -209,7 +209,7 @@ export const FocalFlowersSection = ({
           <Combobox.TextField
             id="flowers"
             autoComplete="off"
-            label="Choose what main flowers you want to offer. The customer will be allowed to choose one (1) main flower for their bouquet."
+            label="Choose up to five (5) main flowers you want to offer. Your customer will be allowed to choose one (1) main flower for their bouquet. You can edit prices on the next page."
             value={value}
             suggestion={suggestion}
             placeholder="Add main flowers"
