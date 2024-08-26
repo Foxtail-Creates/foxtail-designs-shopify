@@ -24,7 +24,7 @@ export async function setProductMetadata(
   const hasErrors: boolean = setProductMetafieldBody.data.metafieldsSet.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error setting product metafield.\n User errors: { "
-      + setProductMetafieldBody.data.metafieldsSet.userErrors
+      + JSON.stringify(setProductMetafieldBody.data.metafieldsSet.userErrors)
       + "}");
   }
 };

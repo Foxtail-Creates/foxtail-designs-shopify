@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useNavigate, useNavigation } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
+import { BlockStack, Button, ButtonGroup, Card, Divider, InlineGrid, InlineStack, Layout, Page, SkeletonBodyText, SkeletonDisplayText, SkeletonPage, SkeletonTabs, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/services/deleteProduct";
 import { deleteShopMetafield } from "~/server/services/deleteShopMetafield";
 import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
@@ -10,6 +10,7 @@ import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 import { useState } from "react";
 import { SuccessBanner } from "~/components/SuccessBanner";
+import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
 
 type ByobProductProps = {
   onEditAction: () => void;
@@ -218,38 +219,44 @@ export default function Index() {
 
   return (
     <>
-      <div
-        className="square-color2"
-        style={{ backgroundColor: "#F05F40", padding: "1rem" }}
-      >
-        <Text variant="heading2xl" as="h2" alignment="center" tone="text-inverse">
-          Foxtail Designs
-        </Text>
-      </div>
-      <Page>
-        <Layout>
-          <Layout.Section>
-            {showBanner && (
-              <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={product.onlineStorePreviewUrl!} />
-            )}
-          </Layout.Section>
-          <Layout.Section>
-            <InlineGrid gap="300" columns={2}>
-              <ByobProduct
-                isBannerDismissed={isBannerDismissed}
-                onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
-                onEditAction={onEdit}
-                onDeleteAction={onDelete}
-                productId={product.id}
-                isEditLoading={isEditing}
-                isDeleteLoading={isDeleting}
-              />
-              <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
-              <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
-            </InlineGrid>
-          </Layout.Section>
-        </Layout>
-      </Page>
+      {isEditing && <SettingsFormSkeleton />}
+      {!isEditing &&
+        (
+          <>
+            <div
+              className="square-color2"
+              style={{ backgroundColor: "#F05F40", padding: "1rem" }}
+            >
+              <Text variant="heading2xl" as="h2" alignment="center" tone="text-inverse">
+                Foxtail Designs
+              </Text>
+            </div>
+            <Page>
+              <Layout>
+                <Layout.Section>
+                  {showBanner && (
+                    <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={product.onlineStorePreviewUrl!} />
+                  )}
+                </Layout.Section>
+                <Layout.Section>
+                  <InlineGrid gap="300" columns={2}>
+                    <ByobProduct
+                      isBannerDismissed={isBannerDismissed}
+                      onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+                      onEditAction={onEdit}
+                      onDeleteAction={onDelete}
+                      productId={product.id}
+                      isEditLoading={isEditing}
+                      isDeleteLoading={isDeleting}
+                    />
+                    <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
+                    <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
+                  </InlineGrid>
+                </Layout.Section>
+              </Layout>
+            </Page>
+          </>)
+      }
     </>
   );
 }

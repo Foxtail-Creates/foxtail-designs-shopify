@@ -29,7 +29,7 @@ export async function createProductMedia(
   const hasErrors: boolean = createProductMediaBody.data?.productCreateMedia?.mediaUserErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error setting product images.\n User errors: { "
-      + createProductMediaBody.data?.productCreateMedia?.mediaUserErrors
+      + JSON.stringify(createProductMediaBody.data?.productCreateMedia?.mediaUserErrors)
       + " }");
   }
 };

@@ -32,7 +32,7 @@ export async function updateProductOptionsAndVariants(
   const hasErrors: boolean = updateProductOptionNameBody.data?.productOptionUpdate?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error updating variants.\n User errors: { "
-      + updateProductOptionNameBody.data?.productOptionUpdate?.userErrors
+      + JSON.stringify(updateProductOptionNameBody.data?.productOptionUpdate?.userErrors)
       + "}");
   }
   return updateProductOptionNameBody.data?.productOptionUpdate?.product;

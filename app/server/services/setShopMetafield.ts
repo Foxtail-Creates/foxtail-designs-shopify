@@ -26,7 +26,7 @@ export async function setShopMetafield(
   const hasErrors: boolean = storeMetafieldBody.data?.metafieldsSet?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error setting shop metafield.\n User errors: { "
-      + storeMetafieldBody.data?.metafieldsSet?.userErrors
+      + JSON.stringify(storeMetafieldBody.data?.metafieldsSet?.userErrors)
       + "}");
   }
 }

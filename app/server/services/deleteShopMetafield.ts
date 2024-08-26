@@ -17,7 +17,7 @@ export async function deleteShopMetafield(admin: AdminApiContext, metafieldId: s
   const hasErrors: boolean = deleteStoreMetafieldBody.data?.metafieldDelete?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error deleting shop metafield.\n User errors: { "
-      + deleteStoreMetafieldBody.data?.metafieldDelete?.userErrors
+      + JSON.stringify(deleteStoreMetafieldBody.data?.metafieldDelete?.userErrors)
       + "}");
   }
 }

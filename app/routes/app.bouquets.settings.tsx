@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { json, redirect } from "@remix-run/node";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { defer, json, redirect } from "@remix-run/node";
 import {
+  Await,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -45,12 +46,15 @@ import { deleteProductMedia } from "~/server/services/deleteProductMedia";
 import { UserErrorBanner } from "~/components/errors/UserErrorBanner";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { captureException } from "@sentry/remix";
+import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
+import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 
 export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
-  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
+  const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
-  return json(byobOptions);
+  return defer({
+    byobOptions,
+  });
 }
 
 export async function action({ request }) {
@@ -96,7 +100,7 @@ export async function action({ request }) {
       await createProductMedia(admin, createMediaInput, data.product.id);
     }
     return redirect(`/app/bouquets/customize`);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     captureException(err);
     return json({ backendError: true });
@@ -104,9 +108,17 @@ export async function action({ request }) {
 
 }
 
-export default function ByobCustomizationForm() {
-  const byobCustomizer: ByobCustomizerOptions = useLoaderData();
-  const backendError: boolean = useActionData()?.backendError || false;
+type ByobSettingsFormProps = {
+  byobCustomizer: ByobCustomizerOptions
+  hasBackendError: boolean
+  isSaving: boolean
+}
+
+const ByobSettingsForm = ({
+  byobCustomizer,
+  hasBackendError,
+  isSaving
+}: ByobSettingsFormProps) => {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
@@ -135,17 +147,13 @@ export default function ByobCustomizationForm() {
   const [userErrors, setUserErrors] = useState<FormErrors>({});
   const [formState, setFormState] = useState(byobCustomizerForm);
 
-  const nav = useNavigation();
-  const isSaving =
-    nav.state === "submitting" || nav.state === "loading";
-
   const submit = useSubmit();
 
   const userErrorBanner = useRef<BannerHandles>(null);
   useEffect(() => userErrorBanner.current?.focus(), [userErrors]);
 
   const backendErrorBanner = useRef<BannerHandles>(null);
-  useEffect(() => backendErrorBanner.current?.focus(), [backendError]);
+  useEffect(() => backendErrorBanner.current?.focus(), [hasBackendError]);
 
   function submitFormData(setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
@@ -188,7 +196,7 @@ export default function ByobCustomizationForm() {
 
     setUserErrors(userErrors);
 
-    if (backendError || Object.keys(userErrors).length > 0) {
+    if (hasBackendError || Object.keys(userErrors).length > 0) {
       return;
     }
     const serializedData = JSON.stringify(data);
@@ -207,11 +215,11 @@ export default function ByobCustomizationForm() {
       }}
     >
       <Layout>
-        {(backendError) && <Layout.Section>
+        {(hasBackendError) && <Layout.Section>
           <ServerErrorBanner banner={backendErrorBanner} />
         </Layout.Section>
         }
-        {(!backendError && Object.keys(userErrors).length > 0) && <Layout.Section>
+        {(!hasBackendError && Object.keys(userErrors).length > 0) && <Layout.Section>
           <UserErrorBanner errors={userErrors} banner={userErrorBanner} setUserErrors={setUserErrors} />
         </Layout.Section>
         }
@@ -283,4 +291,31 @@ export default function ByobCustomizationForm() {
       </Layout>
     </Page>
   );
+}
+
+export default function LoadingSettingsForm() {
+  const { byobOptions } = useLoaderData<typeof loader>();
+  const backendError: boolean = useActionData()?.backendError || false;
+  const nav = useNavigation();
+  const isSaving =
+    nav.state === "submitting" || nav.state === "loading";
+  return (
+    <>
+      {isSaving && <CustomizationsFormSkeleton />}
+      {!isSaving && (
+        <Suspense fallback={<SettingsFormSkeleton />}>
+          <Await resolve={byobOptions} >
+            {
+              (byobOptions) =>
+                <ByobSettingsForm
+                  byobCustomizer={byobOptions}
+                  backendError={backendError}
+                  isSaving={isSaving}
+                />
+            }
+          </Await>
+        </Suspense>
+      )}
+    </>
+  )
 }

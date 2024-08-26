@@ -17,7 +17,7 @@ export async function deleteProduct(admin: AdminApiContext, productId: string) {
   const hasErrors: boolean = deleteProductBody.data?.productDelete?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error updating variants.\n User errors: { "
-      + deleteProductBody.data?.productDelete?.userErrors
+      + JSON.stringify(deleteProductBody.data?.productDelete?.userErrors)
       + " }");
   }
 }

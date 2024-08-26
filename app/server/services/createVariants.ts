@@ -25,7 +25,7 @@ export async function createVariants(
   const hasErrors: boolean = createVariantsBody.data?.productVariantsBulkCreate?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error creating new variant.\n User errors: { "
-      + createVariantsBody.data?.productVariantsBulkCreate?.userErrors
+      + JSON.stringify(createVariantsBody.data?.productVariantsBulkCreate?.userErrors)
       + " }");
   }
 
