@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { json, redirect } from "@remix-run/node";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { defer, json, redirect } from "@remix-run/node";
 import {
+  Await,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -16,6 +17,9 @@ import {
   BlockStack,
   PageActions,
   BannerHandles,
+  SkeletonBodyText,
+  SkeletonDisplayText,
+  SkeletonPage,
 } from "@shopify/polaris";
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
@@ -47,10 +51,11 @@ import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { captureException } from "@sentry/remix";
 
 export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
-  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
+  const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
-  return json(byobOptions);
+  return defer({
+    byobOptions,
+  });
 }
 
 export async function action({ request }) {
@@ -96,7 +101,7 @@ export async function action({ request }) {
       await createProductMedia(admin, createMediaInput, data.product.id);
     }
     return redirect(`/app/bouquets/customize`);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     captureException(err);
     return json({ backendError: true });
@@ -104,9 +109,15 @@ export async function action({ request }) {
 
 }
 
-export default function ByobCustomizationForm() {
-  const byobCustomizer: ByobCustomizerOptions = useLoaderData();
-  const backendError: boolean = useActionData()?.backendError || false;
+type ByobSettingsFormProps = {
+  byobCustomizer: ByobCustomizerOptions
+  backendError: boolean
+}
+
+const ByobSettingsForm = ({
+  byobCustomizer,
+  backendError
+}: ByobSettingsFormProps) => {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
@@ -283,4 +294,69 @@ export default function ByobCustomizationForm() {
       </Layout>
     </Page>
   );
+}
+
+const Skeleton = () => {
+  return (
+    <SkeletonPage title="Edit" primaryAction backAction>
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="500">
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Product Name
+                </Text>
+                <SkeletonDisplayText size="small" />
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Customizations
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Size options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Palette Color Options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Main flower options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+              </BlockStack>
+            </Card>
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+    </SkeletonPage>
+  );
+}
+
+export default function LoadingSettingsForm() {
+  const { byobOptions } = useLoaderData<typeof loader>();
+  const backendError: boolean = useActionData()?.backendError || false;
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <Await resolve={byobOptions} >
+        {
+          (byobOptions) =>
+            <ByobSettingsForm
+              byobCustomizer={byobOptions}
+              backendError={backendError}
+            />
+        }
+      </Await>
+    </Suspense>
+  )
 }

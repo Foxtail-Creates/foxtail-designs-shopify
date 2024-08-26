@@ -4,6 +4,7 @@ import {
   useSubmit,
   useNavigate,
   useActionData,
+  Await,
 } from "@remix-run/react";
 import {
   Card,
@@ -16,9 +17,12 @@ import {
   PageActions,
   Thumbnail,
   BannerHandles,
+  SkeletonBodyText,
+  SkeletonDisplayText,
+  SkeletonPage,
 } from "@shopify/polaris";
-import { useEffect, useRef, useState } from "react";
-import { json, redirect } from "@remix-run/node";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { defer, json, redirect } from "@remix-run/node";
 import type {
   BouquetCustomizationForm,
   ByobCustomizerOptions,
@@ -40,10 +44,11 @@ import { captureException } from "@sentry/remix";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 
 export async function loader({ request }) {
-  const { admin } = await authenticate.admin(request);
-  const byobOptions: ByobCustomizerOptions = await getBYOBOptions(admin);
+  const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
-  return json(byobOptions);
+  return defer({
+    byobOptions,
+  });
 }
 
 export async function action({ request }) {
@@ -59,7 +64,7 @@ export async function action({ request }) {
     await activateProductInOnlineStore(admin, data.product);
 
     return redirect(`/app`);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     captureException(err);
     return json({ backendError: true });
@@ -126,10 +131,15 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
   }, {});
 };
 
-export default function ByobCustomizationForm() {
-  const formOptions: ByobCustomizerOptions = useLoaderData<typeof loader>();
-  const backendError: boolean = useActionData()?.backendError || false;
+type ByobCustomizationFormProps = {
+  formOptions: ByobCustomizerOptions
+  backendError: boolean
+}
 
+const ByobCustomizationForm = ({
+  formOptions,
+  backendError
+}: ByobCustomizationFormProps) => {
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
       [SIZE_OPTION_NAME]: {
@@ -284,13 +294,13 @@ export default function ByobCustomizationForm() {
                       </Text>
                       <List type="bullet">
                         <List.Item>
-                          Edit the add-on price for each main flower. 
+                          Edit the add-on price for each main flower.
                         </List.Item>
                       </List>
                       <Text as="h2" variant="bodyMd">
                         If the customer chooses a main flower with an add-on price, this will be in addition to the base price for the product.
                         For example, if the base price for a "Small" bouquet is $40 and the customer chooses a main flower with an add-on price of $5, the total price will be $45.
-                        </ Text>
+                      </ Text>
                     </>
                   }
                   optionCustomizations={form.optionCustomizations[FLOWER_OPTION_NAME]}
@@ -316,4 +326,69 @@ export default function ByobCustomizationForm() {
       </Layout>
     </Page>
   );
+}
+
+const Skeleton = () => {
+  return (
+    <SkeletonPage title="Edit" primaryAction backAction>
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="500">
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Product Name
+                </Text>
+                <SkeletonDisplayText size="small" />
+              </BlockStack>
+            </Card>
+            <Card>
+              <BlockStack gap="500">
+                <Text as={"h2"} variant="headingLg">
+                  Customizations
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Size options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Palette Color Options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+                <Divider />
+                <Text as={"h3"} variant="headingMd">
+                  Main flower options
+                </Text>
+                <SkeletonBodyText lines={1} />
+                <SkeletonDisplayText size="small" />
+              </BlockStack>
+            </Card>
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+    </SkeletonPage>
+  );
+}
+
+export default function LoadingCustomizationForm() {
+  const { byobOptions } = useLoaderData<typeof loader>();
+  const backendError: boolean = useActionData()?.backendError || false;
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <Await resolve={byobOptions} >
+        {
+          (byobOptions) =>
+            <ByobCustomizationForm
+              formOptions={byobOptions}
+              backendError={backendError}
+            />
+        }
+      </Await>
+    </Suspense>
+  )
 }

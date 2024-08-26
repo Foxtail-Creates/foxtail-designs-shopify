@@ -29,6 +29,7 @@ export default async function handleRequest(
     : "onShellReady";
 
   return new Promise((resolve, reject) => {
+    let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
       <RemixServer
         context={remixContext}
@@ -37,6 +38,7 @@ export default async function handleRequest(
       />,
       {
         [callbackName]: () => {
+          shellRendered = true;
           const body = new PassThrough();
           const stream = createReadableStreamFromReadable(body);
 
@@ -54,7 +56,12 @@ export default async function handleRequest(
         },
         onError(error) {
           responseStatusCode = 500;
-          console.error(error);
+          // Log streaming rendering errors from inside the shell.  Don't log
+          // errors encountered during initial shell rendering since they'll
+          // reject and get logged in handleDocumentRequest.
+          if (shellRendered) {
+            console.error(error);
+          }
         },
       }
     );
