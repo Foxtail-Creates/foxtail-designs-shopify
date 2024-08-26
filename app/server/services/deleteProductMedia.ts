@@ -22,7 +22,7 @@ export async function deleteProductMedia(
   const hasErrors: boolean = deleteProductMediaBody.data?.productDeleteMedia?.mediaUserErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error deleting product images.\n User errors: { "
-      + deleteProductMediaBody.data?.productDeleteMedia?.mediaUserErrors
+      + JSON.stringify(deleteProductMediaBody.data?.productDeleteMedia?.mediaUserErrors)
       + " }");
   }
 };

@@ -17,9 +17,6 @@ import {
   BlockStack,
   PageActions,
   BannerHandles,
-  SkeletonBodyText,
-  SkeletonDisplayText,
-  SkeletonPage,
 } from "@shopify/polaris";
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
@@ -49,6 +46,8 @@ import { deleteProductMedia } from "~/server/services/deleteProductMedia";
 import { UserErrorBanner } from "~/components/errors/UserErrorBanner";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { captureException } from "@sentry/remix";
+import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
+import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
@@ -111,12 +110,14 @@ export async function action({ request }) {
 
 type ByobSettingsFormProps = {
   byobCustomizer: ByobCustomizerOptions
-  backendError: boolean
+  hasBackendError: boolean
+  isSaving: boolean
 }
 
 const ByobSettingsForm = ({
   byobCustomizer,
-  backendError
+  hasBackendError,
+  isSaving
 }: ByobSettingsFormProps) => {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
@@ -146,17 +147,13 @@ const ByobSettingsForm = ({
   const [userErrors, setUserErrors] = useState<FormErrors>({});
   const [formState, setFormState] = useState(byobCustomizerForm);
 
-  const nav = useNavigation();
-  const isSaving =
-    nav.state === "submitting" || nav.state === "loading";
-
   const submit = useSubmit();
 
   const userErrorBanner = useRef<BannerHandles>(null);
   useEffect(() => userErrorBanner.current?.focus(), [userErrors]);
 
   const backendErrorBanner = useRef<BannerHandles>(null);
-  useEffect(() => backendErrorBanner.current?.focus(), [backendError]);
+  useEffect(() => backendErrorBanner.current?.focus(), [hasBackendError]);
 
   function submitFormData(setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
@@ -199,7 +196,7 @@ const ByobSettingsForm = ({
 
     setUserErrors(userErrors);
 
-    if (backendError || Object.keys(userErrors).length > 0) {
+    if (hasBackendError || Object.keys(userErrors).length > 0) {
       return;
     }
     const serializedData = JSON.stringify(data);
@@ -218,11 +215,11 @@ const ByobSettingsForm = ({
       }}
     >
       <Layout>
-        {(backendError) && <Layout.Section>
+        {(hasBackendError) && <Layout.Section>
           <ServerErrorBanner banner={backendErrorBanner} />
         </Layout.Section>
         }
-        {(!backendError && Object.keys(userErrors).length > 0) && <Layout.Section>
+        {(!hasBackendError && Object.keys(userErrors).length > 0) && <Layout.Section>
           <UserErrorBanner errors={userErrors} banner={userErrorBanner} setUserErrors={setUserErrors} />
         </Layout.Section>
         }
@@ -296,67 +293,29 @@ const ByobSettingsForm = ({
   );
 }
 
-const Skeleton = () => {
-  return (
-    <SkeletonPage title="Edit" primaryAction backAction>
-      <Layout>
-        <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Product Name
-                </Text>
-                <SkeletonDisplayText size="small" />
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Customizations
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <Divider />
-                <Text as={"h3"} variant="headingMd">
-                  Size options
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <SkeletonDisplayText size="small" />
-                <Divider />
-                <Text as={"h3"} variant="headingMd">
-                  Palette Color Options
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <SkeletonDisplayText size="small" />
-                <Divider />
-                <Text as={"h3"} variant="headingMd">
-                  Main flower options
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <SkeletonDisplayText size="small" />
-              </BlockStack>
-            </Card>
-          </BlockStack>
-        </Layout.Section>
-      </Layout>
-    </SkeletonPage>
-  );
-}
-
 export default function LoadingSettingsForm() {
   const { byobOptions } = useLoaderData<typeof loader>();
   const backendError: boolean = useActionData()?.backendError || false;
+  const nav = useNavigation();
+  const isSaving =
+    nav.state === "submitting" || nav.state === "loading";
   return (
-    <Suspense fallback={<Skeleton />}>
-      <Await resolve={byobOptions} >
-        {
-          (byobOptions) =>
-            <ByobSettingsForm
-              byobCustomizer={byobOptions}
-              backendError={backendError}
-            />
-        }
-      </Await>
-    </Suspense>
+    <>
+      {isSaving && <CustomizationsFormSkeleton />}
+      {!isSaving && (
+        <Suspense fallback={<SettingsFormSkeleton />}>
+          <Await resolve={byobOptions} >
+            {
+              (byobOptions) =>
+                <ByobSettingsForm
+                  byobCustomizer={byobOptions}
+                  backendError={backendError}
+                  isSaving={isSaving}
+                />
+            }
+          </Await>
+        </Suspense>
+      )}
+    </>
   )
 }

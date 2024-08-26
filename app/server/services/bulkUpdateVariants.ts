@@ -23,7 +23,7 @@ export async function bulkUpdateVariants(
   const hasErrors: boolean = updateVariantsBody.data?.productVariantsBulkUpdate?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error ("Error updating variants.\n User errors: {"
-      + updateVariantsBody.data?.productVariantsBulkUpdate?.userErrors
+      + JSON.stringify(updateVariantsBody.data?.productVariantsBulkUpdate?.userErrors)
       + "}");
   }
 };

@@ -17,9 +17,6 @@ import {
   PageActions,
   Thumbnail,
   BannerHandles,
-  SkeletonBodyText,
-  SkeletonDisplayText,
-  SkeletonPage,
 } from "@shopify/polaris";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { defer, json, redirect } from "@remix-run/node";
@@ -42,6 +39,7 @@ import { sanitizeData } from "~/server/utils/sanitizeData";
 import { activateProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
 import { captureException } from "@sentry/remix";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
+import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
@@ -328,58 +326,11 @@ const ByobCustomizationForm = ({
   );
 }
 
-const Skeleton = () => {
-  return (
-    <SkeletonPage title="Edit" primaryAction backAction>
-      <Layout>
-        <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Product Name
-                </Text>
-                <SkeletonDisplayText size="small" />
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Customizations
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <Divider />
-                <Text as={"h3"} variant="headingMd">
-                  Size options
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <SkeletonDisplayText size="small" />
-                <Divider />
-                <Text as={"h3"} variant="headingMd">
-                  Palette Color Options
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <SkeletonDisplayText size="small" />
-                <Divider />
-                <Text as={"h3"} variant="headingMd">
-                  Main flower options
-                </Text>
-                <SkeletonBodyText lines={1} />
-                <SkeletonDisplayText size="small" />
-              </BlockStack>
-            </Card>
-          </BlockStack>
-        </Layout.Section>
-      </Layout>
-    </SkeletonPage>
-  );
-}
-
 export default function LoadingCustomizationForm() {
   const { byobOptions } = useLoaderData<typeof loader>();
   const backendError: boolean = useActionData()?.backendError || false;
   return (
-    <Suspense fallback={<Skeleton />}>
+    <Suspense fallback={<CustomizationsFormSkeleton />}>
       <Await resolve={byobOptions} >
         {
           (byobOptions) =>

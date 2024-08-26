@@ -17,7 +17,7 @@ export async function activateProduct(admin: AdminApiContext, productId: string)
   const hasErrors: boolean = activateProductBody.data?.productChangeStatus?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error activating product.\n User errors: { "
-      + activateProductBody.data?.productChangeStatus?.userErrors
+      + JSON.stringify(activateProductBody.data?.productChangeStatus?.userErrors)
       + " }");
   }
 }

@@ -22,7 +22,7 @@ export async function publishProduct(
   const hasErrors: boolean = publishProductResponseBody.data?.publishablePublish?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error publishing product.\n User errors: { "
-      + publishProductResponseBody.data?.publishablePublish?.userErrors
+      + JSON.stringify(publishProductResponseBody.data?.publishablePublish?.userErrors)
       + "}");
   }
 }

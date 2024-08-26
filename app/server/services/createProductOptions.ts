@@ -24,7 +24,7 @@ export async function createProductOptions(
   const hasErrors: boolean = createProductOptionsBody.data?.productOptionsCreate.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error creating new product options. \n User errors: { "
-      + createProductOptionsBody.data?.productOptionsCreate.userErrors
+      + JSON.stringify(createProductOptionsBody.data?.productOptionsCreate.userErrors)
       + "}"
     );
   }

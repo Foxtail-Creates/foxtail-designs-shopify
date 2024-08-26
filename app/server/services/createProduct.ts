@@ -43,7 +43,7 @@ export async function createProduct(
   const hasErrors: boolean = customProductWithOptionsBody.data?.productCreate?.userErrors.length != 0;
   if (hasErrors) {
     throw new Error("Error activating product.\n User errors: { "
-      + customProductWithOptionsBody.data?.productCreate?.userErrors
+      + JSON.stringify(customProductWithOptionsBody.data?.productCreate?.userErrors)
       + "}");
   }
 
