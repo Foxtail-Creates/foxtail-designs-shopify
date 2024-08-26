@@ -1,3 +1,4 @@
+# Config file for dev2 testing environment
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ff76bcd4fb1407f5be050deaaaf74190"

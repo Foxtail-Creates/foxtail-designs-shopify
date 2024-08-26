@@ -1,3 +1,4 @@
+# Config file for custom production app
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "276741cc496195767e491f77bc719d46"
