@@ -32,6 +32,7 @@ import {
   FLOWER_POSITION,
   PALETTE_OPTION_NAME,
   PALETTE_POSITION,
+  PRODUCT_DESCRIPTION,
   PRODUCT_MAIN_IMAGE_SOURCE,
   SIZE_OPTION_NAME,
   SIZE_POSITION
@@ -228,19 +229,28 @@ const ByobSettingsForm = ({
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
-                  Product Name
+                  Product
                 </Text>
                 <TextField
                   id="title"
-                  label="title"
-                  labelHidden
+                  label="Product Name"
                   autoComplete="off"
                   placeholder="Build Your Own Bouquet"
                   value={formState.productName}
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
                   }
-                // error={errors.productName}
+                />
+                <TextField
+                  id="description"
+                  label="Product Description"
+                  autoComplete="off"
+                  placeholder={PRODUCT_DESCRIPTION}
+                  multiline={4}
+                  value={formState.productDescription}
+                  onChange={(productDescription) =>
+                    setFormState({ ...formState, productDescription })
+                  }
                 />
               </BlockStack>
             </Card>

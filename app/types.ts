@@ -28,6 +28,7 @@ export type ByobCustomizerOptions = {
 export type BouquetSettingsForm = {
   destination: string;
   productName: string;
+  productDescription: string;
   allSizeOptions: string[];
   prevSizesSelected: string[];
   sizesSelected: string[];
