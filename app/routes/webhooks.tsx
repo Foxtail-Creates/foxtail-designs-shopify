@@ -7,7 +7,7 @@ import db from "../db.server";
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // clone request because authenticate.webhook(request) consumers the raw payload
+  // clone request because authenticate.webhook(request) consumes the raw payload
   const reqClone = request.clone()
   const rawPayload = await reqClone.text();
 
