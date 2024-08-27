@@ -52,6 +52,8 @@ import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleto
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 import { updateProduct } from "~/server/services/updateProduct";
 
+const MAIN_PAGE_PATH = "/app"
+
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
@@ -211,7 +213,7 @@ const ByobSettingsForm = ({
 
   return (
     <Page
-      backAction={{ content: 'Home', url: '/app' }}
+      backAction={{ content: 'Home', url: MAIN_PAGE_PATH }}
       title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
       subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
       compactTitle
@@ -313,8 +315,9 @@ export default function LoadingSettingsForm() {
   const { byobOptions } = useLoaderData<typeof loader>();
   const backendError: boolean = useActionData()?.backendError || false;
   const nav = useNavigation();
+
   const isSaving =
-    nav.state === "submitting" || nav.state === "loading";
+    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname != MAIN_PAGE_PATH;
   return (
     <>
       {isSaving && <CustomizationsFormSkeleton />}

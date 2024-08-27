@@ -15,8 +15,6 @@ import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";
 import { getProduct } from "../services/getProduct";
 import { ProductFieldsFragment } from "~/types/admin.generated";
-import { AdminApiContext } from "@shopify/shopify-app-remix/server";
-import { Any } from "json2typescript";
 import { authenticate } from "~/shopify.server";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
