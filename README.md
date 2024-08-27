@@ -103,6 +103,12 @@ Press P to open the URL to your app. Once you click install, you can start devel
 
 Local development is powered by [the Shopify CLI](https://shopify.dev/docs/apps/tools/cli). It logs into your partners account, connects to an app, provides environment variables, updates remote config, creates a tunnel and provides commands to generate extensions.
 
+#### Local configuration
+Environment variables are set in the `.env.*` files for the apps. For HMAC webhook verification, the environment variable `SHOPIFY_API_SECRET` is used.
+This secret is unique per app and will be different depending on the dev environment you use.
+If you do not have this value in your `.env.*` file, you can find the value in Partners Dashboard.
+It is labeled `Client secret` in the app's `Overview`.
+
 ### Authenticating and querying data
 
 To authenticate and query data you can use the `shopify` const that is exported from `/app/shopify.server.js`:

@@ -4,7 +4,7 @@
 client_id = "ff76bcd4fb1407f5be050deaaaf74190"
 name = "foxtail-designs dev 2"
 handle = "foxtail-designs-dev-2"
-application_url = "https://bookstore-pct-arrested-severe.trycloudflare.com"
+application_url = "https://pf-freelance-northeast-beverly.trycloudflare.com"
 embedded = true
 
 [build]
@@ -18,13 +18,18 @@ scopes = "write_inventory,write_products,write_publications"
 
 [auth]
 redirect_urls = [
-  "https://bookstore-pct-arrested-severe.trycloudflare.com/auth/callback",
-  "https://bookstore-pct-arrested-severe.trycloudflare.com/auth/shopify/callback",
-  "https://bookstore-pct-arrested-severe.trycloudflare.com/api/auth/callback"
+  "https://pf-freelance-northeast-beverly.trycloudflare.com/auth/callback",
+  "https://pf-freelance-northeast-beverly.trycloudflare.com/auth/shopify/callback",
+  "https://pf-freelance-northeast-beverly.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
 [pos]
 embedded = false
