@@ -69,7 +69,9 @@ export async function action({ request }) {
 
     const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
-    await updateProduct(admin, data.product.id, data.productName, data.productDescription);
+    if (data.productName != data.prevProductName || data.productDescription != data.prevProductDescription) {
+      await updateProduct(admin, data.product.id, data.productName, data.productDescription);
+    }
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
       data.flowersSelected, (x) => x);
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
@@ -127,7 +129,9 @@ const ByobSettingsForm = ({
 }: ByobSettingsFormProps) => {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
+    prevProductName: byobCustomizer.productName,
     productName: byobCustomizer.productName,
+    prevProductDescription: byobCustomizer.productDescription,
     productDescription: byobCustomizer.productDescription,
     prevSizesSelected: byobCustomizer.sizesSelected,
     sizesSelected: byobCustomizer.sizesSelected,
@@ -164,7 +168,9 @@ const ByobSettingsForm = ({
 
   function submitFormData(setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
+      prevProductName: formState.prevProductName,
       productName: formState.productName,
+      prevProductDescription: formState.prevProductDescription,
       productDescription: formState.productDescription,
       product: byobCustomizer.customProduct,
       sizesSelected: formState.sizesSelected,

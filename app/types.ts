@@ -28,7 +28,9 @@ export type ByobCustomizerOptions = {
 
 export type BouquetSettingsForm = {
   destination: string;
+  prevProductName: string;
   productName: string;
+  prevProductDescription: string;
   productDescription: string;
   allSizeOptions: string[];
   prevSizesSelected: string[];
@@ -49,7 +51,9 @@ export type BouquetSettingsForm = {
 };
 
 export type SerializedSettingForm = {
+  prevProductName: string;
   productName: string;
+  prevProductDescription: string;
   productDescription: string;
   product: Product;
   sizesSelected: string[];

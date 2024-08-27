@@ -88,7 +88,6 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
         FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED);
     }
 
-
     // retrieve selected options
     const flowerDisplayName = productMetadata.optionToName[FLOWER_OPTION_NAME];
     const flowerOption = customProduct.options.find(
