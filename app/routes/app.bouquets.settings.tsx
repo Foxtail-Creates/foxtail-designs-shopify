@@ -34,6 +34,7 @@ import {
   PALETTE_POSITION,
   PRODUCT_DESCRIPTION,
   PRODUCT_MAIN_IMAGE_SOURCE,
+  PRODUCT_NAME,
   SIZE_OPTION_NAME,
   SIZE_POSITION
 } from "../constants";
@@ -49,6 +50,7 @@ import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { captureException } from "@sentry/remix";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
+import { updateProduct } from "~/server/services/updateProduct";
 
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
@@ -65,6 +67,7 @@ export async function action({ request }) {
 
     const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
+    await updateProduct(admin, data.product.id, data.productName, data.productDescription);
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
       data.flowersSelected, (x) => x);
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
@@ -72,7 +75,7 @@ export async function action({ request }) {
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
       data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
-    const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
+    const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0 || data.productImages?.length == 0;
     // delete all existing images
     if (data.productImages?.length && shouldUpdatePaletteImages) {
       const mediaIds = data.productImages.map((media) => media.id);
@@ -123,6 +126,7 @@ const ByobSettingsForm = ({
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
     productName: byobCustomizer.productName,
+    productDescription: byobCustomizer.productDescription,
     prevSizesSelected: byobCustomizer.sizesSelected,
     sizesSelected: byobCustomizer.sizesSelected,
     allSizeOptions: byobCustomizer.sizesAvailable,
@@ -159,6 +163,7 @@ const ByobSettingsForm = ({
   function submitFormData(setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
       productName: formState.productName,
+      productDescription: formState.productDescription,
       product: byobCustomizer.customProduct,
       sizesSelected: formState.sizesSelected,
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
@@ -235,7 +240,7 @@ const ByobSettingsForm = ({
                   id="title"
                   label="Product Name"
                   autoComplete="off"
-                  placeholder="Build Your Own Bouquet"
+                  placeholder={PRODUCT_NAME}
                   value={formState.productName}
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
@@ -244,6 +249,7 @@ const ByobSettingsForm = ({
                 <TextField
                   id="description"
                   label="Product Description"
+                  helpText="Supports HTML formatting"
                   autoComplete="off"
                   placeholder={PRODUCT_DESCRIPTION}
                   multiline={4}

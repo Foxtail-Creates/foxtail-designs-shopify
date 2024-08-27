@@ -1,4 +1,4 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, SIZE_OPTION_NAME, SIZE_POSITION, PALETTE_OPTION_NAME, PALETTE_POSITION, FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED, PRODUCT_NAME, PRODUCT_DESCRIPTION } from "~/constants";
 import { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "../graphql";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { sendQuery } from "../graphql/client/sendQuery";
@@ -22,7 +22,8 @@ export async function createProduct(
     CREATE_PRODUCT_WITH_OPTIONS_QUERY,
     {
       variables: {
-        productName: "Custom Bouquet",
+        productName: PRODUCT_NAME,
+        productDescription: PRODUCT_DESCRIPTION,
         productType: "Custom Flowers",
         flowerOptionName: optionToName[FLOWER_OPTION_NAME],
         flowerPosition: FLOWER_POSITION,
