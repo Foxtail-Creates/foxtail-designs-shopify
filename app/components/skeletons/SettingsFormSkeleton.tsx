@@ -19,9 +19,12 @@ export const SettingsFormSkeleton = () => {
                         <Card>
                             <BlockStack gap="500">
                                 <Text as={"h2"} variant="headingLg">
-                                    Product Name
+                                    Product
                                 </Text>
+                                <SkeletonBodyText lines={1} />
                                 <SkeletonDisplayText size="small" />
+                                <SkeletonBodyText lines={1} />
+                                <SkeletonDisplayText size="extraLarge" />
                             </BlockStack>
                         </Card>
                         <Card>

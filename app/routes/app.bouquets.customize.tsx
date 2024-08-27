@@ -41,6 +41,8 @@ import { captureException } from "@sentry/remix";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 
+const SETTINGS_PATH = "/app/bouquets/settings";
+
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
@@ -132,11 +134,13 @@ const createFlowerValueCustomizationsObject = (availableFocalFlowers: Flower[], 
 type ByobCustomizationFormProps = {
   formOptions: ByobCustomizerOptions
   backendError: boolean
+  isSaving: boolean
 }
 
 const ByobCustomizationForm = ({
   formOptions,
-  backendError
+  backendError,
+  isSaving
 }: ByobCustomizationFormProps) => {
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
@@ -176,10 +180,6 @@ const ByobCustomizationForm = ({
 
   const [formState, setFormState] = useState(form);
 
-  const nav = useNavigation();
-  const isSaving =
-    nav.state === "submitting" || nav.state === "loading";
-
   const navigate = useNavigate();
 
   const submit = useSubmit();
@@ -210,13 +210,13 @@ const ByobCustomizationForm = ({
 
   return (
     <Page
-      backAction={{ content: 'Settings', url: '/app/bouquets/settings' }}
+      backAction={{ content: 'Settings', url: SETTINGS_PATH }}
       title="Customize"
       subtitle="Customize your Build-Your-Own-Bouquet Product"
       compactTitle
       pagination={{
         hasPrevious: true,
-        onPrevious: () => navigate('/app/bouquets/settings'),
+        onPrevious: () => navigate(SETTINGS_PATH),
       }}
     >
       <Layout>
@@ -329,6 +329,10 @@ const ByobCustomizationForm = ({
 export default function LoadingCustomizationForm() {
   const { byobOptions } = useLoaderData<typeof loader>();
   const backendError: boolean = useActionData()?.backendError || false;
+  const nav = useNavigation();
+  const isSaving =
+    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname !== SETTINGS_PATH;
+    
   return (
     <Suspense fallback={<CustomizationsFormSkeleton />}>
       <Await resolve={byobOptions} >
@@ -337,6 +341,7 @@ export default function LoadingCustomizationForm() {
             <ByobCustomizationForm
               formOptions={byobOptions}
               backendError={backendError}
+              isSaving={isSaving}
             />
         }
       </Await>

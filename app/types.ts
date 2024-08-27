@@ -12,6 +12,7 @@ export type ProductImage = {
 export type ByobCustomizerOptions = {
   destination: string;
   productName: string;
+  productDescription: string;
   customProduct: Product;
   sizesAvailable: string[];
   sizesSelected: string[]; // enums of sizes selected
@@ -27,7 +28,10 @@ export type ByobCustomizerOptions = {
 
 export type BouquetSettingsForm = {
   destination: string;
+  prevProductName: string;
   productName: string;
+  prevProductDescription: string;
+  productDescription: string;
   allSizeOptions: string[];
   prevSizesSelected: string[];
   sizesSelected: string[];
@@ -47,7 +51,10 @@ export type BouquetSettingsForm = {
 };
 
 export type SerializedSettingForm = {
+  prevProductName: string;
   productName: string;
+  prevProductDescription: string;
+  productDescription: string;
   product: Product;
   sizesSelected: string[];
   sizeOptionValuesToRemove: string[];

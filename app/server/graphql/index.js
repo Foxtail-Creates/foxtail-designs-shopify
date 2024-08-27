@@ -6,6 +6,7 @@ export { BULK_CREATE_VARIANTS_QUERY } from "./queries/productVariant/bulkCreateV
 export { BULK_UPDATE_VARIANTS_QUERY } from "./queries/productVariant/bulkUpdateVariants";
 
 export { CREATE_PRODUCT_WITH_OPTIONS_QUERY } from "./queries/product/createProductWithOptions";
+export { UPDATE_PRODUCT_QUERY } from "./queries/product/updateProduct";
 export { SET_PRODUCT_METAFIELD_QUERY } from "./queries/product/setProductMetafield";
 export { ACTIVATE_PRODUCT_QUERY } from "./queries/product/activateProduct"
 export { GET_PRODUCT_BY_ID_QUERY } from "./queries/product/getProductById";

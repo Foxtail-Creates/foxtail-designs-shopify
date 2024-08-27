@@ -32,7 +32,9 @@ import {
   FLOWER_POSITION,
   PALETTE_OPTION_NAME,
   PALETTE_POSITION,
+  PRODUCT_DESCRIPTION,
   PRODUCT_MAIN_IMAGE_SOURCE,
+  PRODUCT_NAME,
   SIZE_OPTION_NAME,
   SIZE_POSITION
 } from "../constants";
@@ -48,6 +50,9 @@ import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { captureException } from "@sentry/remix";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
+import { updateProduct } from "~/server/services/updateProduct";
+
+const MAIN_PAGE_PATH = "/app"
 
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
@@ -64,6 +69,9 @@ export async function action({ request }) {
 
     const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
+    if (data.productName != data.prevProductName || data.productDescription != data.prevProductDescription) {
+      await updateProduct(admin, data.product.id, data.productName, data.productDescription);
+    }
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
       data.flowersSelected, (x) => x);
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
@@ -71,7 +79,7 @@ export async function action({ request }) {
     await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
       data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
 
-    const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0
+    const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0 || data.productImages?.length == 0;
     // delete all existing images
     if (data.productImages?.length && shouldUpdatePaletteImages) {
       const mediaIds = data.productImages.map((media) => media.id);
@@ -121,7 +129,10 @@ const ByobSettingsForm = ({
 }: ByobSettingsFormProps) => {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
+    prevProductName: byobCustomizer.productName,
     productName: byobCustomizer.productName,
+    prevProductDescription: byobCustomizer.productDescription,
+    productDescription: byobCustomizer.productDescription,
     prevSizesSelected: byobCustomizer.sizesSelected,
     sizesSelected: byobCustomizer.sizesSelected,
     allSizeOptions: byobCustomizer.sizesAvailable,
@@ -157,7 +168,10 @@ const ByobSettingsForm = ({
 
   function submitFormData(setUserErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
     const data: SerializedSettingForm = {
+      prevProductName: formState.prevProductName,
       productName: formState.productName,
+      prevProductDescription: formState.prevProductDescription,
+      productDescription: formState.productDescription,
       product: byobCustomizer.customProduct,
       sizesSelected: formState.sizesSelected,
       sizeOptionValuesToAdd: formState.sizeOptionValuesToAdd,
@@ -205,7 +219,7 @@ const ByobSettingsForm = ({
 
   return (
     <Page
-      backAction={{ content: 'Home', url: '/app' }}
+      backAction={{ content: 'Home', url: MAIN_PAGE_PATH }}
       title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
       subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
       compactTitle
@@ -228,19 +242,29 @@ const ByobSettingsForm = ({
             <Card>
               <BlockStack gap="500">
                 <Text as={"h2"} variant="headingLg">
-                  Product Name
+                  Product
                 </Text>
                 <TextField
                   id="title"
-                  label="title"
-                  labelHidden
+                  label="Product Name"
                   autoComplete="off"
-                  placeholder="Build Your Own Bouquet"
+                  placeholder={PRODUCT_NAME}
                   value={formState.productName}
                   onChange={(productName) =>
                     setFormState({ ...formState, productName })
                   }
-                // error={errors.productName}
+                />
+                <TextField
+                  id="description"
+                  label="Product Description"
+                  helpText="Supports HTML formatting"
+                  autoComplete="off"
+                  placeholder={PRODUCT_DESCRIPTION}
+                  multiline={4}
+                  value={formState.productDescription}
+                  onChange={(productDescription) =>
+                    setFormState({ ...formState, productDescription })
+                  }
                 />
               </BlockStack>
             </Card>
@@ -297,8 +321,9 @@ export default function LoadingSettingsForm() {
   const { byobOptions } = useLoaderData<typeof loader>();
   const backendError: boolean = useActionData()?.backendError || false;
   const nav = useNavigation();
+
   const isSaving =
-    nav.state === "submitting" || nav.state === "loading";
+    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname != MAIN_PAGE_PATH;
   return (
     <>
       {isSaving && <CustomizationsFormSkeleton />}

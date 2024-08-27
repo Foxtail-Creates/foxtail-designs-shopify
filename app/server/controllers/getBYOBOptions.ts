@@ -1,4 +1,4 @@
-import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FOXTAIL_NAMESPACE, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, PRODUCT_METADATA_DEFAULT_VALUES, SIZE_TO_NAME_DEFAULT_VALUES } from "~/constants";
+import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FOXTAIL_NAMESPACE, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, PRODUCT_METADATA_DEFAULT_VALUES, SIZE_TO_NAME_DEFAULT_VALUES, PRODUCT_DESCRIPTION, PRODUCT_NAME } from "~/constants";
 import type {
   ByobCustomizerOptions,
   ProductMetadata,
@@ -15,8 +15,6 @@ import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";
 import { getProduct } from "../services/getProduct";
 import { ProductFieldsFragment } from "~/types/admin.generated";
-import { AdminApiContext } from "@shopify/shopify-app-remix/server";
-import { Any } from "json2typescript";
 import { authenticate } from "~/shopify.server";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
@@ -90,7 +88,6 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
         FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED);
     }
 
-
     // retrieve selected options
     const flowerDisplayName = productMetadata.optionToName[FLOWER_OPTION_NAME];
     const flowerOption = customProduct.options.find(
@@ -134,7 +131,8 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
 
   const byobOptions: ByobCustomizerOptions = {
     destination: "product",
-    productName: "Build Your Own Bouquet",
+    productName: customProduct?.title ?? PRODUCT_NAME,
+    productDescription: customProduct?.descriptionHtml ?? PRODUCT_DESCRIPTION,
     customProduct: customProduct,
     sizesSelected: sizesSelected,
     sizesAvailable: SIZE_OPTION_VALUES,
