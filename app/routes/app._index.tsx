@@ -1,31 +1,86 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { useFetcher, useLoaderData, useNavigate, useNavigation } from "@remix-run/react";
+import { Badge, Link } from '@shopify/polaris';
 import { authenticate } from "../shopify.server";
-import { BlockStack, Button, ButtonGroup, Card, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
+import { BlockStack, Button, ButtonGroup, Card, Divider, FooterHelp, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/services/deleteProduct";
 import { deleteShopMetafield } from "~/server/services/deleteShopMetafield";
-import { DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, ViewIcon } from "@shopify/polaris-icons";
+import { CheckIcon, DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, OutboundIcon, ViewIcon, InboundIcon, ExitIcon } from "@shopify/polaris-icons";
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 import { useState } from "react";
 import { SuccessBanner } from "~/components/SuccessBanner";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
+import { Product } from "node_modules/@shopify/shopify-api/dist/ts/rest/admin/2024-04/product";
 
-type ByobProductProps = {
+type ManageProductProps = {
   onEditAction: () => void;
   onDeleteAction: () => void;
   onPreviewAction: () => void;
+  onPublishAction: () => void;
+  onUnpublishAction: () => void;
+  productId: string | undefined | null;
+  isPublished: boolean;
+  isEditLoading: boolean;
+  isDeleteLoading: boolean;
+  // isPublishLoading: boolean;
+};
+
+type QuickstartProps = {
+  onEditAction: () => void;
   productId: string | undefined | null;
   isEditLoading: boolean;
   isDeleteLoading: boolean;
-  isBannerDismissed: boolean;
 };
+
+type CurrentProductProps = {
+  productId: string | undefined | null;
+  onPreviewAction: () => void;
+  isPublished: boolean;
+};
+
+type PublishButtonProps = {
+  isPublished: boolean,
+  onPublishAction: () => void;
+  isDeleteLoading: boolean;
+  isEditLoading: boolean;
+  // isPublishLoading: boolean
+}
+
+type UnpublishButtonProps = {
+  isPublished: boolean,
+  onUnpublishAction: () => void;
+  isDeleteLoading: boolean;
+  isEditLoading: boolean;
+  // isPublishLoading: boolean
+}
+
+type EditProps = {
+  onEditAction: () => void;
+  productId: string | undefined | null;
+  isEditLoading: boolean;
+  isDeleteLoading: boolean;
+}
+
+type LifecycleProps = {
+  productId: string | undefined | null;
+  onPublishAction: () => void;
+  onUnpublishAction: () => void;
+  onDeleteAction: () => void;
+  isPublished: boolean;
+  isDeleteLoading: boolean;
+  isEditLoading: boolean;
+  // isPublishLoading,
+}
+
+
 
 type Product = {
   id: string | null;
   metafieldId: string;
   onlineStorePreviewUrl: string | undefined | null;
+  onlineStoreUrl: string | undefined | null; // null if product isn't published to Online Store
 };
 
 export async function loader({ request }) {
@@ -84,66 +139,331 @@ export async function action({ request }: ActionFunctionArgs) {
   return json({ ok: true });
 }
 
-const ByobProduct = (
+const Welcome = () => {
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="200">
+        <Text as="h1" variant="headingLg">
+          Welcome to FlowerFox
+        </Text>
+        <Text as="p" variant="bodyLg">
+          Use our Template Editor to build a custom bouquet product in minutes.
+        </Text>
+      </BlockStack>
+    </Card>
+  )
+};
+
+const QuickStart = (
+  {
+    onEditAction,
+    productId,
+    isEditLoading,
+    isDeleteLoading
+  }: QuickstartProps) => {
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="200">
+        <Text as="h1" variant="headingLg">
+          Getting Started
+        </Text>
+        <Card roundedAbove="sm">
+          <InlineStack gap="200" align="space-between" blockAlign="center">
+            <Text as="p" variant="bodyLg">
+              1. Create a bouquet with the Template Editor
+            </Text>
+            <Button
+              variant="primary"
+              onClick={onEditAction}
+              accessibilityLabel="Create or edit BYOB product"
+              icon={!!(productId) ? CheckIcon : PlusIcon}
+              loading={isEditLoading}
+              disabled={!!(productId) || isEditLoading || isDeleteLoading}
+            >
+              {productId ? "Created" : "Create"}
+            </Button>
+          </InlineStack>
+        </Card>
+        <Card roundedAbove="sm">
+          <Text as="p" variant="bodyLg">
+            2. Manage your product below. It will be linked to the Template Editor until you disconnect it or delete it.
+          </Text>
+        </Card>
+
+      </BlockStack>
+    </Card>
+  )
+};
+
+const CurrentProduct = (
+  {
+    productId,
+    onPreviewAction
+  }: CurrentProductProps) => {
+  return (
+    (!productId)
+      ? <InlineStack gap="200">
+        <Text as="h2" variant="headingMd" tone="critical">
+          No bouquet linked to Template Editor. Create a new one to manage it.
+        </Text>
+      </InlineStack>
+      : <InlineStack gap="200">
+        <Text as="h2" variant="headingMd">
+          Linked product:
+        </Text>
+        <Button
+          onClick={onPreviewAction}
+          accessibilityLabel="Preview BYOB product"
+          icon={ViewIcon}
+        >Preview</Button>
+      </InlineStack>
+  )
+}
+
+const PublishButton = (
+  {
+    isPublished,
+    onPublishAction,
+    isDeleteLoading,
+    isEditLoading,
+    // isPublishLoading
+  }: PublishButtonProps
+) => {
+  return (
+    <Button
+      variant="primary"
+      onClick={onPublishAction}
+      accessibilityLabel="Publish"
+      icon={OutboundIcon}
+      // loading={isPublishLoading}
+      disabled={isPublished || isDeleteLoading || isEditLoading
+        // || isPublishLoading
+      }
+    >
+      Publish
+    </Button>
+  )
+}
+
+const UnpublishButton = (
+  {
+    isPublished,
+    onUnpublishAction,
+    isDeleteLoading,
+    isEditLoading,
+    // isPublishLoading
+  }: UnpublishButtonProps
+) => {
+  return (
+    <Button
+      variant="primary"
+      onClick={onUnpublishAction}
+      accessibilityLabel="Unpublish"
+      icon={InboundIcon}
+      // loading={isPublishLoading}
+      disabled={!isPublished || isDeleteLoading || isEditLoading
+        // || isPublishLoading
+      }
+    >
+      Unpublish
+    </Button>
+  )
+}
+
+const Lifecycle = (
+  {
+    productId,
+    isPublished,
+    isDeleteLoading,
+    isEditLoading,
+    // isPublishLoading,
+    onPublishAction,
+    onUnpublishAction,
+    onDeleteAction
+  }: LifecycleProps) => {
+  return (
+
+    <InlineGrid gap="200" >
+      <Divider />
+
+      <Text as="h2" variant="headingMd">
+        Manage Life Cycle
+      </Text>
+
+      <InlineGrid gap="200" columns={2}>
+
+        <Card roundedAbove="sm">
+          <BlockStack gap="200">
+            <InlineStack gap="200">
+              <Text as="p" variant="bodyLg" fontWeight="bold">
+                Publish status:
+              </Text>
+              {isPublished ? <Badge tone="success">Published</Badge> : <Badge tone="attention">Unpublished</Badge>}
+            </InlineStack>
+            <Text as="p" variant="bodyLg">
+              When published, bouquet is offered in your online store.
+            </Text>
+            <InlineStack align="end" blockAlign="end">
+              <ButtonGroup>
+                <PublishButton
+                  isPublished={isPublished}
+                  onPublishAction={onPublishAction}
+                  isDeleteLoading={isDeleteLoading}
+                  isEditLoading={isEditLoading}
+                // isPublishLoading={isPublishLoading}
+                />
+                <UnpublishButton
+                  isPublished={isPublished}
+                  onUnpublishAction={onUnpublishAction}
+                  isDeleteLoading={isDeleteLoading}
+                  isEditLoading={isEditLoading}
+                // isPublishLoading={isPublishLoading}
+                />
+              </ButtonGroup>
+            </InlineStack>
+          </BlockStack>
+
+        </Card>
+        <Card roundedAbove="sm">
+          <BlockStack gap="200">
+
+            <Text as="p" variant="bodyLg" fontWeight="bold">
+              Delete bouquet
+            </Text>
+            <Text as="p" variant="bodyLg">
+              Permanently delete bouquet
+            </Text>
+            <InlineStack align="end" blockAlign="end">
+              <Button
+                variant="primary"
+                tone="critical"
+                onClick={onDeleteAction}
+                accessibilityLabel="Delete BYOB product"
+                icon={DeleteIcon}
+                loading={isDeleteLoading}
+                disabled={!productId || isDeleteLoading || isEditLoading}
+              >
+                Delete
+              </Button>
+            </InlineStack>
+          </BlockStack>
+        </Card>
+
+
+      </InlineGrid>
+    </InlineGrid>
+
+  )
+}
+
+const Edit = (
+  {
+    onEditAction,
+    productId,
+    isEditLoading,
+    isDeleteLoading
+  }: EditProps) => {
+  return (
+
+    <InlineGrid gap="200" >
+      <Divider />
+
+      <Text as="h2" variant="headingMd">
+        Edit product
+      </Text>
+
+      <InlineGrid gap="200" columns={2}>
+
+        <Card roundedAbove="sm">
+          <BlockStack gap="200">
+            <Text as="p" variant="bodyLg" fontWeight="bold">
+              Use our Template Editor.
+            </Text>
+            <Text as="p" variant="bodyLg">
+              Update selections, names, and prices with our simple form.
+            </Text>
+            <InlineStack align="end" blockAlign="end">
+              <Button
+                variant="primary"
+                onClick={onEditAction}
+                accessibilityLabel="Edit BYOB product"
+                icon={EditIcon}
+                loading={isEditLoading}
+                disabled={!(productId) || isEditLoading || isDeleteLoading}
+                fullWidth={false}
+              >
+                Edit
+              </Button>
+            </InlineStack>
+          </BlockStack>
+        </Card>
+        <Card roundedAbove="sm">
+          <BlockStack gap="200">
+            <Text as="p" variant="bodyLg" fontWeight="bold">
+              Make it your own.
+            </Text>
+            <Text as="p" variant="bodyLg">
+              Disconnect your bouquet from the template editor.
+              Recommended if you want to use the standard Shopify editor for deeper customization.
+            </Text>
+            <InlineStack align="end" blockAlign="end">
+              <Button
+                variant="primary"
+                onClick={onEditAction}
+                accessibilityLabel="Disconnect from template editor"
+                icon={ExitIcon}
+                loading={isEditLoading}
+                disabled={!(productId) || isEditLoading || isDeleteLoading}
+                size="large"
+              >
+                Disconnect
+              </Button>
+            </InlineStack>
+          </BlockStack>
+        </Card>
+
+
+      </InlineGrid>
+    </InlineGrid>
+
+  )
+}
+
+const ManageProduct = (
   {
     onEditAction,
     onDeleteAction,
     onPreviewAction,
     productId,
+    isPublished,
     isEditLoading,
     isDeleteLoading,
-    isBannerDismissed,
-  }: ByobProductProps) => (
-  <Card roundedAbove="sm">
-    <BlockStack gap="200">
-      <InlineGrid columns="1fr auto">
-        <Text as="h2" variant="headingMd">
-          Build-Your-Own-Bouquet Product Generator
-        </Text>
-        {(!!productId && isBannerDismissed) &&
-          <Button
-            onClick={onPreviewAction}
-            accessibilityLabel="Preview BYOB product"
-            icon={ViewIcon}
-          >
-            Preview
-          </Button>
-        }
-      </InlineGrid>
-      <Text as="p" variant="bodyMd">
-        Give your customers the option to buy a custom arrangement! Select the
-        customizations you want to offer and generate all of the Shopify variants
-        with a few clicks.
-      </Text>
-      <InlineStack align="end">
-        <ButtonGroup>
-          {(!!productId) &&
-            <Button
-              variant="secondary"
-              onClick={onDeleteAction}
-              accessibilityLabel="Delete BYOB product"
-              icon={DeleteIcon}
-              loading={isDeleteLoading}
-              disabled={isDeleteLoading || isEditLoading}
-            >
-              Delete
-            </Button>
-          }
-          <Button
-            variant="primary"
-            onClick={onEditAction}
-            accessibilityLabel="Create or edit BYOB product"
-            icon={(!productId) ? PlusIcon : EditIcon}
-            loading={isEditLoading}
-            disabled={isEditLoading || isDeleteLoading}
-          >
-            {(!productId) ? 'Create' : 'Edit'}
-          </Button>
-        </ButtonGroup>
-      </InlineStack>
-    </BlockStack>
-  </Card>
-);
+    // isPublishLoading,
+    onPublishAction,
+    onUnpublishAction
+  }: ManageProductProps) => {
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="200">
+        <InlineGrid columns="1fr auto">
+          <Text as="h1" variant="headingLg">
+            Manage Bouquet
+          </Text>
+        </InlineGrid>
+
+        <CurrentProduct productId={productId} isPublished={false} onPreviewAction={onPreviewAction} />
+
+        {productId && <Edit onEditAction={onEditAction} productId={productId} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading} />}
+
+        {productId && <Lifecycle productId={productId} isPublished={isPublished} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading}
+          // isPublishLoading={isPublishLoading}
+          onDeleteAction={onDeleteAction} onPublishAction={onPublishAction} onUnpublishAction={onUnpublishAction} />}
+
+      </BlockStack>
+
+    </Card>
+  )
+};
 
 type ActionProps = {
   onAction: () => void;
@@ -153,8 +473,8 @@ const Foxtail = ({ onAction }: ActionProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
-        <Text as="h2" variant="headingMd">
-          Foxtail Designs
+        <Text as="h2" variant="headingLg">
+          Latest News
         </Text>
         <Button
           onClick={onAction}
@@ -165,20 +485,19 @@ const Foxtail = ({ onAction }: ActionProps) => (
         </Button>
       </InlineGrid>
       <Text as="p" variant="bodyMd">
-        At Foxtail, we're turning floral design ideas into visual images early on in the design process.
-        We’re building online tools to make it easier for clients and florists to understand what
-        an order will look like, from color palettes to shape and style.
+        At Foxtail, we're dedicated to making custom orders easier. We're building online tools to
+        make it easier for clients and florists to design together.
       </Text>
     </BlockStack>
   </Card>
 );
 
-const ContactUs = ({ onAction }: ActionProps) => (
+const Support = ({ onAction }: ActionProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="200">
       <InlineGrid columns="1fr auto">
-        <Text as="h2" variant="headingMd">
-          Contact Us
+        <Text as="h2" variant="headingLg">
+          Support
         </Text>
         <Button
           onClick={onAction}
@@ -194,6 +513,18 @@ const ContactUs = ({ onAction }: ActionProps) => (
     </BlockStack>
   </Card>
 );
+
+const Footer = () => {
+  return (
+    <FooterHelp>
+      At Foxtail, we want to make it easy to design together.
+      Learn more about {' '}
+      <Link url="https://www.foxtailcreates.com">
+        Foxtail.
+      </Link>
+    </FooterHelp>
+  )
+};
 
 export default function Index() {
   const navigate = useNavigate();
@@ -239,19 +570,38 @@ export default function Index() {
                   )}
                 </Layout.Section>
                 <Layout.Section>
-                  <InlineGrid gap="300" columns={2}>
-                    <ByobProduct
-                      isBannerDismissed={isBannerDismissed}
-                      onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+                  <InlineGrid gap="300" columns={['oneThird', 'twoThirds']}>
+                    <Welcome />
+                    <QuickStart
                       onEditAction={onEdit}
-                      onDeleteAction={onDelete}
                       productId={product.id}
                       isEditLoading={isEditing}
                       isDeleteLoading={isDeleting}
                     />
-                    <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
-                    <ContactUs onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
                   </InlineGrid>
+                </Layout.Section>
+                <Layout.Section>
+                  <ManageProduct
+                    onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+                    onEditAction={onEdit}
+                    onDeleteAction={onDelete}
+                    onPublishAction={() => function () { }}
+                    onUnpublishAction={() => function () { }}
+                    productId={product.id}
+                    isPublished={!!product.onlineStoreUrl}
+                    isEditLoading={isEditing}
+                    isDeleteLoading={isDeleting}
+                  // isPublishLoading={isPublishLoading}
+                  />
+                </Layout.Section>
+                <Layout.Section>
+                  <Support onAction={() => window.open("mailto:foxtailcreates@gmail.com?Subject=Hello")} />
+                </Layout.Section>
+                <Layout.Section>
+                  <Foxtail onAction={() => window.open("https://foxtailcreates.com/")?.focus()} />
+                </Layout.Section>
+                <Layout.Section>
+                  <Footer />
                 </Layout.Section>
               </Layout>
             </Page>
