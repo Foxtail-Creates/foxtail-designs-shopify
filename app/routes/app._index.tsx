@@ -5,7 +5,7 @@ import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, Divider, FooterHelp, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/services/deleteProduct";
 import { deleteShopMetafield } from "~/server/services/deleteShopMetafield";
-import { CheckIcon, DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, OutboundIcon, ViewIcon, InboundIcon, ExitIcon } from "@shopify/polaris-icons";
+import { CheckIcon, DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, OutboundIcon, ViewIcon, InboundIcon, ExitIcon, TextBlockIcon, QuestionCircleIcon } from "@shopify/polaris-icons";
 import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
 import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
 import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
@@ -74,7 +74,11 @@ type LifecycleProps = {
   // isPublishLoading,
 }
 
-
+type ContainerProps = {
+  header: string;
+  body: string;
+  action: JSX.Element;
+}
 
 type Product = {
   id: string | null;
@@ -163,7 +167,7 @@ const QuickStart = (
   }: QuickstartProps) => {
   return (
     <Card roundedAbove="sm">
-      <BlockStack gap="200">
+      <BlockStack gap="400">
         <Text as="h1" variant="headingLg">
           Getting Started
         </Text>
@@ -202,12 +206,12 @@ const CurrentProduct = (
   }: CurrentProductProps) => {
   return (
     (!productId)
-      ? <InlineStack gap="200">
+      ? <InlineStack gap="400">
         <Text as="h2" variant="headingMd" tone="critical">
           No bouquet linked to Template Editor. Create a new one to manage it.
         </Text>
       </InlineStack>
-      : <InlineStack gap="200">
+      : <InlineStack gap="400">
         <Text as="h2" variant="headingMd">
           Linked product:
         </Text>
@@ -290,20 +294,14 @@ const Lifecycle = (
         Manage Life Cycle
       </Text>
 
-      <InlineGrid gap="200" columns={2}>
+      <InlineGrid gap="400" columns={2}>
 
         <Card roundedAbove="sm">
           <BlockStack gap="200">
-            <InlineStack gap="200">
-              <Text as="p" variant="bodyLg" fontWeight="bold">
-                Publish status:
+            <InlineGrid columns="1fr auto">
+              <Text as="p" variant="bodyLg" fontWeight="bold" >
+                Publish to Store
               </Text>
-              {isPublished ? <Badge tone="success">Published</Badge> : <Badge tone="attention">Unpublished</Badge>}
-            </InlineStack>
-            <Text as="p" variant="bodyLg">
-              When published, bouquet is offered in your online store.
-            </Text>
-            <InlineStack align="end" blockAlign="end">
               <ButtonGroup>
                 <PublishButton
                   isPublished={isPublished}
@@ -320,39 +318,66 @@ const Lifecycle = (
                 // isPublishLoading={isPublishLoading}
                 />
               </ButtonGroup>
+            </InlineGrid>
+            <InlineStack gap="200">
+              <Text as="p" variant="bodyLg" fontWeight="semibold">
+                Status:
+              </Text>
+              {isPublished ? <Badge tone="success">Published</Badge> : <Badge tone="attention">Unpublished</Badge>}
             </InlineStack>
-          </BlockStack>
-
-        </Card>
-        <Card roundedAbove="sm">
-          <BlockStack gap="200">
-
-            <Text as="p" variant="bodyLg" fontWeight="bold">
-              Delete bouquet
-            </Text>
             <Text as="p" variant="bodyLg">
-              Permanently delete bouquet
+              When published, bouquet is offered in your online store.
             </Text>
-            <InlineStack align="end" blockAlign="end">
-              <Button
-                variant="primary"
-                tone="critical"
-                onClick={onDeleteAction}
-                accessibilityLabel="Delete BYOB product"
-                icon={DeleteIcon}
-                loading={isDeleteLoading}
-                disabled={!productId || isDeleteLoading || isEditLoading}
-              >
-                Delete
-              </Button>
-            </InlineStack>
+
           </BlockStack>
         </Card>
 
+        <ManageContainer
+          header="Delete Bouquet"
+          body="Permanently delete bouquet."
+          action={
 
+            <Button
+              variant="primary"
+              tone="critical"
+              onClick={onDeleteAction}
+              accessibilityLabel="Delete BYOB product"
+              icon={DeleteIcon}
+              loading={isDeleteLoading}
+              disabled={!productId || isDeleteLoading || isEditLoading}
+            >
+              Delete
+            </Button>
+          }
+        />
       </InlineGrid>
     </InlineGrid>
 
+  )
+}
+
+const ManageContainer = (
+  {
+    header,
+    body,
+    action,
+  }: ContainerProps
+) => {
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="200">
+        <InlineGrid columns="1fr auto">
+          <Text as="p" variant="bodyLg" fontWeight="bold">
+            {header}
+          </Text>
+          {action}
+        </InlineGrid>
+
+        <Text as="p" variant="bodyLg">
+          {body}
+        </Text>
+      </BlockStack>
+    </Card>
   )
 }
 
@@ -365,64 +390,49 @@ const Edit = (
   }: EditProps) => {
   return (
 
-    <InlineGrid gap="200" >
+    <InlineGrid gap="400" >
       <Divider />
 
       <Text as="h2" variant="headingMd">
         Edit product
       </Text>
 
-      <InlineGrid gap="200" columns={2}>
+      <InlineGrid gap="400" columns={2}>
+        <ManageContainer
+          header="Use our Template Editor"
+          body="Update selections, names, and prices with our simple form."
+          action={
+            <Button
+              variant="primary"
+              onClick={onEditAction}
+              accessibilityLabel="Edit BYOB product"
+              icon={EditIcon}
+              loading={isEditLoading}
+              disabled={!(productId) || isEditLoading || isDeleteLoading}
+              fullWidth={false}
+            >
+              Edit
+            </Button>
+          }
+        />
 
-        <Card roundedAbove="sm">
-          <BlockStack gap="200">
-            <Text as="p" variant="bodyLg" fontWeight="bold">
-              Use our Template Editor.
-            </Text>
-            <Text as="p" variant="bodyLg">
-              Update selections, names, and prices with our simple form.
-            </Text>
-            <InlineStack align="end" blockAlign="end">
-              <Button
-                variant="primary"
-                onClick={onEditAction}
-                accessibilityLabel="Edit BYOB product"
-                icon={EditIcon}
-                loading={isEditLoading}
-                disabled={!(productId) || isEditLoading || isDeleteLoading}
-                fullWidth={false}
-              >
-                Edit
-              </Button>
-            </InlineStack>
-          </BlockStack>
-        </Card>
-        <Card roundedAbove="sm">
-          <BlockStack gap="200">
-            <Text as="p" variant="bodyLg" fontWeight="bold">
-              Make it your own.
-            </Text>
-            <Text as="p" variant="bodyLg">
-              Disconnect your bouquet from the template editor.
-              Recommended if you want to use the standard Shopify editor for deeper customization.
-            </Text>
-            <InlineStack align="end" blockAlign="end">
-              <Button
-                variant="primary"
-                onClick={onEditAction}
-                accessibilityLabel="Disconnect from template editor"
-                icon={ExitIcon}
-                loading={isEditLoading}
-                disabled={!(productId) || isEditLoading || isDeleteLoading}
-                size="large"
-              >
-                Disconnect
-              </Button>
-            </InlineStack>
-          </BlockStack>
-        </Card>
-
-
+        <ManageContainer
+          header="Make it your own."
+          body="Disconnect your bouquet from the template editor.
+              Recommended if you want to use the standard Shopify editor for deeper customization."
+          action={
+            <Button
+              variant="primary"
+              onClick={onEditAction}
+              accessibilityLabel="Disconnect from template editor"
+              icon={ExitIcon}
+              loading={isEditLoading}
+              disabled={!(productId) || isEditLoading || isDeleteLoading}
+            >
+              Disconnect
+            </Button>
+          }
+        />
       </InlineGrid>
     </InlineGrid>
 
@@ -444,7 +454,7 @@ const ManageProduct = (
   }: ManageProductProps) => {
   return (
     <Card roundedAbove="sm">
-      <BlockStack gap="200">
+      <BlockStack gap="400">
         <InlineGrid columns="1fr auto">
           <Text as="h1" variant="headingLg">
             Manage Bouquet
@@ -492,24 +502,81 @@ const Foxtail = ({ onAction }: ActionProps) => (
   </Card>
 );
 
+const SupportContainer = (
+  {
+    header,
+    body,
+    action,
+  }: ContainerProps
+) => {
+  return (
+    <Card roundedAbove="sm">
+      <BlockStack gap="400" align="space-between">
+        <BlockStack gap="400">
+          <Text as="p" variant="bodyMd" fontWeight="bold">
+            {header}
+          </Text>
+          <Text as="p" variant="bodyMd">
+            {body}
+          </Text>
+
+        </BlockStack>
+        <InlineStack align="start" blockAlign="end">
+          {action}
+        </InlineStack>
+      </BlockStack>
+    </Card>
+  )
+}
+
 const Support = ({ onAction }: ActionProps) => (
   <Card roundedAbove="sm">
-    <BlockStack gap="200">
-      <InlineGrid columns="1fr auto">
-        <Text as="h2" variant="headingLg">
-          Support
-        </Text>
-        <Button
-          onClick={onAction}
-          accessibilityLabel="Email us with questions or feedback"
-          icon={EmailIcon}
-        >
-          Contact
-        </Button>
-      </InlineGrid>
-      <Text as="p" variant="bodyMd">
-        Run into an issue? Have questions? Send us an email and we will get back to you as soon as possible.
+    <BlockStack gap="400">
+      <Text as="h2" variant="headingMd">
+        Support
       </Text>
+      <InlineGrid columns="3" gap="400">
+        <SupportContainer
+          header="Email Support"
+          body="Run into an issue? Send us an email and we will get back to you as soon as possible."
+          action={
+            <Button
+              onClick={onAction}
+              accessibilityLabel="Email us with questions or feedback"
+              icon={EmailIcon}
+            >
+              Email us
+            </Button>
+          }
+        />
+        <SupportContainer
+          header="FAQ"
+          body="Browse common questions and answers."
+          action={
+            <Button
+              onClick={() => window.open("https://foxtailcreates.com/")?.focus()}
+              accessibilityLabel="FAQ"
+              icon={QuestionCircleIcon}
+            >
+              Go to FAQ
+            </Button>
+          }
+        />
+        <SupportContainer
+          header="Help center"
+          body="Find a solution to your problem via our tutorials and guides."
+          action={
+            <Button
+              onClick={() => window.open("https://foxtailcreates.com/")?.focus()}
+              accessibilityLabel="Help center"
+              icon={TextBlockIcon}
+            >
+              Visit help center
+            </Button>
+          }
+        />
+
+      </InlineGrid>
     </BlockStack>
   </Card>
 );
