@@ -17,6 +17,9 @@ import {
   BlockStack,
   PageActions,
   BannerHandles,
+  Box,
+  InlineGrid,
+  useBreakpoints,
 } from "@shopify/polaris";
 import { PaletteSection } from "~/components/palettes/PaletteSection";
 import { FocalFlowersSection } from "~/components/focal-flowers/FocalFlowersSection";
@@ -217,6 +220,8 @@ const ByobSettingsForm = ({
     submit({ data: serializedData }, { method: "post" });
   }
 
+  const { smUp } = useBreakpoints();
+
   return (
     <Page
       backAction={{ content: 'Home', url: MAIN_PAGE_PATH }}
@@ -238,68 +243,121 @@ const ByobSettingsForm = ({
         </Layout.Section>
         }
         <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Product
-                </Text>
-                <TextField
-                  id="title"
-                  label="Product Name"
-                  autoComplete="off"
-                  placeholder={PRODUCT_NAME}
-                  value={formState.productName}
-                  onChange={(productName) =>
-                    setFormState({ ...formState, productName })
-                  }
-                />
-                <TextField
-                  id="description"
-                  label="Product Description"
-                  helpText="Supports HTML formatting"
-                  autoComplete="off"
-                  placeholder={PRODUCT_DESCRIPTION}
-                  multiline={4}
-                  value={formState.productDescription}
-                  onChange={(productDescription) =>
-                    setFormState({ ...formState, productDescription })
-                  }
-                />
-              </BlockStack>
-            </Card>
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Customizations
-                </Text>
-                <Text as={"h3"} variant="bodyMd">
-                  Choose which product options are available to your
-                  customer.
-                </Text>
-                <Divider />
+          <BlockStack gap={{ xs: "800", sm: "400" }}>
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Product customizations
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <TextField
+                    id="title"
+                    label="Product Name"
+                    autoComplete="off"
+                    placeholder={PRODUCT_NAME}
+                    value={formState.productName}
+                    onChange={(productName) =>
+                      setFormState({ ...formState, productName })
+                    }
+                  />
+                  <TextField
+                    id="description"
+                    label="Product Description"
+                    helpText="Supports HTML formatting"
+                    autoComplete="off"
+                    placeholder={PRODUCT_DESCRIPTION}
+                    multiline={4}
+                    value={formState.productDescription}
+                    onChange={(productDescription) =>
+                      setFormState({ ...formState, productDescription })
+                    }
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Size Customizations
+                  </Text>
+                  <Text as={"h3"} variant="bodyMd">
+                    Choose what bouquet sizes you want to offer to your customers.
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
                 <SizeSection
                   allSizesAvailable={byobCustomizer.sizesAvailable}
                   formState={formState}
                   setFormState={setFormState}
                   errors={userErrors}
                 />
-                <Divider />
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Palette Customizations
+                  </Text>
+                  <Text as={"h3"} variant="bodyMd">
+                  Choose up to five (5) color palettes you want to offer to your customers.
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
                 <PaletteSection
                   allPaletteOptionsSorted={byobCustomizer.palettesAvailableSorted}
                   formState={formState}
                   setFormState={setFormState}
                   errors={userErrors}
                 />
-                <Divider />
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Main Flower Customizations
+                  </Text>
+                  <Text as={"h3"} variant="bodyMd">
+                  Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet. 
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
                 <FocalFlowersSection
                   allFlowerOptionsSorted={byobCustomizer.flowersAvailableSorted}
                   formState={formState}
                   setFormState={setFormState}
                   errors={userErrors}
                 />
-              </BlockStack>
-            </Card>
+              </Card>
+            </InlineGrid>
           </BlockStack>
         </Layout.Section>
         <Layout.Section>

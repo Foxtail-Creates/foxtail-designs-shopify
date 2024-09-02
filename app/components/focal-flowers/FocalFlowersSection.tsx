@@ -197,9 +197,6 @@ export const FocalFlowersSection = ({
 
   return (
     <>
-      <Text as={"h3"} variant="headingMd">
-        Main flower options
-      </Text>
       {inlineError(errors?.flowers, "flowers")}
       {!errors?.flowers && inlineError(validationError, "flowers")}
       <Combobox
@@ -209,7 +206,7 @@ export const FocalFlowersSection = ({
           <Combobox.TextField
             id="flowers"
             autoComplete="off"
-            label="Choose up to five (5) main flowers you want to offer. Your customer will be allowed to choose one (1) main flower for their bouquet. You can edit prices on the next page."
+            label="Flower add-on prices can be edited on the next page."
             value={value}
             suggestion={suggestion}
             placeholder="Add main flowers"

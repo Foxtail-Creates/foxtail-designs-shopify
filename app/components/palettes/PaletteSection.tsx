@@ -85,11 +85,8 @@ export const PaletteSection = ({
 
   return (
     <>
-      <Text as="h3" variant="headingMd">
-        Palette Color Options
-      </Text>
       <Text as={"p"} variant="bodyMd">
-        Choose up to five (5) color palettes you want to offer. You can edit the names on the next page.
+        Palette names can be edited on the next page.
       </Text>
         {inlineError(errors?.palettes, "palettes")}
         {!errors?.palettes && inlineError(validationError, "palettes")}
