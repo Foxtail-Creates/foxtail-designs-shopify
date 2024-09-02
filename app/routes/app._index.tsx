@@ -6,13 +6,12 @@ import { BlockStack, Button, ButtonGroup, Card, Divider, FooterHelp, InlineGrid,
 import { deleteProduct } from "~/server/services/deleteProduct";
 import { deleteShopMetafield } from "~/server/services/deleteShopMetafield";
 import { CheckIcon, DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, OutboundIcon, ViewIcon, InboundIcon, ExitIcon, TextBlockIcon, QuestionCircleIcon } from "@shopify/polaris-icons";
-import { FOXTAIL_NAMESPACE, STORE_METADATA_CUSTOM_PRODUCT_KEY } from "~/constants";
-import { GET_SHOP_METAFIELD_BY_KEY_QUERY } from "~/server/graphql";
-import { GET_PRODUCT_PREVIEW_BY_ID_QUERY } from "~/server/graphql/queries/product/getProductById";
 import { useState } from "react";
 import { SuccessBanner } from "~/components/SuccessBanner";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
 import { Product } from "node_modules/@shopify/shopify-api/dist/ts/rest/admin/2024-04/product";
+import { getProductPreview } from "~/server/services/getProductPreview";
+import { getShopWithMetafield } from "~/server/services/getShopMetafield";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -24,7 +23,7 @@ type ManageProductProps = {
   isPublished: boolean;
   isEditLoading: boolean;
   isDeleteLoading: boolean;
-  // isPublishLoading: boolean;
+  isPublishLoading: boolean;
 };
 
 type QuickstartProps = {
@@ -45,7 +44,7 @@ type PublishButtonProps = {
   onPublishAction: () => void;
   isDeleteLoading: boolean;
   isEditLoading: boolean;
-  // isPublishLoading: boolean
+  isPublishLoading: boolean
 }
 
 type UnpublishButtonProps = {
@@ -53,7 +52,7 @@ type UnpublishButtonProps = {
   onUnpublishAction: () => void;
   isDeleteLoading: boolean;
   isEditLoading: boolean;
-  // isPublishLoading: boolean
+  isPublishLoading: boolean
 }
 
 type EditProps = {
@@ -63,7 +62,7 @@ type EditProps = {
   isDeleteLoading: boolean;
 }
 
-type LifecycleProps = {
+type LifeCycleProps = {
   productId: string | undefined | null;
   onPublishAction: () => void;
   onUnpublishAction: () => void;
@@ -71,7 +70,7 @@ type LifecycleProps = {
   isPublished: boolean;
   isDeleteLoading: boolean;
   isEditLoading: boolean;
-  // isPublishLoading,
+  isPublishLoading: boolean;
 }
 
 type ContainerProps = {
@@ -84,43 +83,29 @@ type Product = {
   id: string | null;
   metafieldId: string;
   onlineStorePreviewUrl: string | undefined | null;
-  onlineStoreUrl: string | undefined | null; // null if product isn't published to Online Store
+  publishedAt: string | undefined | null; // null if product isn't published to Online Store
 };
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
 
-  const getShopMetadataResponse = await admin.graphql(
-    GET_SHOP_METAFIELD_BY_KEY_QUERY,
-    {
-      variables: {
-        namespace: FOXTAIL_NAMESPACE,
-        key: STORE_METADATA_CUSTOM_PRODUCT_KEY,
-      },
-    },
-  );
-  const shopMetadataBody = await getShopMetadataResponse.json();
-
-  const productId = shopMetadataBody.data?.shop.metafield?.value;
+  const shopWithMetafield = await getShopWithMetafield(admin);
+  const productId = shopWithMetafield.metafield?.value;
 
   let productPreviewUrl = null;
+  let publishedAt = null;
 
   if (productId) {
-    const customProductResponse = await admin.graphql(
-      GET_PRODUCT_PREVIEW_BY_ID_QUERY,
-      {
-        variables: {
-          id: productId
-        },
-      },
-    );
-    productPreviewUrl = (await customProductResponse.json())?.data?.product?.onlineStorePreviewUrl;
+    const product = await getProductPreview(admin, productId);
+    productPreviewUrl = product?.onlineStorePreviewUrl;
+    publishedAt = product?.publishedAt;
   }
 
   return json({
     id: productId,
-    metafieldId: shopMetadataBody.data?.shop.metafield?.id,
-    onlineStorePreviewUrl: productPreviewUrl
+    metafieldId: shopWithMetafield.metafield?.id,
+    onlineStorePreviewUrl: productPreviewUrl,
+    publishedAt: publishedAt
   });
 }
 
@@ -140,6 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
       await deleteShopMetafield(admin, data.metafieldId)
     }
   }
+  // todo: use publish/unpublish hooks
   return json({ ok: true });
 }
 
@@ -208,19 +194,15 @@ const CurrentProduct = (
     (!productId)
       ? <InlineStack gap="400">
         <Text as="h2" variant="headingMd" tone="critical">
-          No bouquet linked to Template Editor. Create a new one to manage it.
+          No bouquet linked to the Template Editor. Create a new one to manage it.
         </Text>
       </InlineStack>
-      : <InlineStack gap="400">
-        <Text as="h2" variant="headingMd">
-          Linked product:
-        </Text>
-        <Button
-          onClick={onPreviewAction}
-          accessibilityLabel="Preview BYOB product"
-          icon={ViewIcon}
-        >Preview</Button>
-      </InlineStack>
+      : <Button
+        onClick={onPreviewAction}
+        accessibilityLabel="Preview BYOB product"
+        icon={ViewIcon}
+        size="large"
+      >Preview Linked Product</Button>
   )
 }
 
@@ -230,7 +212,7 @@ const PublishButton = (
     onPublishAction,
     isDeleteLoading,
     isEditLoading,
-    // isPublishLoading
+    isPublishLoading
   }: PublishButtonProps
 ) => {
   return (
@@ -239,10 +221,8 @@ const PublishButton = (
       onClick={onPublishAction}
       accessibilityLabel="Publish"
       icon={OutboundIcon}
-      // loading={isPublishLoading}
-      disabled={isPublished || isDeleteLoading || isEditLoading
-        // || isPublishLoading
-      }
+      loading={isPublishLoading}
+      disabled={isPublished || isDeleteLoading || isEditLoading || isPublishLoading}
     >
       Publish
     </Button>
@@ -255,7 +235,7 @@ const UnpublishButton = (
     onUnpublishAction,
     isDeleteLoading,
     isEditLoading,
-    // isPublishLoading
+    isPublishLoading
   }: UnpublishButtonProps
 ) => {
   return (
@@ -264,32 +244,28 @@ const UnpublishButton = (
       onClick={onUnpublishAction}
       accessibilityLabel="Unpublish"
       icon={InboundIcon}
-      // loading={isPublishLoading}
-      disabled={!isPublished || isDeleteLoading || isEditLoading
-        // || isPublishLoading
-      }
+      loading={isPublishLoading}
+      disabled={!isPublished || isDeleteLoading || isEditLoading || isPublishLoading}
     >
       Unpublish
     </Button>
   )
 }
 
-const Lifecycle = (
+const LifeCycle = (
   {
     productId,
     isPublished,
     isDeleteLoading,
     isEditLoading,
-    // isPublishLoading,
+    isPublishLoading,
     onPublishAction,
     onUnpublishAction,
     onDeleteAction
-  }: LifecycleProps) => {
+  }: LifeCycleProps) => {
   return (
 
     <InlineGrid gap="200" >
-      <Divider />
-
       <Text as="h2" variant="headingMd">
         Manage Life Cycle
       </Text>
@@ -308,14 +284,14 @@ const Lifecycle = (
                   onPublishAction={onPublishAction}
                   isDeleteLoading={isDeleteLoading}
                   isEditLoading={isEditLoading}
-                // isPublishLoading={isPublishLoading}
+                  isPublishLoading={isPublishLoading}
                 />
                 <UnpublishButton
                   isPublished={isPublished}
                   onUnpublishAction={onUnpublishAction}
                   isDeleteLoading={isDeleteLoading}
                   isEditLoading={isEditLoading}
-                // isPublishLoading={isPublishLoading}
+                  isPublishLoading={isPublishLoading}
                 />
               </ButtonGroup>
             </InlineGrid>
@@ -326,7 +302,7 @@ const Lifecycle = (
               {isPublished ? <Badge tone="success">Published</Badge> : <Badge tone="attention">Unpublished</Badge>}
             </InlineStack>
             <Text as="p" variant="bodyLg">
-              When published, bouquet is offered in your online store.
+              When published, your custom bouquet is offered in your online store.
             </Text>
 
           </BlockStack>
@@ -448,7 +424,7 @@ const ManageProduct = (
     isPublished,
     isEditLoading,
     isDeleteLoading,
-    // isPublishLoading,
+    isPublishLoading,
     onPublishAction,
     onUnpublishAction
   }: ManageProductProps) => {
@@ -465,9 +441,8 @@ const ManageProduct = (
 
         {productId && <Edit onEditAction={onEditAction} productId={productId} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading} />}
 
-        {productId && <Lifecycle productId={productId} isPublished={isPublished} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading}
-          // isPublishLoading={isPublishLoading}
-          onDeleteAction={onDeleteAction} onPublishAction={onPublishAction} onUnpublishAction={onUnpublishAction} />}
+        {productId && <LifeCycle productId={productId} isPublished={isPublished} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading}
+          isPublishLoading={isPublishLoading} onDeleteAction={onDeleteAction} onPublishAction={onPublishAction} onUnpublishAction={onUnpublishAction} />}
 
       </BlockStack>
 
@@ -495,7 +470,7 @@ const Foxtail = ({ onAction }: ActionProps) => (
         </Button>
       </InlineGrid>
       <Text as="p" variant="bodyMd">
-        At Foxtail, we're dedicated to making custom orders easier. We're building online tools to
+        At Foxtail, we think it should be easy to order custom products. We're building online tools to
         make it easier for clients and florists to design together.
       </Text>
     </BlockStack>
@@ -595,7 +570,9 @@ const Footer = () => {
 
 export default function Index() {
   const navigate = useNavigate();
-  const fetcher = useFetcher();
+  const deleteFetcher = useFetcher();
+  const publishFetcher = useFetcher();
+
   const product: Product = useLoaderData<typeof loader>();
   const nav = useNavigation();
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
@@ -603,14 +580,23 @@ export default function Index() {
   const isEditing =
     nav.state === "loading" && nav.formMethod === undefined;
 
-  const isDeleting = fetcher.state !== "idle";
+  const isDeleting = deleteFetcher.state !== "idle";
+  const isPublishing = publishFetcher.state !== "idle";
 
   const onEdit = () => {
     navigate("bouquets/settings");
   };
 
   const onDelete = () => {
-    fetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+    deleteFetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+  };
+
+  const onPublish = () => {
+    publishFetcher.submit({ action: "publish", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+  };
+
+  const onUnpublish = () => {
+    publishFetcher.submit({ action: "unpublish", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
   };
 
   const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl && nav.state === "idle";
@@ -652,13 +638,13 @@ export default function Index() {
                     onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
                     onEditAction={onEdit}
                     onDeleteAction={onDelete}
-                    onPublishAction={() => function () { }}
-                    onUnpublishAction={() => function () { }}
+                    onPublishAction={onPublish}
+                    onUnpublishAction={onUnpublish}
                     productId={product.id}
-                    isPublished={!!product.onlineStoreUrl}
+                    isPublished={!!product.publishedAt}
                     isEditLoading={isEditing}
                     isDeleteLoading={isDeleting}
-                  // isPublishLoading={isPublishLoading}
+                    isPublishLoading={isPublishing}
                   />
                 </Layout.Section>
                 <Layout.Section>
