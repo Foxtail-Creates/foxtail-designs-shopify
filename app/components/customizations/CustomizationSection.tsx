@@ -1,4 +1,4 @@
-import { InlineGrid, InlineStack, Text, TextField } from "@shopify/polaris";
+import { InlineGrid, InlineStack, TextField } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import { FLOWER_CUSTOMIZATION_SECTION_NAME, PALETTE_OPTION_NAME, SIZE_CUSTOMIZATION_SECTION_NAME, SIZE_OPTION_NAME } from "~/constants";
 import type { BouquetCustomizationForm, CustomizationProps, ValueCustomization } from "~/types";

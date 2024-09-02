@@ -6,6 +6,7 @@ import {
   AutoSelection,
   Combobox,
   Text,
+  BlockStack,
 } from "@shopify/polaris";
 import { useCallback, useMemo, useState } from "react";
 import type { FocalFlowersSectionProps } from "~/types";
@@ -153,21 +154,21 @@ export const FocalFlowersSection = ({
   const optionMarkup =
     options.length > 0
       ? options.map((option) => {
-          return (
-            <Listbox.Option
-              key={option}
-              value={option}
+        return (
+          <Listbox.Option
+            key={option}
+            value={option}
+            selected={formState.flowersSelected.includes(option)}
+            accessibilityLabel={option}
+          >
+            <Listbox.TextOption
               selected={formState.flowersSelected.includes(option)}
-              accessibilityLabel={option}
             >
-              <Listbox.TextOption
-                selected={formState.flowersSelected.includes(option)}
-              >
-                {formatOptionText(option)}
-              </Listbox.TextOption>
-            </Listbox.Option>
-          );
-        })
+              {formatOptionText(option)}
+            </Listbox.TextOption>
+          </Listbox.Option>
+        );
+      })
       : null;
 
   const noResults = value && !getAllFocalFlowers().includes(value);
@@ -199,6 +200,7 @@ export const FocalFlowersSection = ({
     <>
       {inlineError(errors?.flowers, "flowers")}
       {!errors?.flowers && inlineError(validationError, "flowers")}
+      <BlockStack gap="300">
       <Combobox
         allowMultiple
         preferredPosition="below"
@@ -207,6 +209,7 @@ export const FocalFlowersSection = ({
             id="flowers"
             autoComplete="off"
             label="Flower add-on prices can be edited on the next page."
+            labelHidden={true}
             value={value}
             suggestion={suggestion}
             placeholder="Add main flowers"
@@ -217,6 +220,10 @@ export const FocalFlowersSection = ({
       >
         {listboxMarkup}
       </Combobox>
+      <Text as={"p"} variant="bodyMd" tone="subdued">
+        Flower add-on prices can be edited on the next page.
+      </Text>
+      </BlockStack>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { ChoiceList, InlineError } from "@shopify/polaris";
+import { BlockStack, ChoiceList, InlineError, Text } from "@shopify/polaris";
 import type { SizeSectionProps } from "~/types";
 import { useCallback } from "react";
 import { FormErrors } from "~/errors";
@@ -39,9 +39,10 @@ export const SizeSection = ({
       : formState.sizeEnumToName.defaultMap[sizeEnum]
   }
   return (
-    <>
+    <BlockStack gap="300">
       <ChoiceList
         title="Size names and prices can be edited on the next page."
+        titleHidden={true}
         allowMultiple
         choices={allSizesAvailable.map((option) => {
           return { label: getDisplayName(option), value: option };
@@ -50,6 +51,9 @@ export const SizeSection = ({
         onChange={handleChange}
       />
       {inlineError(errors)}
-    </>
+      <Text as={"p"} variant="bodyMd" tone="subdued">
+        Size names and prices can be edited on the next page.
+      </Text>
+    </BlockStack>
   );
 };

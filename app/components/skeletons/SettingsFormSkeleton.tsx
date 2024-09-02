@@ -79,8 +79,8 @@ export const SettingsFormSkeleton = () => {
                             </Box>
                             <Card roundedAbove="sm">
                                 <BlockStack gap="400">
-                                <SkeletonBodyText lines={1} />
                                     <SkeletonTabs count={2} fitted />
+                                    <SkeletonBodyText lines={1} />
                                 </BlockStack>
                             </Card>
                         </InlineGrid>
@@ -100,8 +100,8 @@ export const SettingsFormSkeleton = () => {
                             </Box>
                             <Card roundedAbove="sm">
                                 <BlockStack gap="400">
-                                    <SkeletonBodyText lines={1} />
                                     <SkeletonDisplayText size="extraLarge" />
+                                    <SkeletonBodyText lines={1} />
                                 </BlockStack>
                             </Card>
                         </InlineGrid>

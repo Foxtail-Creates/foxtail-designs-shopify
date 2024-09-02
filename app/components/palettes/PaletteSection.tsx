@@ -2,7 +2,7 @@ import {
   Text,
   BlockStack,
   Checkbox,
-  InlineGrid
+  InlineStack
 } from "@shopify/polaris";
 import { useCallback, useState } from "react";
 import type {
@@ -22,7 +22,8 @@ const PaletteChoice = ({
 }: PaletteChoiceProps) => {
   return (
     <>
-      <InlineGrid gap="100" columns="2">
+      <InlineStack gap="0" align="space-between">
+      
         <Checkbox
           id={paletteId}
           label={paletteName}
@@ -30,7 +31,7 @@ const PaletteChoice = ({
           onChange={setCheckedPalette}
         />
         <Palette color1={color1} color2={color2} color3={color3} />
-      </InlineGrid>
+      </InlineStack>
     </>
   );
 };
@@ -85,16 +86,13 @@ export const PaletteSection = ({
 
   return (
     <>
-      <Text as={"p"} variant="bodyMd">
-        Palette names can be edited on the next page.
-      </Text>
-        {inlineError(errors?.palettes, "palettes")}
-        {!errors?.palettes && inlineError(validationError, "palettes")}
-      <BlockStack gap="500" align="start" id="palettes">
+      {inlineError(errors?.palettes, "palettes")}
+      {!errors?.palettes && inlineError(validationError, "palettes")}
+      <BlockStack gap="300" align="start" id="palettes">
         {allPaletteOptionsSorted.map((palette) => {
-            const paletteId: string = palette.id.toString();
-            const paletteName: string = getDisplayName(paletteId);
-            return (
+          const paletteId: string = palette.id.toString();
+          const paletteName: string = getDisplayName(paletteId);
+          return (
             <PaletteChoice
               key={paletteName}
               paletteId={paletteId}
@@ -104,10 +102,13 @@ export const PaletteSection = ({
               color1={palette.color1}
               color2={palette.color2}
               color3={palette.color3}
-          />
+            />
           );
         }
         )}
+        <Text as={"p"} variant="bodyMd" tone="subdued">
+          Palette names can be edited on the next page.
+        </Text>
       </BlockStack>
     </>
   );
