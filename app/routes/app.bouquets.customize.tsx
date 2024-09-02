@@ -17,6 +17,10 @@ import {
   PageActions,
   Thumbnail,
   BannerHandles,
+  useBreakpoints,
+  Box,
+  InlineGrid,
+  TextField,
 } from "@shopify/polaris";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { defer, json, redirect } from "@remix-run/node";
@@ -208,6 +212,8 @@ const ByobCustomizationForm = ({
     submit({ data: serializedData }, { method: "post" });
   }
 
+  const { smUp } = useBreakpoints();
+
   return (
     <Page
       backAction={{ content: 'Settings', url: SETTINGS_PATH }}
@@ -224,6 +230,53 @@ const ByobCustomizationForm = ({
           <ServerErrorBanner banner={backendErrorBanner} />
         </Layout.Section>
         }
+        <BlockStack gap={{ xs: "800", sm: "400" }}>
+        <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+          <Box
+            as="section"
+            paddingInlineStart={{ xs: 400, sm: 0 }}
+            paddingInlineEnd={{ xs: 400, sm: 0 }}
+          >
+            <BlockStack gap="400">
+              <Text as="h3" variant="headingMd">
+                InterJambs
+              </Text>
+              <Text as="p" variant="bodyMd">
+                Interjambs are the rounded protruding bits of your puzzlie piece
+              </Text>
+            </BlockStack>
+          </Box>
+          <Card roundedAbove="sm">
+            <BlockStack gap="400">
+              <TextField label="Interjamb style" />
+              <TextField label="Interjamb ratio" />
+            </BlockStack>
+          </Card>
+        </InlineGrid>
+        {smUp ? <Divider /> : null}
+        <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+          <Box
+            as="section"
+            paddingInlineStart={{ xs: 400, sm: 0 }}
+            paddingInlineEnd={{ xs: 400, sm: 0 }}
+          >
+            <BlockStack gap="400">
+              <Text as="h3" variant="headingMd">
+                Dimensions
+              </Text>
+              <Text as="p" variant="bodyMd">
+                Interjambs are the rounded protruding bits of your puzzlie piece
+              </Text>
+            </BlockStack>
+          </Box>
+          <Card roundedAbove="sm">
+            <BlockStack gap="400">
+              <TextField label="Horizontal" />
+              <TextField label="Interjamb ratio" />
+            </BlockStack>
+          </Card>
+        </InlineGrid>
+      </BlockStack>
         <Layout.Section>
           <BlockStack gap="500">
             <Card>
