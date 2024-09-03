@@ -167,7 +167,6 @@ export type CustomizationProps = {
   shouldSetPrice: boolean;
   shouldSetName: boolean;
   shouldSortOptions: boolean;
-  instructions: ReactElement | null;
   optionCustomizations: OptionCustomization;
   formState: BouquetCustomizationForm;
   optionValueToPriceUpdates: { [key: string]: number };
