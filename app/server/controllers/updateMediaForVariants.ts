@@ -1,4 +1,4 @@
-import { FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_DEFAULT_VALUES, PRODUCT_METADATA_PRICES } from "~/constants";
+import { FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_DEFAULT_VALUES, PRODUCT_METADATA_CUSTOM_OPTIONS } from "~/constants";
 import { ProductMetadata } from "~/types";
 import { GET_PRODUCT_BY_ID_QUERY } from "../graphql";
 import { bulkUpdateVariants } from "../services/bulkUpdateVariants";
@@ -15,7 +15,7 @@ export async function updateMediaForVariants(
       variables: {
         id: productId,
         namespace: FOXTAIL_NAMESPACE,
-        key: PRODUCT_METADATA_PRICES
+        key: PRODUCT_METADATA_CUSTOM_OPTIONS
       },
     },
   );

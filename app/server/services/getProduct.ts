@@ -1,4 +1,4 @@
-import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES } from "~/constants";
+import { FOXTAIL_NAMESPACE, PRODUCT_METADATA_CUSTOM_OPTIONS } from "~/constants";
 import { GET_PRODUCT_BY_ID_QUERY } from "../graphql";
 import { GetProductByIdQuery, ProductFieldsFragment } from "~/types/admin.generated";
 import { FetchResponseBody } from "@shopify/admin-api-client";
@@ -13,7 +13,7 @@ export async function getProduct(admin: AdminApiContext, productId: string): Pro
       variables: {
         id: productId,
         namespace: FOXTAIL_NAMESPACE,
-        key: PRODUCT_METADATA_PRICES
+        key: PRODUCT_METADATA_CUSTOM_OPTIONS
       },
     },
   )

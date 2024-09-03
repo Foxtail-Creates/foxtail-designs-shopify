@@ -1,5 +1,5 @@
-export const DELETE_STORE_METAFIELD_QUERY = `#graphql
-  mutation deleteStoreMetafield($metafieldId: ID!) {
+export const DELETE_METAFIELD_QUERY = `#graphql
+  mutation deleteMetafield($metafieldId: ID!) {
     metafieldDelete(input: {id: $metafieldId}) {
       userErrors {
         field
