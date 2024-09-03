@@ -30,9 +30,12 @@ type ManageProductProps = {
 
 type QuickstartProps = {
   onEditAction: () => void;
+  onPublishAction: () => void;
   productId: string | undefined | null;
+  isPublished: boolean;
   isEditLoading: boolean;
   isDeleteLoading: boolean;
+  isPublishLoading: boolean;
 };
 
 type CurrentProductProps = {
@@ -159,9 +162,12 @@ const Welcome = () => {
 const QuickStart = (
   {
     onEditAction,
+    onPublishAction,
     productId,
+    isPublished,
     isEditLoading,
-    isDeleteLoading
+    isDeleteLoading,
+    isPublishLoading
   }: QuickstartProps) => {
   return (
     <Card roundedAbove="sm">
@@ -188,8 +194,25 @@ const QuickStart = (
         </Card>
         <Card roundedAbove="sm">
           <Text as="p" variant="bodyLg">
-            2. Manage your product below. It will be linked to the Template Editor until you disconnect it or delete it.
+            2. Edit your product below. It will be linked to the Template Editor until you disconnect it or delete it.
           </Text>
+        </Card>
+        <Card roundedAbove="sm">
+          <InlineStack gap="200" align="space-between" blockAlign="center">
+            <Text as="p" variant="bodyLg">
+              3. Publish to Online Store.
+            </Text>
+            <Button
+              variant="primary"
+              onClick={onPublishAction}
+              accessibilityLabel="Publish product"
+              icon={isPublished ? CheckIcon : OutboundIcon}
+              loading={isPublishLoading}
+              disabled={isPublished || isDeleteLoading || isEditLoading || isPublishLoading}
+            >
+              {isPublished ? "Published" : "Publish"}
+            </Button>
+          </InlineStack>
         </Card>
 
       </BlockStack>
@@ -604,13 +627,13 @@ export default function Index() {
   };
 
   const onPublish = () => {
-    publishFetcher.submit({ 
+    publishFetcher.submit({
       action: "publish",
       productId: product.id,
       metafieldId: product.metafieldId,
       status: product.status,
       publishedAt: product.publishedAt
-     }, { method: "post" })
+    }, { method: "post" })
   };
 
   const onUnpublish = () => {
@@ -645,9 +668,12 @@ export default function Index() {
                     <Welcome />
                     <QuickStart
                       onEditAction={onEdit}
+                      onPublishAction={onPublish}
                       productId={product.id}
+                      isPublished={!!product.publishedAt}
                       isEditLoading={isEditing}
                       isDeleteLoading={isDeleting}
+                      isPublishLoading={isPublishing}
                     />
                   </InlineGrid>
                 </Layout.Section>
