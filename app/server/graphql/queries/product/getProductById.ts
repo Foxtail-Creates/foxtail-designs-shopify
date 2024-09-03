@@ -17,5 +17,6 @@ export const GET_PRODUCT_PREVIEW_BY_ID_QUERY = `#graphql
         id
         onlineStorePreviewUrl
         publishedAt
+        status
       }
     }`;
