@@ -184,7 +184,7 @@ const QuickStart = (
               variant="primary"
               onClick={onEditAction}
               accessibilityLabel="Create or edit BYOB product"
-              icon={!!(productId) ? CheckIcon : PlusIcon}
+              icon={productId ? CheckIcon : PlusIcon}
               loading={isEditLoading}
               disabled={!!(productId) || isEditLoading || isDeleteLoading}
             >

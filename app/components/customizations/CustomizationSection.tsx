@@ -136,7 +136,6 @@ export const CustomizationSection = ({
   shouldSetPrice,
   shouldSetName,
   shouldSortOptions,
-  instructions,
   optionCustomizations,
   formState,
   optionValueToPriceUpdates,
@@ -161,18 +160,8 @@ export const CustomizationSection = ({
 
   return (
     <>
-
-      {instructions}
-      {/* <TextField
-        label={`Edit category name`}
-        placeholder={optionCustomizations.optionName}
-        value={formState.optionCustomizations[optionKey].optionName}
-        onChange={updateOptionName}
-        autoComplete="off"
-        selectTextOnFocus={true}
-      /> */}
       {optionCustomizations.optionValueCustomizations &&
-        <InlineGrid columns={{ xs: 1, sm: 1, md: 2, lg: 2, xl: 2 }} gap="400" >
+        <InlineGrid columns="1" gap="400" >
           {Object
             .entries(optionCustomizations.optionValueCustomizations)
             .sort((a, b) => shouldSortOptions ? (a[1].name.localeCompare(b[1].name)) : 0)

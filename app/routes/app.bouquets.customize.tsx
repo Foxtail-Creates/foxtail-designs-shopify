@@ -10,7 +10,6 @@ import {
   Card,
   Divider,
   Layout,
-  List,
   Page,
   Text,
   BlockStack,
@@ -20,7 +19,6 @@ import {
   useBreakpoints,
   Box,
   InlineGrid,
-  TextField,
 } from "@shopify/polaris";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { defer, json, redirect } from "@remix-run/node";
@@ -229,137 +227,109 @@ const ByobCustomizationForm = ({
           <ServerErrorBanner banner={backendErrorBanner} />
         </Layout.Section>
         }
-        <BlockStack gap={{ xs: "800", sm: "400" }}>
-        <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
-          <Box
-            as="section"
-            paddingInlineStart={{ xs: 400, sm: 0 }}
-            paddingInlineEnd={{ xs: 400, sm: 0 }}
-          >
-            <BlockStack gap="400">
-              <Text as="h3" variant="headingMd">
-                InterJambs
-              </Text>
-              <Text as="p" variant="bodyMd">
-                Interjambs are the rounded protruding bits of your puzzlie piece
-              </Text>
-            </BlockStack>
-          </Box>
-          <Card roundedAbove="sm">
-            <BlockStack gap="400">
-              <TextField label="Interjamb style" />
-              <TextField label="Interjamb ratio" />
-            </BlockStack>
-          </Card>
-        </InlineGrid>
-        {smUp ? <Divider /> : null}
-        <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
-          <Box
-            as="section"
-            paddingInlineStart={{ xs: 400, sm: 0 }}
-            paddingInlineEnd={{ xs: 400, sm: 0 }}
-          >
-            <BlockStack gap="400">
-              <Text as="h3" variant="headingMd">
-                Dimensions
-              </Text>
-              <Text as="p" variant="bodyMd">
-                Interjambs are the rounded protruding bits of your puzzlie piece
-              </Text>
-            </BlockStack>
-          </Box>
-          <Card roundedAbove="sm">
-            <BlockStack gap="400">
-              <TextField label="Horizontal" />
-              <TextField label="Interjamb ratio" />
-            </BlockStack>
-          </Card>
-        </InlineGrid>
-      </BlockStack>
         <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="500">
-                <Text as={"h2"} variant="headingLg">
-                  Edit Bouquet Option Names and Prices
-                </Text>
-                <CustomizationSection
-                  optionKey={SIZE_OPTION_NAME}
-                  shouldSetPrice={true}
-                  shouldSetName={true}
-                  shouldSortOptions={false}
-                  instructions={
-                    <>
-                      <Text as="h2" variant="headingMd">
-                        Sizes
-                      </Text>
-                      <List type="bullet">
-                        <List.Item>
-                          {"Customize the naming for your size options -- for example, rename \"Small\" to \"Modest\"."}
-                        </List.Item>
-                        <List.Item>
-                          Edit the prices for each bouquet size. This will be the base price for the product.
-                        </List.Item>
-                      </List>
-                    </>
-                  }
-                  optionCustomizations={form.optionCustomizations[SIZE_OPTION_NAME]}
-                  formState={formState}
-                  setFormState={setFormState}
-                  optionValueToPriceUpdates={formState.sizeToPriceUpdates}
-                />
-                <Divider />
-                <CustomizationSection
-                  optionKey={PALETTE_OPTION_NAME}
-                  shouldSetPrice={false}
-                  shouldSetName={true}
-                  shouldSortOptions={true}
-                  instructions={
-                    <>
-                      <Text as="h2" variant="headingMd">
-                        Palettes
-                      </Text>
-                      <List type="bullet">
-                        <List.Item>
-                          {"Customize the naming for your palette options - for example, rename \"Pastel\" to \"Soft\"."}
-                        </List.Item>
-                      </List>
-                    </>
-                  }
-                  optionCustomizations={form.optionCustomizations[PALETTE_OPTION_NAME]}
-                  formState={formState}
-                  setFormState={setFormState}
-                  optionValueToPriceUpdates={{}}
-                />
-                <Divider />
-                <CustomizationSection
-                  optionKey={FLOWER_OPTION_NAME}
-                  shouldSetPrice={true}
-                  shouldSetName={false}
-                  shouldSortOptions={true}
-                  instructions={
-                    <>
-                      <Text as="h2" variant="headingMd">
-                        Main Flowers
-                      </Text>
-                      <List type="bullet">
-                        <List.Item>
-                          Edit the add-on price for each main flower.
-                        </List.Item>
-                      </List>
-                      <Text as="h2" variant="bodyMd">
-                        If the customer chooses a main flower with an add-on price, this will be in addition to the base price for the product.
-                        For example, if the base price for a "Small" bouquet is $40 and the customer chooses a main flower with an add-on price of $5, the total price will be $45.
-                      </ Text>
-                    </>
-                  }
-                  optionCustomizations={form.optionCustomizations[FLOWER_OPTION_NAME]}
-                  formState={formState}
-                  setFormState={setFormState}
-                  optionValueToPriceUpdates={formState.flowerToPriceUpdates}
-                />
-              </BlockStack>
-            </Card>
+          <BlockStack gap={{ xs: "800", sm: "400" }}>
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Size Edits
+                  </Text>
+                  <Text as={"h3"} variant="bodyMd">
+                    {"Edit size names and set base prices. This is the product's base price."}
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <Text as="h2" variant="bodyMd" tone="subdued">
+                    {"Customize the naming for your size options -- for example, rename \"Small\" to \"Modest\"."}
+                  </Text>
+                  <CustomizationSection
+                    optionKey={SIZE_OPTION_NAME}
+                    shouldSetPrice={true}
+                    shouldSetName={true}
+                    shouldSortOptions={false}
+                    optionCustomizations={form.optionCustomizations[SIZE_OPTION_NAME]}
+                    formState={formState}
+                    setFormState={setFormState}
+                    optionValueToPriceUpdates={formState.sizeToPriceUpdates}
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Palette Edits
+                  </Text>
+                  <Text as={"h3"} variant="bodyMd">
+                    Edit palette names.
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <Text as="h2" variant="bodyMd" tone="subdued">
+                    Customize the naming for your palette options -- for example, rename "Pastel" to "Soft."
+                  </Text>
+                  <CustomizationSection
+                    optionKey={PALETTE_OPTION_NAME}
+                    shouldSetPrice={false}
+                    shouldSetName={true}
+                    shouldSortOptions={true}
+                    optionCustomizations={form.optionCustomizations[PALETTE_OPTION_NAME]}
+                    formState={formState}
+                    setFormState={setFormState}
+                    optionValueToPriceUpdates={{}}
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
+            {smUp ? <Divider /> : null}
+            <InlineGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="400">
+              <Box
+                as="section"
+                paddingInlineStart={{ xs: 400, sm: 0 }}
+                paddingInlineEnd={{ xs: 400, sm: 0 }}
+              >
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Flower Edits
+                  </Text>
+                  <Text as={"h3"} variant="bodyMd">
+                    {"Set add-on prices. This is the price added to the product's base price."}
+                  </Text>
+                </BlockStack>
+              </Box>
+              <Card roundedAbove="sm">
+                <BlockStack gap="400">
+                  <Text as="h2" variant="bodyMd" tone="subdued">
+                    If the base price for a "Small" bouquet is $40 and the customer chooses a main flower with an add-on price of $5, the total bouquet price will be $45.
+                  </ Text>
+                  <CustomizationSection
+                    optionKey={FLOWER_OPTION_NAME}
+                    shouldSetPrice={true}
+                    shouldSetName={false}
+                    shouldSortOptions={true}
+                    optionCustomizations={form.optionCustomizations[FLOWER_OPTION_NAME]}
+                    formState={formState}
+                    setFormState={setFormState}
+                    optionValueToPriceUpdates={formState.flowerToPriceUpdates}
+                  />
+                </BlockStack>
+              </Card>
+            </InlineGrid>
           </BlockStack>
         </Layout.Section>
         <Layout.Section>
@@ -384,7 +354,7 @@ export default function LoadingCustomizationForm() {
   const nav = useNavigation();
   const isSaving =
     (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname !== SETTINGS_PATH;
-    
+
   return (
     <Suspense fallback={<CustomizationsFormSkeleton />}>
       <Await resolve={byobOptions} >
