@@ -12,6 +12,8 @@ import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleto
 import { Product } from "node_modules/@shopify/shopify-api/dist/ts/rest/admin/2024-04/product";
 import { getProductPreview } from "~/server/services/getProductPreview";
 import { getShopWithMetafield } from "~/server/services/getShopMetafield";
+import { publishProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
+import { unpublishProductInOnlineStore } from "~/server/controllers/unpublishProductInOnlineStore";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -94,18 +96,21 @@ export async function loader({ request }) {
 
   let productPreviewUrl = null;
   let publishedAt = null;
+  let status = null;
 
   if (productId) {
     const product = await getProductPreview(admin, productId);
     productPreviewUrl = product?.onlineStorePreviewUrl;
     publishedAt = product?.publishedAt;
+    status = product?.status;
   }
 
   return json({
     id: productId,
     metafieldId: shopWithMetafield.metafield?.id,
     onlineStorePreviewUrl: productPreviewUrl,
-    publishedAt: publishedAt
+    publishedAt: publishedAt,
+    status: status
   });
 }
 
@@ -124,8 +129,15 @@ export async function action({ request }: ActionFunctionArgs) {
     if (data.metafieldId != "undefined") {
       await deleteShopMetafield(admin, data.metafieldId)
     }
+  } else if (data.action === "publish") {
+    if (data.productId) {
+      await publishProductInOnlineStore(admin, data.productId, data.publishedAt, data.status);
+    }
+  } else if (data.action === "unpublish") {
+    if (data.productId) {
+      await unpublishProductInOnlineStore(admin, data.productId, data.publishedAt);
+    }
   }
-  // todo: use publish/unpublish hooks
   return json({ ok: true });
 }
 
@@ -592,7 +604,13 @@ export default function Index() {
   };
 
   const onPublish = () => {
-    publishFetcher.submit({ action: "publish", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+    publishFetcher.submit({ 
+      action: "publish",
+      productId: product.id,
+      metafieldId: product.metafieldId,
+      status: product.status,
+      publishedAt: product.publishedAt
+     }, { method: "post" })
   };
 
   const onUnpublish = () => {
