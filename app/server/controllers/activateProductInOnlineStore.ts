@@ -11,7 +11,7 @@ export async function activateProductInOnlineStore(admin: AdminApiContext, produ
 
     if (product.publishedAt == null) {
       const publications = await getPublications(admin);
-      const onlineStore = publications?.nodes.find( (node) => node.catalog.title.endsWith("Online Store"));
+      const onlineStore = publications?.nodes.find( (node) => node.catalog?.title.endsWith("Online Store"));
       if (onlineStore == null) {
         throw "Unable to publish product to Online Store. Could not find Online Store in publications."
         + " Please confirm that Online Store is available.";

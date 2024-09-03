@@ -16,5 +16,6 @@ export const GET_PRODUCT_PREVIEW_BY_ID_QUERY = `#graphql
       product(id:$id) {
         id
         onlineStorePreviewUrl
+        publishedAt
       }
     }`;
