@@ -26,8 +26,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       if (session) {
         await db.session.deleteMany({ where: { shop } });
       }
-      // todo: clean up shop metadata field
-
+      // metafields are under app-reserved namespace
       break;
     case "CUSTOMERS_DATA_REQUEST":
       // no customer data saved
