@@ -12,11 +12,15 @@ export const GET_PRODUCT_BY_ID_QUERY = `#graphql
     }`;
 
 export const GET_PRODUCT_PREVIEW_BY_ID_QUERY = `#graphql
-    query getProductPreviewById($id: ID!) { 
+    query getProductPreviewById($id: ID!, $namespace: String!, $key: String!) { 
       product(id:$id) {
         id
         onlineStorePreviewUrl
         publishedAt
         status
+        metafield(namespace: $namespace, key: $key) {
+          id
+          value
+        }
       }
     }`;

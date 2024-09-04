@@ -4,19 +4,20 @@ import { Badge, Link } from '@shopify/polaris';
 import { authenticate } from "../shopify.server";
 import { BlockStack, Button, ButtonGroup, Card, Divider, FooterHelp, InlineGrid, InlineStack, Layout, Page, Text } from "@shopify/polaris";
 import { deleteProduct } from "~/server/services/deleteProduct";
-import { deleteShopMetafield } from "~/server/services/deleteShopMetafield";
+import { deleteMetafield } from "~/server/services/deleteMetafield";
 import { CheckIcon, DeleteIcon, EditIcon, EmailIcon, FlowerIcon, PlusIcon, OutboundIcon, ViewIcon, InboundIcon, ExitIcon, TextBlockIcon, QuestionCircleIcon } from "@shopify/polaris-icons";
 import { useState } from "react";
 import { SuccessBanner } from "~/components/SuccessBanner";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
-import { Product } from "node_modules/@shopify/shopify-api/dist/ts/rest/admin/2024-04/product";
 import { getProductPreview } from "~/server/services/getProductPreview";
 import { getShopWithMetafield } from "~/server/services/getShopMetafield";
 import { publishProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
 import { unpublishProductInOnlineStore } from "~/server/controllers/unpublishProductInOnlineStore";
+import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 
 type ManageProductProps = {
   onEditAction: () => void;
+  onDisconnectAction: () => void;
   onDeleteAction: () => void;
   onPreviewAction: () => void;
   onPublishAction: () => void;
@@ -62,6 +63,7 @@ type UnpublishButtonProps = {
 
 type EditProps = {
   onEditAction: () => void;
+  onDisconnectAction: () => void;
   productId: string | undefined | null;
   isEditLoading: boolean;
   isDeleteLoading: boolean;
@@ -86,7 +88,8 @@ type ContainerProps = {
 
 type Product = {
   id: string | null;
-  metafieldId: string;
+  shopMetafieldId: string;
+  metafieldId: string | undefined | null;
   onlineStorePreviewUrl: string | undefined | null;
   publishedAt: string | undefined | null; // null if product isn't published to Online Store
 };
@@ -100,17 +103,20 @@ export async function loader({ request }) {
   let productPreviewUrl = null;
   let publishedAt = null;
   let status = null;
+  let metafieldId = null;
 
   if (productId) {
     const product = await getProductPreview(admin, productId);
     productPreviewUrl = product?.onlineStorePreviewUrl;
     publishedAt = product?.publishedAt;
     status = product?.status;
+    metafieldId = product?.metafield?.id;
   }
 
   return json({
     id: productId,
-    metafieldId: shopWithMetafield.metafield?.id,
+    shopMetafieldId: shopWithMetafield.metafield?.id,
+    metafieldId: metafieldId,
     onlineStorePreviewUrl: productPreviewUrl,
     publishedAt: publishedAt,
     status: status
@@ -124,13 +130,21 @@ export async function action({ request }: ActionFunctionArgs) {
   };
   if (data.action === "delete") {
     // delete product
-    if (data.productId != "undefined") {
+    if (data.productId !== "undefined" && data.productId !== "null") {
       await deleteProduct(admin, data.productId);
     }
 
     // delete shop metafield
-    if (data.metafieldId != "undefined") {
-      await deleteShopMetafield(admin, data.metafieldId)
+    if (data.shopMetafieldId !== "undefined" && data.shopMetafieldId !== "null") {
+      await deleteMetafield(admin, data.shopMetafieldId);
+    }
+  } else if (data.action === "disconnect") {
+    // delete shop metafield
+    if (data.shopMetafieldId !== "undefined" && data.shopMetafieldId !== "null") {
+      await deleteMetafield(admin, data.shopMetafieldId);
+    }
+    if (data.metafieldId && data.metafieldId !== "undefined" && data.metafieldId !== "null") {
+      await deleteMetafield(admin, data.metafieldId);
     }
   } else if (data.action === "publish") {
     if (data.productId) {
@@ -287,6 +301,17 @@ const UnpublishButton = (
   )
 }
 
+const ConfirmDeleteModal = ({ onDeleteAction, shopify }) => {
+  return (
+    <Modal id="confirm-delete-modal">
+      <Text as="p" variant="bodyLg" alignment="center">This will permanently delete your bouquet. It can't be undone.</Text>
+      <TitleBar title="Delete Bouquet">
+        <button tone="critical" variant="primary" onClick={onDeleteAction}>Delete</button>
+        <button onClick={() => shopify.modal.hide('confirm-delete-modal')}>Cancel</button>
+      </TitleBar>
+    </Modal>
+  )
+}
 const LifeCycle = (
   {
     productId,
@@ -298,6 +323,8 @@ const LifeCycle = (
     onUnpublishAction,
     onDeleteAction
   }: LifeCycleProps) => {
+  const shopify = useAppBridge();
+
   return (
 
     <InlineGrid gap="200" >
@@ -343,6 +370,8 @@ const LifeCycle = (
           </BlockStack>
         </Card>
 
+        <ConfirmDeleteModal onDeleteAction={onDeleteAction} shopify={shopify} />
+
         <ManageContainer
           header="Delete Bouquet"
           body="Permanently delete bouquet."
@@ -351,7 +380,7 @@ const LifeCycle = (
             <Button
               variant="primary"
               tone="critical"
-              onClick={onDeleteAction}
+              onClick={() => shopify.modal.show('confirm-delete-modal')}
               accessibilityLabel="Delete BYOB product"
               icon={DeleteIcon}
               loading={isDeleteLoading}
@@ -392,13 +421,28 @@ const ManageContainer = (
   )
 }
 
+const ConfirmDisconnectModal = ({ onDisconnectAction, shopify}) => {
+  return (
+    <Modal id="confirm-disconnect-modal">
+      <Text as="p" variant="bodyLg" alignment="center">If you disconnect your custom bouquet from the Template Editor, it can't be undone.
+        Your bouquet product will still exist, but it will not be linked to the app.</Text>
+      <TitleBar title="Disconnect Bouquet from Template Editor">
+        <button variant="primary" tone="critical" onClick={onDisconnectAction}>Disconnect</button>
+        <button onClick={() => shopify.modal.hide('confirm-disconnect-modal')}>Cancel</button>
+      </TitleBar>
+    </Modal>
+  )
+}
+
 const Edit = (
   {
     onEditAction,
+    onDisconnectAction,
     productId,
     isEditLoading,
     isDeleteLoading
   }: EditProps) => {
+  const shopify = useAppBridge();
   return (
 
     <InlineGrid gap="400" >
@@ -407,6 +451,7 @@ const Edit = (
       <Text as="h2" variant="headingMd">
         Edit product
       </Text>
+      <ConfirmDisconnectModal onDisconnectAction={onDisconnectAction} shopify={shopify} />
 
       <InlineGrid gap="400" columns={2}>
         <ManageContainer
@@ -426,7 +471,6 @@ const Edit = (
             </Button>
           }
         />
-
         <ManageContainer
           header="Make it your own."
           body="Disconnect your bouquet from the template editor.
@@ -434,7 +478,7 @@ const Edit = (
           action={
             <Button
               variant="primary"
-              onClick={onEditAction}
+              onClick={() => shopify.modal.show('confirm-disconnect-modal')}
               accessibilityLabel="Disconnect from template editor"
               icon={ExitIcon}
               loading={isEditLoading}
@@ -455,6 +499,7 @@ const ManageProduct = (
     onEditAction,
     onDeleteAction,
     onPreviewAction,
+    onDisconnectAction,
     productId,
     isPublished,
     isEditLoading,
@@ -474,7 +519,8 @@ const ManageProduct = (
 
         <CurrentProduct productId={productId} isPublished={false} onPreviewAction={onPreviewAction} />
 
-        {productId && <Edit onEditAction={onEditAction} productId={productId} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading} />}
+        {productId && <Edit onEditAction={onEditAction} onDisconnectAction={onDisconnectAction}
+          productId={productId} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading} />}
 
         {productId && <LifeCycle productId={productId} isPublished={isPublished} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading}
           isPublishLoading={isPublishLoading} onDeleteAction={onDeleteAction} onPublishAction={onPublishAction} onUnpublishAction={onUnpublishAction} />}
@@ -623,23 +669,26 @@ export default function Index() {
   };
 
   const onDelete = () => {
-    deleteFetcher.submit({ action: "delete", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+    deleteFetcher.submit({ action: "delete", productId: product.id, shopMetafieldId: product.shopMetafieldId }, { method: "post" })
   };
 
   const onPublish = () => {
     publishFetcher.submit({
       action: "publish",
       productId: product.id,
-      metafieldId: product.metafieldId,
+      shopMetafieldId: product.shopMetafieldId,
       status: product.status,
       publishedAt: product.publishedAt
     }, { method: "post" })
   };
 
   const onUnpublish = () => {
-    publishFetcher.submit({ action: "unpublish", productId: product.id, metafieldId: product.metafieldId }, { method: "post" })
+    publishFetcher.submit({ action: "unpublish", productId: product.id, shopMetafieldId: product.shopMetafieldId }, { method: "post" })
   };
 
+  const onDisconnect = () => {
+    publishFetcher.submit({ action: "disconnect", productId: product.id, shopMetafieldId: product.shopMetafieldId, metafieldId: product.metafieldId }, { method: "post" })
+  };
   const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl && nav.state === "idle";
 
   return (
@@ -684,6 +733,7 @@ export default function Index() {
                     onDeleteAction={onDelete}
                     onPublishAction={onPublish}
                     onUnpublishAction={onUnpublish}
+                    onDisconnectAction={onDisconnect}
                     productId={product.id}
                     isPublished={!!product.publishedAt}
                     isEditLoading={isEditing}

@@ -3,7 +3,7 @@ import { Size } from "./size";
 
 export const FOXTAIL_NAMESPACE = "foxtail";
 export const STORE_METADATA_CUSTOM_PRODUCT_KEY = "customProductId";
-export const PRODUCT_METADATA_PRICES = "prices";
+export const PRODUCT_METADATA_CUSTOM_OPTIONS = "custom";
 export const GRAPHQL_API_VERSION = "2024-07";
 
 // positions for Shopify product options

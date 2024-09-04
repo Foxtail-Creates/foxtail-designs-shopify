@@ -4,7 +4,7 @@ import type {
 import { updateOptionAndValueNames } from "./updateOptionAndValueNames";
 import { updateVariantsPriceStatusMedia } from "./updateVariantsPriceStatusMedia";
 import { setProductMetadata } from "../services/setProductMetadata";
-import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_PRICES, SIZE_OPTION_NAME } from "~/constants";
+import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_CUSTOM_OPTIONS, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
 import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
@@ -38,7 +38,7 @@ export async function saveCustomizations(admin: AdminApiContext, data: Serialize
   updateIdMap(data.productMetadata.sizeToName, data.sizeToNameUpdates, sizeEnumToName);
 
   await setProductMetadata(admin, prevProduct.id,
-    FOXTAIL_NAMESPACE, PRODUCT_METADATA_PRICES, JSON.stringify(data.productMetadata));
+    FOXTAIL_NAMESPACE, PRODUCT_METADATA_CUSTOM_OPTIONS, JSON.stringify(data.productMetadata));
 }
 
 async function updateCustomOptionandValueNames(
