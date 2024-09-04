@@ -306,7 +306,7 @@ const ConfirmDeleteModal = ({ onDeleteAction, shopify }) => {
     <Modal id="confirm-delete-modal">
       <Text as="p" variant="bodyLg" alignment="center">This will permanently delete your bouquet. It can't be undone.</Text>
       <TitleBar title="Delete Bouquet">
-        <button variant="primary" onClick={onDeleteAction}>Delete</button>
+        <button tone="critical" variant="primary" onClick={onDeleteAction}>Delete</button>
         <button onClick={() => shopify.modal.hide('confirm-delete-modal')}>Cancel</button>
       </TitleBar>
     </Modal>
@@ -427,7 +427,7 @@ const ConfirmDisconnectModal = ({ onDisconnectAction, shopify}) => {
       <Text as="p" variant="bodyLg" alignment="center">If you disconnect your custom bouquet from the Template Editor, it can't be undone.
         Your bouquet product will still exist, but it will not be linked to the app.</Text>
       <TitleBar title="Disconnect Bouquet from Template Editor">
-        <button variant="primary" onClick={onDisconnectAction}>Disconnect</button>
+        <button variant="primary" tone="critical" onClick={onDisconnectAction}>Disconnect</button>
         <button onClick={() => shopify.modal.hide('confirm-disconnect-modal')}>Cancel</button>
       </TitleBar>
     </Modal>
