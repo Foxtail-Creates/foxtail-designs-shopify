@@ -68,3 +68,7 @@ Our florists will create a beautiful bouquet based on your selections.
 <br/>
 <br/>
 Photos are for color palette reference only. Our florists will choose blooms based on the general color palette and not the specific flowers pictured.`;
+
+export const SEO_PRODUCT_NAME = "Custom Flower Arrangements | Build Your Own Bouquet";
+
+export const SEO_PRODUCT_DESCRIPTION = `Build your own custom flower bouquet! Choose your color and flower preferences, and we will create a unique flower arrangement just for you.`;
