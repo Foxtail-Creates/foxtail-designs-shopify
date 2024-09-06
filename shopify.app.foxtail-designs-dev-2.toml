@@ -1,9 +1,10 @@
+# Config file for dev2 testing environment
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "ff76bcd4fb1407f5be050deaaaf74190"
 name = "foxtail-designs dev 2"
 handle = "foxtail-designs-dev-2"
-application_url = "https://hart-menu-connections-divide.trycloudflare.com"
+application_url = "https://justin-locked-forming-tape.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,16 +18,16 @@ scopes = "write_inventory,write_products,write_publications"
 
 [auth]
 redirect_urls = [
-  "https://hart-menu-connections-divide.trycloudflare.com/auth/callback",
-  "https://hart-menu-connections-divide.trycloudflare.com/auth/shopify/callback",
-  "https://hart-menu-connections-divide.trycloudflare.com/api/auth/callback"
+  "https://justin-locked-forming-tape.trycloudflare.com/auth/callback",
+  "https://justin-locked-forming-tape.trycloudflare.com/auth/shopify/callback",
+  "https://justin-locked-forming-tape.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
 
   [[webhooks.subscriptions]]
-  topics = [ "app_subscriptions/update", "app/uninstalled", "shop/update" ]
+  topics = [ "app/uninstalled", "shop/update" ]
   uri = "/webhooks"
   compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
