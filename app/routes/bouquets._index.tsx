@@ -17,7 +17,7 @@ import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { SETTINGS_PATH } from "~/constants";
 import { getShopInformation } from "~/server/services/getShopInformation";
 import { trackEvent, updateProfile } from "~/server/services/sendEvent";
-import { PUBLISH_PRODUCT } from "~/analyticsKeys";
+import { CREATE_PRODUCT_EVENT, DELETE_PRODUCT_EVENT, DETACH_PRODUCT_EVENT, PUBLISH_PRODUCT_EVENT, UPDATE_PRODUCT_EVENT } from "~/analyticsKeys";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -107,7 +107,7 @@ export async function loader({ request }) {
   const shopInformation = await getShopInformation(admin);
 
   updateProfile({
-    storeId: shopInformation.id, 
+    storeId: shopInformation.id,
     storeName: shopInformation.name,
     email: shopInformation.email,
     storeUrl: shopInformation.url,
@@ -156,6 +156,11 @@ export async function action({ request }: ActionFunctionArgs) {
     if (data.shopMetafieldId !== "undefined" && data.shopMetafieldId !== "null") {
       await deleteMetafield(admin, data.shopMetafieldId);
     }
+    trackEvent({
+      storeId: 'todo', // todo: pass in store id to associate event with store
+      eventName: DELETE_PRODUCT_EVENT,
+      properties: {}
+    });
   } else if (data.action === "disconnect") {
     // delete shop metafield
     if (data.shopMetafieldId !== "undefined" && data.shopMetafieldId !== "null") {
@@ -164,14 +169,19 @@ export async function action({ request }: ActionFunctionArgs) {
     if (data.metafieldId && data.metafieldId !== "undefined" && data.metafieldId !== "null") {
       await deleteMetafield(admin, data.metafieldId);
     }
+    trackEvent({
+      storeId: 'todo', // todo: pass in store id to associate event with store
+      eventName: DETACH_PRODUCT_EVENT,
+      properties: {}
+    });
   } else if (data.action === "publish") {
     if (data.productId) {
       await publishProductInOnlineStore(admin, data.productId, data.publishedAt, data.status);
       trackEvent({
-        storeId: 'todo',
-        eventName: PUBLISH_PRODUCT,
+        storeId: 'todo', // todo: pass in store id to associate event with store
+        eventName: PUBLISH_PRODUCT_EVENT,
         properties: {}
-    });
+      });
     }
   } else if (data.action === "unpublish") {
     if (data.productId) {

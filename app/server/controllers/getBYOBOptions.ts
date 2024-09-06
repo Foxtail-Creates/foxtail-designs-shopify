@@ -63,7 +63,6 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
 
   const productId = shopWithMetafield.metafield?.value;
   if (productId) {
-
     // if shop metadata has custom product id, retrieve it
     customProduct = await getProduct(admin, productId);
 
