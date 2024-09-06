@@ -222,7 +222,7 @@ const QuickStart = (
               accessibilityLabel="Publish product"
               icon={isPublished ? CheckIcon : OutboundIcon}
               loading={isPublishLoading}
-              disabled={isPublished || isDeleteLoading || isEditLoading || isPublishLoading}
+              disabled={!productId || isPublished || isDeleteLoading || isEditLoading || isPublishLoading}
             >
               {isPublished ? "Published" : "Publish"}
             </Button>
