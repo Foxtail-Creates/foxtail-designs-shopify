@@ -55,9 +55,17 @@ import { captureException } from "@sentry/remix";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 import { updateProduct } from "~/server/services/updateProduct";
+import { CREATE_UPDATE_PRODUCT_EVENT } from "~/analyticsKeys";
+import { trackEvent } from "~/server/services/sendEvent";
 
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
+
+  trackEvent({
+    storeId: 'todo', // todo: pass in store id to associate event with store
+    eventName: CREATE_UPDATE_PRODUCT_EVENT,
+    properties: {}
+  });
 
   return defer({
     byobOptions,
@@ -319,7 +327,7 @@ const ByobSettingsForm = ({
                     Palette Customizations
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
-                  Choose up to five (5) color palettes you want to offer to your customers.
+                    Choose up to five (5) color palettes you want to offer to your customers.
                   </Text>
                 </BlockStack>
               </Box>
@@ -344,7 +352,7 @@ const ByobSettingsForm = ({
                     Main Flower Customizations
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
-                  Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet. 
+                    Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet.
                   </Text>
                 </BlockStack>
               </Box>

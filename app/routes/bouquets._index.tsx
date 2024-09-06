@@ -17,7 +17,7 @@ import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { SETTINGS_PATH } from "~/constants";
 import { getShopInformation } from "~/server/services/getShopInformation";
 import { trackEvent, updateProfile } from "~/server/services/sendEvent";
-import { CREATE_PRODUCT_EVENT, DELETE_PRODUCT_EVENT, DETACH_PRODUCT_EVENT, PUBLISH_PRODUCT_EVENT, UPDATE_PRODUCT_EVENT } from "~/analyticsKeys";
+import { DELETE_PRODUCT_EVENT, DETACH_PRODUCT_EVENT, PUBLISH_PRODUCT_EVENT } from "~/analyticsKeys";
 
 type ManageProductProps = {
   onEditAction: () => void;
