@@ -2,6 +2,8 @@ import { json, type ActionFunctionArgs } from "@remix-run/node";
 import crypto from 'crypto';
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
+import { getShopInformation } from "~/server/services/getShopInformation";
+import { updateProfile } from "~/server/services/sendEvent";
 
 // Shopify's shared secret key
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
@@ -12,11 +14,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const rawPayload = await reqClone.text();
 
   const { topic, shop, session, admin } = await authenticate.webhook(request);
-
   if (!(await validateWebhook(request, rawPayload))) {
     throw new Response("Unauthorized", { status: 401 });
   }
   switch (topic) {
+    case "APP_SUBSCRIPTIONS_UPDATE":
+      if (!admin) {
+        // Authentication is required to get store info
+        throw new Response();
+      };
+      const shopInformation = await getShopInformation(admin);
+      updateProfile({
+        storeId: shopInformation.id,
+        storeName: shopInformation.name,
+        email: shopInformation.email,
+        address: {
+          city: shopInformation.billingAddress.city,
+          country: shopInformation.billingAddress.country,
+          phone: shopInformation.billingAddress.phone
+        }
+      });
+
+    case "SHOP_UPDATE":
+      const shopUpdatePayload = JSON.parse(rawPayload);
+      updateProfile({
+        storeId: `gid://shopify/Shop/${shopUpdatePayload.id}`,
+        storeName: shopUpdatePayload.name,
+        email: shopUpdatePayload.email,
+        address: {
+          city: shopUpdatePayload.city,
+          country: shopUpdatePayload.country,
+          phone: shopUpdatePayload.phone
+        }
+      });
+
     case "APP_UNINSTALLED":
       if (!admin) {
         // The admin context isn't returned if the webhook fired after a shop was uninstalled.

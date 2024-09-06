@@ -62,7 +62,7 @@ export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
   trackEvent({
-    storeId: 'todo', // todo: pass in store id to associate event with store
+    storeId: byobOptions.shopId,
     eventName: CREATE_UPDATE_PRODUCT_EVENT,
     properties: {}
   });
@@ -197,7 +197,8 @@ const ByobSettingsForm = ({
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
       productMetadata: byobCustomizer.productMetadata,
-      productImages: byobCustomizer.productImages
+      productImages: byobCustomizer.productImages,
+      shopId: byobCustomizer.shopId
     };
 
     const userErrors: FormErrors = {};

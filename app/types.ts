@@ -24,6 +24,7 @@ export type ByobCustomizerOptions = {
   flowersSelected: string[];
   productMetadata: ProductMetadata;
   productImages: ProductImage[] | undefined;
+  shopId: string;
 };
 
 export type BouquetSettingsForm = {
@@ -71,6 +72,7 @@ export type SerializedSettingForm = {
   flowerOptionValuesToAdd: string[];
   productMetadata: ProductMetadata;
   productImages: ProductImage[] | undefined;
+  shopId: string;
 }
 
 export type SerializedTwoWayFallbackMap = {

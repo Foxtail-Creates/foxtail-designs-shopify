@@ -143,6 +143,7 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
     flowersSelected: flowersSelected,
     productMetadata: productMetadata,
     productImages: productImages,
+    shopId: shopWithMetafield.id
   };
   return byobOptions;
 };

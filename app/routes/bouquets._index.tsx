@@ -15,9 +15,10 @@ import { publishProductInOnlineStore } from "~/server/controllers/activateProduc
 import { unpublishProductInOnlineStore } from "~/server/controllers/unpublishProductInOnlineStore";
 import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { SETTINGS_PATH } from "~/constants";
-import { getShopInformation } from "~/server/services/getShopInformation";
-import { trackEvent, updateProfile } from "~/server/services/sendEvent";
+import { trackEvent } from "~/server/services/sendEvent";
 import { DELETE_PRODUCT_EVENT, DETACH_PRODUCT_EVENT, PUBLISH_PRODUCT_EVENT } from "~/analyticsKeys";
+import { AppSettings } from "~/types";
+import { ProductStatus } from "~/types/admin.types";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -90,12 +91,14 @@ type ContainerProps = {
   action: JSX.Element;
 }
 
-type Product = {
-  id: string | null;
-  shopMetafieldId: string;
-  metafieldId: string | undefined | null;
+type AppSettings = {
+  productId: string | undefined | null;
+  shopId: string;
+  shopMetafieldId: string | undefined | null;
+  productMetafieldId: string | undefined | null;
   onlineStorePreviewUrl: string | undefined | null;
   publishedAt: string | undefined | null; // null if product isn't published to Online Store
+  status: ProductStatus | undefined | null;
 };
 
 export async function loader({ request }) {
@@ -103,20 +106,6 @@ export async function loader({ request }) {
 
   const shopWithMetafield = await getShopWithMetafield(admin);
   const productId = shopWithMetafield.metafield?.value;
-
-  const shopInformation = await getShopInformation(admin);
-
-  updateProfile({
-    storeId: shopInformation.id,
-    storeName: shopInformation.name,
-    email: shopInformation.email,
-    storeUrl: shopInformation.url,
-    address: {
-      city: shopInformation.billingAddress.city,
-      country: shopInformation.billingAddress.country,
-      phone: shopInformation.billingAddress.phone
-    }
-  });
 
   let productPreviewUrl = null;
   let publishedAt = null;
@@ -131,14 +120,17 @@ export async function loader({ request }) {
     metafieldId = product?.metafield?.id;
   }
 
-  return json({
-    id: productId,
+  const appSettings: AppSettings = {
+    productId: productId,
     shopMetafieldId: shopWithMetafield.metafield?.id,
-    metafieldId: metafieldId,
+    shopId: shopWithMetafield.id,
+    productMetafieldId: metafieldId,
     onlineStorePreviewUrl: productPreviewUrl,
     publishedAt: publishedAt,
     status: status
-  });
+  };
+
+  return json(appSettings);
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -157,7 +149,7 @@ export async function action({ request }: ActionFunctionArgs) {
       await deleteMetafield(admin, data.shopMetafieldId);
     }
     trackEvent({
-      storeId: 'todo', // todo: pass in store id to associate event with store
+      storeId: data.shopId as string,
       eventName: DELETE_PRODUCT_EVENT,
       properties: {}
     });
@@ -170,7 +162,7 @@ export async function action({ request }: ActionFunctionArgs) {
       await deleteMetafield(admin, data.metafieldId);
     }
     trackEvent({
-      storeId: 'todo', // todo: pass in store id to associate event with store
+      storeId: data.shopId as string,
       eventName: DETACH_PRODUCT_EVENT,
       properties: {}
     });
@@ -178,7 +170,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (data.productId) {
       await publishProductInOnlineStore(admin, data.productId, data.publishedAt, data.status);
       trackEvent({
-        storeId: 'todo', // todo: pass in store id to associate event with store
+        storeId: data.shopId as string,
         eventName: PUBLISH_PRODUCT_EVENT,
         properties: {}
       });
@@ -691,7 +683,7 @@ export default function Index() {
   const deleteFetcher = useFetcher();
   const publishFetcher = useFetcher();
 
-  const product: Product = useLoaderData<typeof loader>();
+  const appSettings: AppSettings = useLoaderData<typeof loader>();
   const nav = useNavigation();
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
@@ -706,27 +698,28 @@ export default function Index() {
   };
 
   const onDelete = () => {
-    deleteFetcher.submit({ action: "delete", productId: product.id, shopMetafieldId: product.shopMetafieldId }, { method: "post" })
+    deleteFetcher.submit({ action: "delete", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, shopId: appSettings.shopId }, { method: "post" })
   };
 
   const onPublish = () => {
     publishFetcher.submit({
       action: "publish",
-      productId: product.id,
-      shopMetafieldId: product.shopMetafieldId,
-      status: product.status,
-      publishedAt: product.publishedAt
+      productId: appSettings.productId,
+      shopMetafieldId: appSettings.shopMetafieldId,
+      status: appSettings.status,
+      publishedAt: appSettings.publishedAt,
+      shopId: appSettings.shopId
     }, { method: "post" })
   };
 
   const onUnpublish = () => {
-    publishFetcher.submit({ action: "unpublish", productId: product.id, shopMetafieldId: product.shopMetafieldId }, { method: "post" })
+    publishFetcher.submit({ action: "unpublish", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, shopId: appSettings.shopId }, { method: "post" })
   };
 
   const onDisconnect = () => {
-    publishFetcher.submit({ action: "disconnect", productId: product.id, shopMetafieldId: product.shopMetafieldId, metafieldId: product.metafieldId }, { method: "post" })
+    publishFetcher.submit({ action: "disconnect", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, metafieldId: appSettings.productMetafieldId, shopId: appSettings.shopId }, { method: "post" })
   };
-  const showBanner = !isBannerDismissed && product.onlineStorePreviewUrl && nav.state === "idle";
+  const showBanner = !isBannerDismissed && appSettings.onlineStorePreviewUrl && nav.state === "idle";
 
   return (
     <>
@@ -746,7 +739,7 @@ export default function Index() {
               <Layout>
                 <Layout.Section>
                   {showBanner && (
-                    <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={product.onlineStorePreviewUrl!} />
+                    <SuccessBanner setIsDismissed={setIsBannerDismissed} previewLink={appSettings.onlineStorePreviewUrl!} />
                   )}
                 </Layout.Section>
                 <Layout.Section>
@@ -755,8 +748,8 @@ export default function Index() {
                     <QuickStart
                       onEditAction={onEdit}
                       onPublishAction={onPublish}
-                      productId={product.id}
-                      isPublished={!!product.publishedAt}
+                      productId={appSettings.productId}
+                      isPublished={!!appSettings.publishedAt}
                       isEditLoading={isEditing}
                       isDeleteLoading={isDeleting}
                       isPublishLoading={isPublishing}
@@ -771,8 +764,8 @@ export default function Index() {
                     onPublishAction={onPublish}
                     onUnpublishAction={onUnpublish}
                     onDisconnectAction={onDisconnect}
-                    productId={product.id}
-                    isPublished={!!product.publishedAt}
+                    productId={appSettings.productId}
+                    isPublished={!!appSettings.publishedAt}
                     isEditLoading={isEditing}
                     isDeleteLoading={isDeleting}
                     isPublishLoading={isPublishing}

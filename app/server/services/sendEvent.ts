@@ -26,7 +26,6 @@ export type MixpanelAddressProfile = {
 export type MixpanelUserProfile = {
     storeId: string,
     storeName: string,
-    storeUrl: string,
     email: string,
     address: MixpanelAddressProfile,
 }
@@ -37,7 +36,6 @@ export const updateProfile = (properties: MixpanelUserProfile) => {
     mixpanel.people.set(properties.storeId, {
         [STORE_NAME]: properties.storeName,
         [STORE_EMAIL]: properties.email,
-        [STORE_URL]: properties.storeUrl,
         [STORE_BILLING_ADDRESS_PHONE]: properties.address.phone,
         [STORE_BILLING_ADDRESS_CITY]: properties.address.city,
         [STORE_BILLING_ADDRESS_COUNTRY]: properties.address.country,
