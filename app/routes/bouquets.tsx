@@ -26,27 +26,15 @@ export default function App() {
   const { apiKey, appHandle} = useLoaderData<typeof loader>();
 
   const priceUrl: string = `shopify://admin/charges/${appHandle}/pricing_plans`;
-  console.log(priceUrl);
-  
-  function SubscriptionPage() {
-    useEffect(() => {
-      if (!appHandle) return;
-        open(`shopify://admin/charges/${appHandle}/pricing_plans?goToUrlOnCancel=/apps/${appHandle}/app`, "_top");
-      }, [appHandle]);
-    return (
-      <div>Redirecting...</div>
-    )
-  }
+  console.log(priceUrl);  
+
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
         <Link to="/bouquets" rel="home">
           Home
         </Link>
-        <a href={priceUrl}>
-        Pricing with a
-        </a>
-        <Link to={priceUrl} onClick={() => SubscriptionPage}  rel="list">
+        <Link to={priceUrl}>
           Pricing
         </Link>
       </NavMenu>
