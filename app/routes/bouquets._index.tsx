@@ -15,6 +15,9 @@ import { publishProductInOnlineStore } from "~/server/controllers/activateProduc
 import { unpublishProductInOnlineStore } from "~/server/controllers/unpublishProductInOnlineStore";
 import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { SETTINGS_PATH } from "~/constants";
+import { getShopInformation } from "~/server/services/getShopInformation";
+import { trackEvent, updateProfile } from "~/server/services/sendEvent";
+import { PUBLISH_PRODUCT } from "~/analyticsKeys";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -101,6 +104,20 @@ export async function loader({ request }) {
   const shopWithMetafield = await getShopWithMetafield(admin);
   const productId = shopWithMetafield.metafield?.value;
 
+  const shopInformation = await getShopInformation(admin);
+
+  updateProfile({
+    storeId: shopInformation.id, 
+    storeName: shopInformation.name,
+    email: shopInformation.email,
+    storeUrl: shopInformation.url,
+    address: {
+      city: shopInformation.billingAddress.city,
+      country: shopInformation.billingAddress.country,
+      phone: shopInformation.billingAddress.phone
+    }
+  });
+
   let productPreviewUrl = null;
   let publishedAt = null;
   let status = null;
@@ -150,6 +167,11 @@ export async function action({ request }: ActionFunctionArgs) {
   } else if (data.action === "publish") {
     if (data.productId) {
       await publishProductInOnlineStore(admin, data.productId, data.publishedAt, data.status);
+      trackEvent({
+        storeId: 'todo',
+        eventName: PUBLISH_PRODUCT,
+        properties: {}
+    });
     }
   } else if (data.action === "unpublish") {
     if (data.productId) {
