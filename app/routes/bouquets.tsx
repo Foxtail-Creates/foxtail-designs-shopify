@@ -9,23 +9,45 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { authenticate } from "../shopify.server";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import ErrorPage from "~/components/errors/ErrorPage";
+import { useEffect } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
 
-  return json({ apiKey: process.env.SHOPIFY_API_KEY || "" });
+  return json({
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    appHandle: process.env.APP_HANDLE || ""
+   });
 };
 
 export default function App() {
-  const { apiKey } = useLoaderData<typeof loader>();
+  const { apiKey, appHandle} = useLoaderData<typeof loader>();
 
+  const priceUrl: string = `shopify://admin/charges/${appHandle}/pricing_plans`;
+  console.log(priceUrl);
+  
+  function SubscriptionPage() {
+    useEffect(() => {
+      if (!appHandle) return;
+        open(`shopify://admin/charges/${appHandle}/pricing_plans?goToUrlOnCancel=/apps/${appHandle}/app`, "_top");
+      }, [appHandle]);
+    return (
+      <div>Redirecting...</div>
+    )
+  }
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
         <Link to="/bouquets" rel="home">
           Home
+        </Link>
+        <a href={priceUrl}>
+        Pricing with a
+        </a>
+        <Link to={priceUrl} onClick={() => SubscriptionPage}  rel="list">
+          Pricing
         </Link>
       </NavMenu>
       <Outlet />
