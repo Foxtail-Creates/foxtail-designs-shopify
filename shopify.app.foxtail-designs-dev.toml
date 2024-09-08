@@ -3,7 +3,7 @@
 client_id = "226b7db4be96cc6154d0eeb8aaa17f28"
 name = "foxtail-designs dev"
 handle = "foxtail-designs-dev"
-application_url = "https://star-loose-changing-cap.trycloudflare.com"
+application_url = "https://recommended-bottles-honey-madrid.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products,write_publications"
 
 [auth]
 redirect_urls = [
-  "https://star-loose-changing-cap.trycloudflare.com/auth/callback",
-  "https://star-loose-changing-cap.trycloudflare.com/auth/shopify/callback",
-  "https://star-loose-changing-cap.trycloudflare.com/api/auth/callback"
+  "https://recommended-bottles-honey-madrid.trycloudflare.com/auth/callback",
+  "https://recommended-bottles-honey-madrid.trycloudflare.com/auth/shopify/callback",
+  "https://recommended-bottles-honey-madrid.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

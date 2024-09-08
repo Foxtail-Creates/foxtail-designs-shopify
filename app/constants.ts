@@ -1,6 +1,10 @@
 import { ProductMetadata } from "./types";
 import { Size } from "./size";
 
+export const HOME_PATH = "/bouquets"
+export const SETTINGS_PATH = "/bouquets/settings";
+export const CUSTOMIZE_PATH = "/bouquets/customize";
+
 export const FOXTAIL_NAMESPACE = "$app:foxtail";
 export const STORE_METADATA_CUSTOM_PRODUCT_KEY = "customProductId";
 export const PRODUCT_METADATA_CUSTOM_OPTIONS = "custom";

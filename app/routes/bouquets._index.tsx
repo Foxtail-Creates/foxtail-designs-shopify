@@ -14,8 +14,7 @@ import { getShopWithMetafield } from "~/server/services/getShopMetafield";
 import { publishProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
 import { unpublishProductInOnlineStore } from "~/server/controllers/unpublishProductInOnlineStore";
 import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
-
-const SETTINGS_PATH = "bouquets/settings";
+import { SETTINGS_PATH } from "~/constants";
 
 type ManageProductProps = {
   onEditAction: () => void;
