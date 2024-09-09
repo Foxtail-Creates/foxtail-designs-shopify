@@ -9,7 +9,6 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { authenticate } from "../shopify.server";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import ErrorPage from "~/components/errors/ErrorPage";
-import { useEffect } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -18,25 +17,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
-    appHandle: process.env.APP_HANDLE || ""
-   });
+  });
 };
 
 export default function App() {
-  const { apiKey, appHandle} = useLoaderData<typeof loader>();
-
-  const priceUrl: string = `shopify://admin/charges/${appHandle}/pricing_plans`;
-  console.log(priceUrl);  
+  const { apiKey } = useLoaderData<typeof loader>();
 
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
-        <Link to="/bouquets" rel="home">
-          Home
-        </Link>
-        <Link to={priceUrl}>
-          Pricing
-        </Link>
+        <Link to="/bouquets" rel="home"> Home </Link>
+        <Link to="/bouquets/plans"> Plans </Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
