@@ -57,12 +57,15 @@ import { CustomizationsFormSkeleton } from "~/components/skeletons/Customization
 import { updateProduct } from "~/server/services/updateProduct";
 import { CREATE_UPDATE_PRODUCT_EVENT } from "~/analyticsKeys";
 import { trackEvent } from "~/server/services/sendEvent";
+import { getShopDomain } from "~/utils";
 
 export async function loader({ request }) {
-  const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
+  const { admin, session } = await authenticate.admin(request);
+  const byobOptions: ByobCustomizerOptions = getBYOBOptions(admin);
+  const domain: string = getShopDomain(session.shop);
 
   trackEvent({
-    storeId: byobOptions.shopId,
+    storeId: domain,
     eventName: CREATE_UPDATE_PRODUCT_EVENT,
     properties: {}
   });

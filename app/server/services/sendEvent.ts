@@ -2,7 +2,7 @@ import { STORE_BILLING_ADDRESS_CITY, STORE_BILLING_ADDRESS_COUNTRY, STORE_BILLIN
 import { mixpanel } from '../../mixpanel.server'
 
 export type MixpanelEventProps = {
-    storeId: string,
+    storeId: string,  // myShopify domain is used as the unique store id
     eventName: string,
     properties: Record<string, string>,
 }
@@ -24,7 +24,7 @@ export type MixpanelAddressProfile = {
 }
 
 export type MixpanelUserProfile = {
-    storeId: string,
+    storeId: string, // myShopify domain is used as the unique store id
     storeName: string,
     email: string,
     address: MixpanelAddressProfile,
@@ -40,4 +40,8 @@ export const updateProfile = (properties: MixpanelUserProfile) => {
         [STORE_BILLING_ADDRESS_CITY]: properties.address.city,
         [STORE_BILLING_ADDRESS_COUNTRY]: properties.address.country,
     })
+}
+
+export const deleteProfile = (storeId: string) => {
+    mixpanel.people.delete_user(storeId);
 }

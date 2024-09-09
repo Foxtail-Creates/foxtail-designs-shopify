@@ -18,6 +18,7 @@ import { SETTINGS_PATH } from "~/constants";
 import { trackEvent } from "~/server/services/sendEvent";
 import { DELETE_PRODUCT_EVENT, DETACH_PRODUCT_EVENT, PUBLISH_PRODUCT_EVENT } from "~/analyticsKeys";
 import { AppSettings } from "~/types";
+import { getShopDomain }  from "~/utils";
 import { ProductStatus } from "~/types/admin.types";
 
 type ManageProductProps = {
@@ -134,7 +135,8 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+  const domain:string = getShopDomain(session.shop); // remove ".myshopify.com" from domain
   const data = {
     ...Object.fromEntries(await request.formData()),
   };
@@ -149,7 +151,7 @@ export async function action({ request }: ActionFunctionArgs) {
       await deleteMetafield(admin, data.shopMetafieldId);
     }
     trackEvent({
-      storeId: data.shopId as string,
+      storeId: domain,
       eventName: DELETE_PRODUCT_EVENT,
       properties: {}
     });
@@ -162,7 +164,7 @@ export async function action({ request }: ActionFunctionArgs) {
       await deleteMetafield(admin, data.metafieldId);
     }
     trackEvent({
-      storeId: data.shopId as string,
+      storeId: domain,
       eventName: DETACH_PRODUCT_EVENT,
       properties: {}
     });
@@ -170,7 +172,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (data.productId) {
       await publishProductInOnlineStore(admin, data.productId, data.publishedAt, data.status);
       trackEvent({
-        storeId: data.shopId as string,
+        storeId: domain,
         eventName: PUBLISH_PRODUCT_EVENT,
         properties: {}
       });
