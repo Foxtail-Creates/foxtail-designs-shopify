@@ -55,9 +55,20 @@ import { captureException } from "@sentry/remix";
 import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleton";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 import { updateProduct } from "~/server/services/updateProduct";
+import { CREATE_UPDATE_PRODUCT_EVENT } from "~/analyticsKeys";
+import { trackEvent } from "~/server/services/sendEvent";
+import { getShopDomain } from "~/utils";
 
 export async function loader({ request }) {
-  const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
+  const { admin, session } = await authenticate.admin(request);
+  const byobOptions: ByobCustomizerOptions = getBYOBOptions(admin);
+  const domain: string = getShopDomain(session.shop);
+
+  trackEvent({
+    storeId: domain,
+    eventName: CREATE_UPDATE_PRODUCT_EVENT,
+    properties: {}
+  });
 
   return defer({
     byobOptions,
@@ -189,7 +200,8 @@ const ByobSettingsForm = ({
       flowerOptionValuesToRemove: formState.flowerOptionValuesToRemove,
       flowerOptionValuesToAdd: formState.flowerOptionValuesToAdd,
       productMetadata: byobCustomizer.productMetadata,
-      productImages: byobCustomizer.productImages
+      productImages: byobCustomizer.productImages,
+      shopId: byobCustomizer.shopId
     };
 
     const userErrors: FormErrors = {};
@@ -319,7 +331,7 @@ const ByobSettingsForm = ({
                     Palette Customizations
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
-                  Choose up to five (5) color palettes you want to offer to your customers.
+                    Choose up to five (5) color palettes you want to offer to your customers.
                   </Text>
                 </BlockStack>
               </Box>
@@ -344,7 +356,7 @@ const ByobSettingsForm = ({
                     Main Flower Customizations
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
-                  Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet. 
+                    Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet.
                   </Text>
                 </BlockStack>
               </Box>

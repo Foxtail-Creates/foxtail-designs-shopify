@@ -2,6 +2,8 @@ import { json, type ActionFunctionArgs } from "@remix-run/node";
 import crypto from 'crypto';
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
+import { deleteProfile, updateProfile } from "~/server/services/sendEvent";
+import { getShopDomain } from "~/utils";
 
 // Shopify's shared secret key
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
@@ -12,11 +14,25 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const rawPayload = await reqClone.text();
 
   const { topic, shop, session, admin } = await authenticate.webhook(request);
-
   if (!(await validateWebhook(request, rawPayload))) {
     throw new Response("Unauthorized", { status: 401 });
   }
+  const domain: string = getShopDomain(shop);
+
   switch (topic) {
+    case "SHOP_UPDATE":
+      const shopUpdatePayload = JSON.parse(rawPayload);
+      updateProfile({
+        storeId: domain,
+        storeName: shopUpdatePayload.name,
+        email: shopUpdatePayload.email,
+        address: {
+          city: shopUpdatePayload.city,
+          country: shopUpdatePayload.country,
+          phone: shopUpdatePayload.phone
+        }
+      });
+
     case "APP_UNINSTALLED":
       if (!admin) {
         // The admin context isn't returned if the webhook fired after a shop was uninstalled.
@@ -35,7 +51,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       // no customer data saved
       return json({ success: true }, 200);
     case "SHOP_REDACT":
-      // no shop data saved
+      console.log("[SHOP_REDACT] Deleting shop domain {%s} from mixpanel profiles", domain);
+      deleteProfile(domain);
       return json({ success: true }, 200);
     default:
       throw new Response("Unhandled webhook topic", { status: 404 });

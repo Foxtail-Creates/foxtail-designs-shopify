@@ -15,14 +15,12 @@ import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";
 import { getProduct } from "../services/getProduct";
 import { ProductFieldsFragment } from "~/types/admin.generated";
-import { authenticate } from "~/shopify.server";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
 let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name
 let paletteBackendIdToDefaultName: Record<string, string>; // backend palette id to default palette name
 
-export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
-  const { admin } = await authenticate.admin(request);
+export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
   if (!flowerCache) {
     flowerCache = (await db.flower.findMany())
       .filter((flower) => flower.imageLink?.length)
@@ -63,7 +61,6 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
 
   const productId = shopWithMetafield.metafield?.value;
   if (productId) {
-
     // if shop metadata has custom product id, retrieve it
     customProduct = await getProduct(admin, productId);
 
@@ -144,6 +141,7 @@ export async function getBYOBOptions(request): Promise<ByobCustomizerOptions> {
     flowersSelected: flowersSelected,
     productMetadata: productMetadata,
     productImages: productImages,
+    shopId: shopWithMetafield.id
   };
   return byobOptions;
 };

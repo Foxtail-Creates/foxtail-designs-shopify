@@ -44,7 +44,8 @@ import { CustomizationsFormSkeleton } from "~/components/skeletons/Customization
 import { activateProduct } from "~/server/services/activateProduct";
 
 export async function loader({ request }) {
-  const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
+  const { admin } = await authenticate.admin(request);
+  const byobOptions: ByobCustomizerOptions = getBYOBOptions(admin);
 
   return defer({
     byobOptions,
