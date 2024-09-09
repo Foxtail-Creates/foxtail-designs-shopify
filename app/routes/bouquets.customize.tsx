@@ -214,7 +214,7 @@ const ByobCustomizationForm = ({
     <Page
       backAction={{ content: 'Settings', url: SETTINGS_PATH }}
       title="Customize"
-      subtitle="Customize your Build-Your-Own-Bouquet Product"
+      subtitle="Customize your Custom Bouquet Product"
       compactTitle
       pagination={{
         hasPrevious: true,

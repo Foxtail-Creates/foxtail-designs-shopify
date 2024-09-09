@@ -22,9 +22,9 @@ export default function App() {
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>Foxtail FlowerFox</h1>
+        <h1 className={styles.heading}>Foxtail Custom Bouquet Builder</h1>
         <p className={styles.text}>
-        Our Template Editor will help you build a custom bouquet product in minutes.
+        Our template editor will help you build a custom bouquet product in minutes.
         </p>
         {showForm && (
           <Form className={styles.form} method="post" action="/auth/login">

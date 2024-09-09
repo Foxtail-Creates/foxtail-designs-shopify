@@ -237,7 +237,7 @@ const ByobSettingsForm = ({
     <Page
       backAction={{ content: 'Home', url: HOME_PATH }}
       title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
-      subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
+      subtitle={byobCustomizer.productName !== "" ? "Edit your Custom Bouquet Product" : "Create a new Custom Bouquet Product"}
       compactTitle
       pagination={{
         hasNext: true,

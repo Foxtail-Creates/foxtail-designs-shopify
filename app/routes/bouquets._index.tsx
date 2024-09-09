@@ -17,9 +17,9 @@ import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { SETTINGS_PATH } from "~/constants";
 import { trackEvent } from "~/server/services/sendEvent";
 import { DELETE_PRODUCT_EVENT, DETACH_PRODUCT_EVENT, PUBLISH_PRODUCT_EVENT } from "~/analyticsKeys";
-import { AppSettings } from "~/types";
 import { getShopDomain }  from "~/utils";
 import { ProductStatus } from "~/types/admin.types";
+import header_png from "../assets/foxtail_header_asset_sm.png";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -190,10 +190,10 @@ const Welcome = () => {
     <Card roundedAbove="sm">
       <BlockStack gap="200">
         <Text as="h1" variant="headingLg">
-          Welcome to FlowerFox
+          Welcome to Foxtail Custom Bouquet Builder
         </Text>
         <Text as="p" variant="bodyLg">
-          Use our Template Editor to build a custom bouquet product in minutes.
+          Use our template editor to build a custom bouquet product in minutes.
         </Text>
       </BlockStack>
     </Card>
@@ -219,7 +219,7 @@ const QuickStart = (
         <Card roundedAbove="sm">
           <InlineStack gap="200" align="space-between" blockAlign="center">
             <Text as="p" variant="bodyLg">
-              1. Create a bouquet with the Template Editor
+              1. Create a bouquet with the template editor
             </Text>
             <Button
               variant="primary"
@@ -235,7 +235,7 @@ const QuickStart = (
         </Card>
         <Card roundedAbove="sm">
           <Text as="p" variant="bodyLg">
-            2. Edit your product below. It will be linked to the Template Editor until you disconnect it or delete it.
+            2. Edit your product below. It will be linked to the template editor until you disconnect it or delete it.
           </Text>
         </Card>
         <Card roundedAbove="sm">
@@ -270,7 +270,7 @@ const CurrentProduct = (
     (!productId)
       ? <InlineStack gap="400">
         <Text as="h2" variant="headingMd" tone="critical">
-          No bouquet linked to the Template Editor. Create a new one to manage it.
+          No bouquet linked to the template editor. Create a new one to manage it.
         </Text>
       </InlineStack>
       : <Button
@@ -454,10 +454,10 @@ const ConfirmDisconnectModal = ({ onDisconnectAction, shopify }) => {
   return (
     <Modal id="confirm-disconnect-modal">
       <Box padding="400">
-        <Text as="p" variant="bodyLg" alignment="start">If you disconnect your custom bouquet from the Template Editor, it can't be undone.
+        <Text as="p" variant="bodyLg" alignment="start">If you disconnect your custom bouquet from the template editor, it can't be undone.
           Your bouquet product will still exist, but it will not be linked to the app.</Text>
       </Box>
-      <TitleBar title="Disconnect Bouquet from Template Editor">
+      <TitleBar title="Disconnect Bouquet from template editor">
         <button variant="primary" tone="critical" onClick={onDisconnectAction}>Disconnect</button>
         <button onClick={() => shopify.modal.hide('confirm-disconnect-modal')}>Cancel</button>
       </TitleBar>
@@ -619,7 +619,7 @@ const SupportContainer = (
 const Support = ({ onAction }: ActionProps) => (
   <Card roundedAbove="sm">
     <BlockStack gap="400">
-      <Text as="h2" variant="headingMd">
+      <Text as="h2" variant="headingLg">
         Support
       </Text>
       <InlineGrid columns="3" gap="400">
@@ -650,7 +650,7 @@ const Support = ({ onAction }: ActionProps) => (
           }
         />
         <SupportContainer
-          header="Help center"
+          header="Help Center"
           body="Find a solution to your problem via our tutorials and guides."
           action={
             <Button
@@ -731,12 +731,10 @@ export default function Index() {
           <>
             <div
               className="square-color2"
-              style={{ backgroundColor: "#F05F40", padding: "1rem" }}
+              style={{ backgroundColor: "#145A4F", padding: "1rem", justifyContent: "center", display: "flex" }}
             >
-              <Text variant="heading2xl" as="h2" alignment="center" tone="text-inverse">
-                Foxtail Designs
-              </Text>
-            </div>
+              <img src={header_png} alt="Foxtail Custom Bouquet Builder" /> 
+            </div> 
             <Page>
               <Layout>
                 <Layout.Section>
