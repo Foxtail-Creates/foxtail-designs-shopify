@@ -14,6 +14,7 @@ import { getShopWithMetafield } from "~/server/services/getShopMetafield";
 import { publishProductInOnlineStore } from "~/server/controllers/activateProductInOnlineStore";
 import { unpublishProductInOnlineStore } from "~/server/controllers/unpublishProductInOnlineStore";
 import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { SETTINGS_PATH } from "~/constants";
 
 type ManageProductProps = {
   onEditAction: () => void;
@@ -663,13 +664,13 @@ export default function Index() {
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
   const isEditing =
-    nav.state === "loading" && nav.formMethod === undefined;
+    nav.state === "loading" && nav.location.pathname === SETTINGS_PATH;
 
   const isDeleting = deleteFetcher.state !== "idle";
   const isPublishing = publishFetcher.state !== "idle";
 
   const onEdit = () => {
-    navigate("bouquets/settings");
+    navigate(SETTINGS_PATH);
   };
 
   const onDelete = () => {

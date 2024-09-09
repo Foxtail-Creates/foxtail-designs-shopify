@@ -21,7 +21,7 @@ import {
   InlineGrid,
 } from "@shopify/polaris";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { defer, json, redirect } from "@remix-run/node";
+import { defer, json } from "@remix-run/node";
 import type {
   BouquetCustomizationForm,
   ByobCustomizerOptions,
@@ -35,15 +35,13 @@ import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
 import { saveCustomizations } from "~/server/controllers/saveCustomizations";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
-import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME } from "~/constants";
+import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SETTINGS_PATH } from "~/constants";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/utils/sanitizeData";
 import { captureException } from "@sentry/remix";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 import { activateProduct } from "~/server/services/activateProduct";
-
-const SETTINGS_PATH = "/app/bouquets/settings";
 
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
@@ -55,7 +53,7 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   try {
-    const { admin } = await authenticate.admin(request);
+    const { admin, redirect } = await authenticate.admin(request);
 
     const serializedData = await request.formData();
 
@@ -64,7 +62,7 @@ export async function action({ request }) {
     sanitizeData(data);
     await saveCustomizations(admin, data);
     await activateProduct(admin, data.product.id);
-    return redirect(`/app`);
+    return redirect(`/bouquets`);
   } catch (err) {
     console.error(err);
     captureException(err);

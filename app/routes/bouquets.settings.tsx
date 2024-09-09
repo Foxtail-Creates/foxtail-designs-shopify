@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from "react";
-import { defer, json, redirect } from "@remix-run/node";
+import { defer, json } from "@remix-run/node";
 import {
   Await,
   useActionData,
@@ -33,6 +33,7 @@ import { authenticate } from "../shopify.server";
 import {
   FLOWER_OPTION_NAME,
   FLOWER_POSITION,
+  HOME_PATH,
   PALETTE_OPTION_NAME,
   PALETTE_POSITION,
   PRODUCT_DESCRIPTION,
@@ -55,8 +56,6 @@ import { SettingsFormSkeleton } from "~/components/skeletons/SettingsFormSkeleto
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
 import { updateProduct } from "~/server/services/updateProduct";
 
-const MAIN_PAGE_PATH = "/app"
-
 export async function loader({ request }) {
   const byobOptions: ByobCustomizerOptions = getBYOBOptions(request);
 
@@ -66,7 +65,7 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  const { admin } = await authenticate.admin(request);
+  const { admin, redirect } = await authenticate.admin(request);
   try {
     const serializedData = await request.formData();
 
@@ -110,7 +109,7 @@ export async function action({ request }) {
 
       await createProductMedia(admin, createMediaInput, data.product.id);
     }
-    return redirect(`/app/bouquets/customize`);
+    return redirect(`/bouquets/customize`);
   } catch (err) {
     console.error(err);
     captureException(err);
@@ -224,7 +223,7 @@ const ByobSettingsForm = ({
 
   return (
     <Page
-      backAction={{ content: 'Home', url: MAIN_PAGE_PATH }}
+      backAction={{ content: 'Home', url: HOME_PATH }}
       title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
       subtitle={byobCustomizer.productName !== "" ? "Edit your Build-Your-Own-Bouquet Product" : "Create a new Build-Your-Own-Bouquet Product"}
       compactTitle
@@ -381,7 +380,7 @@ export default function LoadingSettingsForm() {
   const nav = useNavigation();
 
   const isSaving =
-    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname != MAIN_PAGE_PATH;
+    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname != HOME_PATH;
   return (
     <>
       {isSaving && <CustomizationsFormSkeleton />}
