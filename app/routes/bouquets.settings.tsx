@@ -263,7 +263,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Product customizations
+                    Product name and description
                   </Text>
                 </BlockStack>
               </Box>
@@ -303,7 +303,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Size Customizations
+                    Size Options
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
                     Choose what bouquet sizes you want to offer to your customers.
@@ -328,7 +328,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Palette Customizations
+                    Palette Options
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
                     Choose up to five (5) color palettes you want to offer to your customers.
@@ -353,7 +353,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Main Flower Customizations
+                    Main Flower Options
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
                     Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet.
