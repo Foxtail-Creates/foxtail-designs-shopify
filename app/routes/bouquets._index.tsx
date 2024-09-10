@@ -190,7 +190,7 @@ const Welcome = () => {
     <Card roundedAbove="sm">
       <BlockStack gap="200">
         <Text as="h1" variant="headingLg">
-          Welcome to Foxtail Custom Bouquet Builder
+          Welcome to Foxtail's Custom Bouquet Template
         </Text>
         <Text as="p" variant="bodyLg">
           Use our template editor to build a custom bouquet product in minutes.
@@ -733,7 +733,7 @@ export default function Index() {
               className="square-color2"
               style={{ backgroundColor: "#145A4F", paddingTop: "1rem", paddingBottom: "1.6rem", justifyContent: "center", display: "flex" }}
             >
-              <img src={header_png} alt="Foxtail Custom Bouquet Builder" /> 
+              <img src={header_png} alt="Foxtail Custom Bouquet Template" /> 
             </div> 
             <Page>
               <Layout>

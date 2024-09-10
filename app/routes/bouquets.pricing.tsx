@@ -11,7 +11,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 };
 
-export default function SubscriptionPage() {
+export default function PricingPage() {
   const { appHandle } = useLoaderData<typeof loader>();
   useEffect(() => {
     if (!appHandle) return;
