@@ -731,7 +731,7 @@ export default function Index() {
           <>
             <div
               className="square-color2"
-              style={{ backgroundColor: "#145A4F", padding: "1rem", justifyContent: "center", display: "flex" }}
+              style={{ backgroundColor: "#145A4F", paddingTop: "1rem", paddingBottom: "1.6rem", justifyContent: "center", display: "flex" }}
             >
               <img src={header_png} alt="Foxtail Custom Bouquet Builder" /> 
             </div> 
@@ -758,7 +758,7 @@ export default function Index() {
                 </Layout.Section>
                 <Layout.Section>
                   <ManageProduct
-                    onPreviewAction={() => window.open(product.onlineStorePreviewUrl)?.focus()}
+                    onPreviewAction={() => window.open(appSettings.onlineStorePreviewUrl!)?.focus()}
                     onEditAction={onEdit}
                     onDeleteAction={onDelete}
                     onPublishAction={onPublish}
