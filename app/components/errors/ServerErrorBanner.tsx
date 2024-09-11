@@ -14,7 +14,7 @@ export const ServerErrorBanner =({ banner }: ServerErrorBannerProps) => {
       <p>
         <List type="number">
           {(<List.Item>Retry the save button in a few minutes.</List.Item>)}
-          {(<List.Item>Delete and create a new product.</List.Item>)}
+          {(<List.Item>Disconnect or delete your bouquet, and create a new one.</List.Item>)}
           {(<List.Item>Contact support.</List.Item>)}
         </List>
       </p>

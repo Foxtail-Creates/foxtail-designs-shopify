@@ -22,7 +22,7 @@ export default function App() {
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>Foxtail Custom Bouquet Builder</h1>
+        <h1 className={styles.heading}>Foxtail Custom Bouquet Template</h1>
         <p className={styles.text}>
         Our template editor will help you build a custom bouquet product in minutes.
         </p>

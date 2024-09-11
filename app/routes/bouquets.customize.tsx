@@ -246,7 +246,7 @@ const ByobCustomizationForm = ({
               <Card roundedAbove="sm">
                 <BlockStack gap="400">
                   <Text as="h2" variant="bodyMd" tone="subdued">
-                    {"Customize the naming for your size options -- for example, rename \"Small\" to \"Modest\"."}
+                    {"Customize the naming for your size options. For example, rename \"Small\" to \"Modest\"."}
                   </Text>
                   <CustomizationSection
                     optionKey={SIZE_OPTION_NAME}
@@ -280,7 +280,7 @@ const ByobCustomizationForm = ({
               <Card roundedAbove="sm">
                 <BlockStack gap="400">
                   <Text as="h2" variant="bodyMd" tone="subdued">
-                    Customize the naming for your palette options -- for example, rename "Pastel" to "Soft."
+                    Customize the naming for your palette options. For example, rename "Pastel" to "Soft."
                   </Text>
                   <CustomizationSection
                     optionKey={PALETTE_OPTION_NAME}

@@ -190,7 +190,7 @@ const Welcome = () => {
     <Card roundedAbove="sm">
       <BlockStack gap="200">
         <Text as="h1" variant="headingLg">
-          Welcome to Foxtail Custom Bouquet Builder
+          Welcome to Foxtail's Custom Bouquet Template
         </Text>
         <Text as="p" variant="bodyLg">
           Use our template editor to build a custom bouquet product in minutes.
@@ -454,8 +454,12 @@ const ConfirmDisconnectModal = ({ onDisconnectAction, shopify }) => {
   return (
     <Modal id="confirm-disconnect-modal">
       <Box padding="400">
-        <Text as="p" variant="bodyLg" alignment="start">If you disconnect your custom bouquet from the template editor, it can't be undone.
-          Your bouquet product will still exist, but it will not be linked to the app.</Text>
+        <Text as="p" variant="bodyLg" alignment="start">If you disconnect your custom bouquet from Foxtail template editor, it can't be undone.
+          Your bouquet product will still exist, but it will not be linked to the app.
+          <br/>
+          <br/>
+          For your convenience, the Shopify product editor will open in a new window if you disconnect.
+          </Text>
       </Box>
       <TitleBar title="Disconnect Bouquet from template editor">
         <button variant="primary" tone="critical" onClick={onDisconnectAction}>Disconnect</button>
@@ -719,6 +723,8 @@ export default function Index() {
   };
 
   const onDisconnect = () => {
+    const productNumber = appSettings.productId?.substring(appSettings.productId?.lastIndexOf('/') + 1);
+    window.open(`shopify://admin/products/${productNumber}`, '_blank')?.focus();
     publishFetcher.submit({ action: "disconnect", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, metafieldId: appSettings.productMetafieldId, shopId: appSettings.shopId }, { method: "post" })
   };
   const showBanner = !isBannerDismissed && appSettings.onlineStorePreviewUrl && nav.state === "idle";
@@ -733,7 +739,7 @@ export default function Index() {
               className="square-color2"
               style={{ backgroundColor: "#145A4F", paddingTop: "1rem", paddingBottom: "1.6rem", justifyContent: "center", display: "flex" }}
             >
-              <img src={header_png} alt="Foxtail Custom Bouquet Builder" /> 
+              <img src={header_png} alt="Foxtail Custom Bouquet Template" /> 
             </div> 
             <Page>
               <Layout>

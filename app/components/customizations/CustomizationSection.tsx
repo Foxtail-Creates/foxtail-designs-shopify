@@ -141,23 +141,6 @@ export const CustomizationSection = ({
   optionValueToPriceUpdates,
   setFormState,
 }: CustomizationProps) => {
-  const updateOptionName = useCallback(
-    (value: string) => {
-      setFormState({
-        ...formState,
-        optionToNameUpdates: {
-          ...formState.optionToNameUpdates,
-          [optionKey]: value
-        },
-        optionCustomizations: {
-          ...formState.optionCustomizations,
-          [optionKey]: { ...formState.optionCustomizations[optionKey], optionName: value }
-        }
-      });
-    },
-    [formState, setFormState]
-  );
-
   return (
     <>
       {optionCustomizations.optionValueCustomizations &&
