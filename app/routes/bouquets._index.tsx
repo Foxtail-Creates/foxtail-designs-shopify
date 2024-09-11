@@ -641,7 +641,7 @@ const Support = ({ onAction }: ActionProps) => (
           body="Browse common questions and answers."
           action={
             <Button
-              onClick={() => window.open("https://foxtailcreates.com/")?.focus()}
+              onClick={() => window.open("https://foxtailcreates.com/faq.html")?.focus()}
               accessibilityLabel="FAQ"
               icon={QuestionCircleIcon}
             >
@@ -654,7 +654,7 @@ const Support = ({ onAction }: ActionProps) => (
           body="Find a solution to your problem via our tutorials and guides."
           action={
             <Button
-              onClick={() => window.open("https://foxtailcreates.com/")?.focus()}
+              onClick={() => window.open("https://foxtailcreates.com/blog.html")?.focus()}
               accessibilityLabel="Help center"
               icon={TextBlockIcon}
             >
