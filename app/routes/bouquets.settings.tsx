@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from "react";
-import { defer, json } from "@remix-run/node";
+import { defer, json, redirect } from "@remix-run/node";
 import {
   Await,
   useActionData,
@@ -76,7 +76,7 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  const { admin, redirect } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
   try {
     const serializedData = await request.formData();
 
