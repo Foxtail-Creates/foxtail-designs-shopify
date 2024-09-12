@@ -21,7 +21,7 @@ import {
   InlineGrid,
 } from "@shopify/polaris";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { defer, json } from "@remix-run/node";
+import { defer, json, redirect } from "@remix-run/node";
 import type {
   BouquetCustomizationForm,
   ByobCustomizerOptions,
@@ -54,7 +54,7 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   try {
-    const { admin, redirect } = await authenticate.admin(request);
+    const { admin } = await authenticate.admin(request);
 
     const serializedData = await request.formData();
 
