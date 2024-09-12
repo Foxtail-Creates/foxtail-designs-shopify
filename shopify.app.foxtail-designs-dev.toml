@@ -3,7 +3,7 @@
 client_id = "226b7db4be96cc6154d0eeb8aaa17f28"
 name = "foxtail-designs dev"
 handle = "foxtail-designs-dev"
-application_url = "https://jay-titten-twice-sometimes.trycloudflare.com"
+application_url = "https://baker-strap-plasma-competent.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products,write_publications"
 
 [auth]
 redirect_urls = [
-  "https://jay-titten-twice-sometimes.trycloudflare.com/auth/callback",
-  "https://jay-titten-twice-sometimes.trycloudflare.com/auth/shopify/callback",
-  "https://jay-titten-twice-sometimes.trycloudflare.com/api/auth/callback"
+  "https://baker-strap-plasma-competent.trycloudflare.com/auth/callback",
+  "https://baker-strap-plasma-competent.trycloudflare.com/auth/shopify/callback",
+  "https://baker-strap-plasma-competent.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
