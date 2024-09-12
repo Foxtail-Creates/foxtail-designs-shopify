@@ -12,11 +12,12 @@ import {
     InlineGrid,
     useBreakpoints
 } from "@shopify/polaris";
+import { SETTINGS_FLOWER_SECTION_NAME, SETTINGS_PALETTE_SECTION_NAME, SETTINGS_PRODUCT_SECTION_NAME, SETTINGS_SIZE_SECTION_NAME } from "~/constants";
 
 export const SettingsFormSkeleton = () => {
     const { smUp } = useBreakpoints();
     return (
-        <SkeletonPage title="Edit" primaryAction backAction>
+        <SkeletonPage title="Settings" primaryAction backAction>
             <Layout>
                 <Layout.Section>
                     <BlockStack gap={{ xs: "800", sm: "400" }}>
@@ -28,7 +29,7 @@ export const SettingsFormSkeleton = () => {
                             >
                                 <BlockStack gap="400">
                                     <Text as="h3" variant="headingMd">
-                                        Product Customizations
+                                        {SETTINGS_PRODUCT_SECTION_NAME}
                                     </Text>
                                 </BlockStack>
                             </Box>
@@ -51,7 +52,7 @@ export const SettingsFormSkeleton = () => {
                             >
                                 <BlockStack gap="400">
                                     <Text as="h3" variant="headingMd">
-                                        Size Customizations
+                                        {SETTINGS_SIZE_SECTION_NAME}
                                     </Text>
                                     <SkeletonBodyText lines={1} />
                                 </BlockStack>
@@ -72,7 +73,7 @@ export const SettingsFormSkeleton = () => {
                             >
                                 <BlockStack gap="400">
                                     <Text as="h3" variant="headingMd">
-                                        Palette Customizations
+                                        {SETTINGS_PALETTE_SECTION_NAME}
                                     </Text>
                                     <SkeletonBodyText lines={1} />
                                 </BlockStack>
@@ -93,7 +94,7 @@ export const SettingsFormSkeleton = () => {
                             >
                                 <BlockStack gap="400">
                                     <Text as="h3" variant="headingMd">
-                                        Main Flower Customizations
+                                        {SETTINGS_FLOWER_SECTION_NAME}
                                     </Text>
                                     <SkeletonBodyText lines={1} />
                                 </BlockStack>

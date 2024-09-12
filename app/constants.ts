@@ -25,6 +25,12 @@ export const FLOWER_CUSTOMIZATION_SECTION_NAME = "flowers";
 export const PALETTE_CUSTOMIZATION_SECTION_NAME = "palettes";
 export const SIZE_CUSTOMIZATION_SECTION_NAME = "sizes";
 
+// settings page section names
+export const SETTINGS_PRODUCT_SECTION_NAME = "Product Name And Description";
+export const SETTINGS_SIZE_SECTION_NAME = "Size Options";
+export const SETTINGS_PALETTE_SECTION_NAME = "Palette Options";
+export const SETTINGS_FLOWER_SECTION_NAME = "Main Flower Options";
+
 // default size values in different forms
 export const SIZE_OPTION_VALUES = Object.values(Size);
 

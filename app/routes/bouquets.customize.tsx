@@ -35,7 +35,7 @@ import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
 import { saveCustomizations } from "~/server/controllers/saveCustomizations";
 import { CustomizationSection } from "~/components/customizations/CustomizationSection";
 import { Flower, Palette } from "@prisma/client";
-import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SETTINGS_PATH } from "~/constants";
+import { FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SETTINGS_PATH, HOME_PATH } from "~/constants";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { sanitizeData } from "~/server/utils/sanitizeData";
 import { captureException } from "@sentry/remix";
@@ -352,7 +352,7 @@ export default function LoadingCustomizationForm() {
   const backendError: boolean = useActionData()?.backendError || false;
   const nav = useNavigation();
   const isSaving =
-    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname !== SETTINGS_PATH;
+    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname == HOME_PATH;
 
   return (
     <Suspense fallback={<CustomizationsFormSkeleton />}>
