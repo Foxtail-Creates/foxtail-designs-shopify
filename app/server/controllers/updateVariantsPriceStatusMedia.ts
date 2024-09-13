@@ -1,6 +1,6 @@
 import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
 import { ProductMetadata } from "~/types";
-import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { bulkUpdateVariants } from "../services/bulkUpdateVariants";
 
 export async function updateVariantsPriceStatusMedia(

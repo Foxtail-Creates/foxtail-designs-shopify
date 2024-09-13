@@ -2,7 +2,7 @@ import type { Flower, Palette } from "@prisma/client";
 import type { Dispatch, ReactElement, SetStateAction } from "react";
 import type { Product } from "./types/admin.types";
 import { FormErrors } from "./errors";
-import { TwoWayFallbackMap } from "./server/utils/TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 
 export type ProductImage = {
   id: string;

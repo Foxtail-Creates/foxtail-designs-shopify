@@ -5,7 +5,7 @@ export const jsonConvert: JsonConvert = initializeDefaultConverter();
 
 function initializeDefaultConverter() {
   const jsonConvert = new JsonConvert();
-  jsonConvert.operationMode = OperationMode.LOGGING; // print some debug data
+  jsonConvert.operationMode = OperationMode.ENABLE; // print some debug data
   jsonConvert.ignorePrimitiveChecks = true;
   jsonConvert.valueCheckingMode = ValueCheckingMode.ALLOW_NULL; // allow null
   return jsonConvert;
@@ -19,5 +19,3 @@ export function convertJsonToTypescript<T extends object>(json: any, targetClass
     throw "Error converting json palette map to object. Contact Support for help.";
   }
 }
-
-
