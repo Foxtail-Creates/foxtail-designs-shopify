@@ -1,5 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import { Link } from "@shopify/polaris";
+import { HOME_PATH } from "~/constants";
 
 export default function ErrorPage() {
     const navigate = useNavigate();
@@ -19,7 +20,7 @@ export default function ErrorPage() {
             <p>Something went wrong on our end. Try again in a few minutes. If you need help, contact Support.</p>
             <br></br>
             <p><Link onClick={() => {
-                navigate('/');
+                navigate(HOME_PATH);
             }}>Return home.</Link></p>
             </main>
         </div>
