@@ -31,6 +31,7 @@ import type {
 } from "~/types";
 import { authenticate } from "../shopify.server";
 import {
+  CUSTOMIZE_PATH,
   FLOWER_OPTION_NAME,
   FLOWER_POSITION,
   HOME_PATH,
@@ -39,6 +40,10 @@ import {
   PRODUCT_DESCRIPTION,
   PRODUCT_MAIN_IMAGE_SOURCE,
   PRODUCT_NAME,
+  SETTINGS_FLOWER_SECTION_NAME,
+  SETTINGS_PALETTE_SECTION_NAME,
+  SETTINGS_PRODUCT_SECTION_NAME,
+  SETTINGS_SIZE_SECTION_NAME,
   SIZE_OPTION_NAME,
   SIZE_POSITION
 } from "../constants";
@@ -236,8 +241,8 @@ const ByobSettingsForm = ({
   return (
     <Page
       backAction={{ content: 'Home', url: HOME_PATH }}
-      title={byobCustomizer.productName !== "" ? "Edit" : "Create"}
-      subtitle={byobCustomizer.productName !== "" ? "Edit your Custom Bouquet Product" : "Create a new Custom Bouquet Product"}
+      title={"Settings"}
+      subtitle={"Edit your Custom Bouquet Product"}
       compactTitle
       pagination={{
         hasNext: true,
@@ -263,7 +268,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Product name and description
+                    {SETTINGS_PRODUCT_SECTION_NAME}
                   </Text>
                 </BlockStack>
               </Box>
@@ -303,7 +308,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Size Options
+                    {SETTINGS_SIZE_SECTION_NAME}
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
                     Choose what bouquet sizes you want to offer to your customers.
@@ -328,7 +333,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Palette Options
+                    {SETTINGS_PALETTE_SECTION_NAME}
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
                     Choose up to five (5) color palettes you want to offer to your customers.
@@ -353,7 +358,7 @@ const ByobSettingsForm = ({
               >
                 <BlockStack gap="400">
                   <Text as="h3" variant="headingMd">
-                    Main Flower Options
+                    {SETTINGS_FLOWER_SECTION_NAME}
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
                     Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet.
@@ -392,7 +397,7 @@ export default function LoadingSettingsForm() {
   const nav = useNavigation();
 
   const isSaving =
-    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname != HOME_PATH;
+    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname == CUSTOMIZE_PATH;
   return (
     <>
       {isSaving && <CustomizationsFormSkeleton />}
