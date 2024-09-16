@@ -9,7 +9,7 @@ import { createVariants } from "../services/createVariants";
 import { setProductMetadata } from "../services/setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
 import { setShopMetafield } from "../services/setShopMetafield";
-import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { Flower, Palette } from "@prisma/client";
 import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";

@@ -1,4 +1,4 @@
-import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { createProduct } from "../services/createProduct";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { createVariantsFromSelectedValues } from "./createVariantsFromSelectedValues";

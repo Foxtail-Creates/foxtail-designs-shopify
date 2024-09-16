@@ -6,7 +6,7 @@ import { updateVariantsPriceStatusMedia } from "./updateVariantsPriceStatusMedia
 import { setProductMetadata } from "../services/setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_CUSTOM_OPTIONS, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
-import { TwoWayFallbackMap } from "../utils/TwoWayFallbackMap";
+import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 
 export async function saveCustomizations(admin: AdminApiContext, data: SerializedCustomizeForm) {
