@@ -67,7 +67,8 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
     if (!customProduct) {
       // if custom product is missing, create new custom product and add to store metadata
-      customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
+
+      customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
         paletteBackendIdToName, sizeEnumToName, palettesAvailable);
       await setShopMetafield(admin, shopWithMetafield.id, customProduct.id);
     }
@@ -87,26 +88,23 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     }
 
     // retrieve selected options
-    const flowerDisplayName = productMetadata.optionToName[FLOWER_OPTION_NAME];
     const flowerOption = customProduct.options.find(
-      (option) => option.name === flowerDisplayName,
+      (option) => option.name === FLOWER_OPTION_NAME,
     );
 
-    const sizeDisplayName = productMetadata.optionToName[SIZE_OPTION_NAME];
     const sizeOption = customProduct.options.find(
-      (option) => option.name === sizeDisplayName,
+      (option) => option.name === SIZE_OPTION_NAME,
     );
 
-    const paletteDisplayName = productMetadata.optionToName[PALETTE_OPTION_NAME];
     const paletteOption = customProduct.options.find(
-      (option) => option.name === paletteDisplayName,
+      (option) => option.name === PALETTE_OPTION_NAME,
     );
     // filtering out undefined values if existing metadata is a bad state
-    flowersSelected = (await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, flowerDisplayName, flowersSelected))
+    flowersSelected = (await getSelectedValues(admin, flowerOption, customProduct, FLOWER_POSITION, FLOWER_OPTION_NAME, flowersSelected))
       .filter((flower) => flower != undefined);
-    sizesSelected = (await getSelectedCustomValues(admin, sizeOption, customProduct, SIZE_POSITION, sizeDisplayName, SIZE_OPTION_VALUES, sizeEnumToName))
+    sizesSelected = (await getSelectedCustomValues(admin, sizeOption, customProduct, SIZE_POSITION, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, sizeEnumToName))
       .filter((size) => size != undefined);
-    palettesSelected = (await getSelectedCustomValues(admin, paletteOption, customProduct, PALETTE_POSITION, paletteDisplayName, palettesSelected, paletteBackendIdToName))
+    palettesSelected = (await getSelectedCustomValues(admin, paletteOption, customProduct, PALETTE_POSITION, PALETTE_OPTION_NAME, palettesSelected, paletteBackendIdToName))
       .filter((palette) => palette != undefined);
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
@@ -117,11 +115,11 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
           return { id: media.id, alt: media.alt } as ProductImage
         });
       customProduct = await createVariantsFromSelectedValues(admin, customProduct.id, flowersSelected, sizesSelected, palettesSelected, productMetadata.sizeToPrice, productMetadata.flowerToPrice,
-        productMetadata.optionToName, paletteBackendIdToName, sizeEnumToName, productImages);
+        paletteBackendIdToName, sizeEnumToName, productImages);
     }
   } else {
     // otherwise create new custom product and add to store metadata
-    customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
+    customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, palettesSelected, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
       paletteBackendIdToName, sizeEnumToName, palettesAvailable);
     await setShopMetafield(admin, shopWithMetafield.id, customProduct.id);
   }

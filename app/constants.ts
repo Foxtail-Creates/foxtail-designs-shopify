@@ -53,17 +53,10 @@ export const DEFAULT_FLOWER_PRICE = 0;
 
 export const FLOWER_TO_PRICE_DEFAULT_VALUES: { [key: string]: number } = {};
 
-export const OPTION_TO_NAME_DEFAULT_VALUES: { [key: string]: string } = {
-    [FLOWER_OPTION_NAME]: FLOWER_OPTION_NAME,
-    [PALETTE_OPTION_NAME]: PALETTE_OPTION_NAME,
-    [SIZE_OPTION_NAME]: SIZE_OPTION_NAME
-};
-
 // default price metadata values
 export const PRODUCT_METADATA_DEFAULT_VALUES: ProductMetadata = {
     sizeToPrice: SIZE_TO_PRICE_DEFAULT_VALUES,
     flowerToPrice: FLOWER_TO_PRICE_DEFAULT_VALUES,
-    optionToName: OPTION_TO_NAME_DEFAULT_VALUES,
     paletteToName: {},
     sizeToName: {}
 };

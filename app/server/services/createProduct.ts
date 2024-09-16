@@ -11,7 +11,6 @@ import { CreateProductWithOptionsMutation } from "~/types/admin.generated";
  */
 export async function createProduct(
   admin: AdminApiContext,
-  optionToName: { [key: string]: string },
   flowerValues: [{ [key: string]: string }],
   sizeValues: [{ [key: string]: string }],
   paletteValues: [{ [key: string]: string }]
@@ -29,13 +28,13 @@ export async function createProduct(
           description: SEO_PRODUCT_DESCRIPTION
         },
         productType: "Custom Flowers",
-        flowerOptionName: optionToName[FLOWER_OPTION_NAME],
+        flowerOptionName: FLOWER_OPTION_NAME,
         flowerPosition: FLOWER_POSITION,
         flowerValues: flowerValues,
-        sizeOptionName: optionToName[SIZE_OPTION_NAME],
+        sizeOptionName: SIZE_OPTION_NAME,
         sizePosition: SIZE_POSITION,
         sizeValues: sizeValues,
-        paletteOptionName: optionToName[PALETTE_OPTION_NAME],
+        paletteOptionName: PALETTE_OPTION_NAME,
         palettePosition: PALETTE_POSITION,
         paletteValues: paletteValues,
         metafieldNamespace: FOXTAIL_NAMESPACE,

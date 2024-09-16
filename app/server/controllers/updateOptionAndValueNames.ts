@@ -5,13 +5,12 @@ import { ProductFieldsFragment } from "~/types/admin.generated";
 export async function updateOptionAndValueNames(
   admin: AdminApiContext,
   product: ProductFieldsFragment,
-  currentOptionName: string,
-  newDisplayName: string,
+  optionName: string,
   optionValueToNameUpdates: { [key: string]: string }
 ) {
 
   const option = product.options.find(
-    (o) => o.name === currentOptionName,
+    (o) => o.name === optionName,
   );
 
   // get shopifyIds
@@ -27,6 +26,6 @@ export async function updateOptionAndValueNames(
 
 
   const updatedProduct = await updateProductOptionsAndVariants(admin, product.id,
-    newDisplayName, option.id, [], [], updatedOptions);
+    optionName, option.id, [], [], updatedOptions);
   return updatedProduct;
 }
