@@ -3,7 +3,7 @@
 client_id = "ff76bcd4fb1407f5be050deaaaf74190"
 name = "foxtail-designs dev 2"
 handle = "foxtail-designs-dev-2"
-application_url = "https://nitrogen-labeled-competition-wealth.trycloudflare.com"
+application_url = "https://full-taylor-inspections-cities.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_inventory,write_products,write_publications"
 
 [auth]
 redirect_urls = [
-  "https://nitrogen-labeled-competition-wealth.trycloudflare.com/auth/callback",
-  "https://nitrogen-labeled-competition-wealth.trycloudflare.com/auth/shopify/callback",
-  "https://nitrogen-labeled-competition-wealth.trycloudflare.com/api/auth/callback"
+  "https://full-taylor-inspections-cities.trycloudflare.com/auth/callback",
+  "https://full-taylor-inspections-cities.trycloudflare.com/auth/shopify/callback",
+  "https://full-taylor-inspections-cities.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

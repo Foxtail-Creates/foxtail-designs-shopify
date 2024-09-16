@@ -27,6 +27,7 @@ import { SizeSection } from "~/components/sizes/SizeSection";
 import type {
   BouquetSettingsForm,
   ByobCustomizerOptions,
+  ProductImage,
   SerializedSettingForm,
 } from "~/types";
 import { authenticate } from "../shopify.server";
@@ -38,7 +39,6 @@ import {
   PALETTE_OPTION_NAME,
   PALETTE_POSITION,
   PRODUCT_DESCRIPTION,
-  PRODUCT_MAIN_IMAGE_SOURCE,
   PRODUCT_NAME,
   SETTINGS_FLOWER_SECTION_NAME,
   SETTINGS_PALETTE_SECTION_NAME,
@@ -52,8 +52,6 @@ import type { FormErrors } from "~/errors";
 import { getBYOBOptions } from "~/server/controllers/getBYOBOptions";
 import { updateOptionsAndCreateVariants } from "~/server/controllers/updateOptionsAndCreateVariants";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
-import { CreateMediaInput, createProductMedia } from "~/server/services/createProductMedia";
-import { deleteProductMedia } from "~/server/services/deleteProductMedia";
 import { UserErrorBanner } from "~/components/errors/UserErrorBanner";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { captureException } from "@sentry/remix";
@@ -63,6 +61,10 @@ import { updateProduct } from "~/server/services/updateProduct";
 import { CREATE_UPDATE_PRODUCT_EVENT } from "~/analyticsKeys";
 import { trackEvent } from "~/server/services/sendEvent";
 import { getShopDomain } from "~/utils";
+import { ProductFieldsFragment } from "~/types/admin.generated";
+import { updateVariantMedia } from "~/server/controllers/updateVariantMedia";
+import { convertJsonToTypescript } from "~/jsonToTypescript";
+import { updateProductMedia } from "~/server/controllers/updateProductMedia";
 
 export async function loader({ request }) {
   const { admin, session } = await authenticate.admin(request);
@@ -90,41 +92,29 @@ export async function action({ request }) {
     if (data.productName != data.prevProductName || data.productDescription != data.prevProductDescription) {
       await updateProduct(admin, data.product.id, data.productName, data.productDescription);
     }
-    await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+
+    const paletteBackendIdToName: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
+    const sizeEnumToName: TwoWayFallbackMap = convertJsonToTypescript(data.sizeEnumToName, TwoWayFallbackMap);
+
+    let updatedProduct: ProductFieldsFragment | null | undefined = await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
       data.flowersSelected, (x) => x);
-    await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
-      data.sizesSelected, (sizeEnum) => TwoWayFallbackMap.getValue(sizeEnum, data.sizeEnumToName.customMap, data.sizeEnumToName.defaultMap));
-    await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
-      data.palettesSelected, (paletteId => TwoWayFallbackMap.getValue(paletteId, data.paletteBackendIdToName.customMap, data.paletteBackendIdToName.defaultMap)));
+    updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+      data.sizesSelected, (sizeEnum) => sizeEnumToName.getValue(sizeEnum));
+    updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
+      data.palettesSelected, (paletteId) => paletteBackendIdToName.getValue(paletteId));
 
-    const shouldUpdatePaletteImages = data.paletteOptionValuesToRemove.length > 0 || data.paletteOptionValuesToAdd.length > 0 || data.productImages?.length == 0;
-    // delete all existing images
-    if (data.productImages?.length && shouldUpdatePaletteImages) {
-      const mediaIds = data.productImages.map((media) => media.id);
-      await deleteProductMedia(admin, mediaIds, data.product.id);
+    if (!!updatedProduct) {
+      const media = await updateProductMedia(admin, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd, data.productImages,
+        data.product.id, data.allPaletteColorOptions, data.palettesSelected);
+      const productImages = media
+        ?.map((media) => {
+          return { id: media.id, alt: media.alt } as ProductImage;
+        });
+
+      await updateVariantMedia(admin, updatedProduct, updatedProduct.variants.nodes, data.productMetadata,
+        paletteBackendIdToName, {}, productImages);
     }
 
-    // add new images for palette bouquets
-    if (data.palettesSelected.length > 0 && shouldUpdatePaletteImages) {
-      let createMediaInput: CreateMediaInput[] = data.allPaletteColorOptions.filter(
-        (palette) => data.palettesSelected.includes(palette.id.toString()),
-      ).map((palette) => {
-        return {
-          alt: `${palette.id}`,
-          originalSource: palette.imageLink,
-          mediaContentType: "IMAGE"
-        };
-      });
-
-      // add main image for product as first image in list
-      createMediaInput = [{
-        alt: `Custom Order`,
-        originalSource: PRODUCT_MAIN_IMAGE_SOURCE,
-        mediaContentType: "IMAGE"
-      }].concat(createMediaInput)
-
-      await createProductMedia(admin, createMediaInput, data.product.id);
-    }
     return redirect(`/bouquets/customize`);
   } catch (err) {
     console.error(err);

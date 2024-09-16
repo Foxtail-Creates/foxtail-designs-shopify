@@ -1,5 +1,6 @@
 import { ProductMetadata } from "./types";
 import { Size } from "./size";
+import { TwoWayFallbackMap } from "./server/utils/TwoWayFallbackMap";
 
 export const HOME_PATH = "/bouquets"
 export const SETTINGS_PATH = "/bouquets/settings";
@@ -66,6 +67,8 @@ export const PRODUCT_METADATA_DEFAULT_VALUES: ProductMetadata = {
     paletteToName: {},
     sizeToName: {}
 };
+
+export const EMPTY_TWO_WAY_MAP: TwoWayFallbackMap = new TwoWayFallbackMap({}, {});
 
 export const PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED = JSON.stringify(PRODUCT_METADATA_DEFAULT_VALUES);
 

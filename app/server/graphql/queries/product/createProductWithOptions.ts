@@ -9,7 +9,7 @@ export const CREATE_PRODUCT_WITH_OPTIONS_QUERY= `#graphql
     $seoInput: SEOInput
   ) {
     productCreate(
-      input: {title: $productName, descriptionHtml: $productDescription, productType: $productType, status: DRAFT,
+      input: {title: $productName, descriptionHtml: $productDescription, productType: $productType, status: ACTIVE,
         productOptions: [
           {name: $sizeOptionName, position: $sizePosition, values: $sizeValues},
           {name: $paletteOptionName, position: $palettePosition, values: $paletteValues},

@@ -2,12 +2,12 @@ import type {
   SerializedCustomizeForm
 } from "~/types";
 import { updateOptionAndValueNames } from "./updateOptionAndValueNames";
-import { updateVariantsPriceStatusMedia } from "./updateVariantsPriceStatusMedia";
 import { setProductMetadata } from "../services/setProductMetadata";
 import { FLOWER_OPTION_NAME, FOXTAIL_NAMESPACE, PALETTE_OPTION_NAME, PRODUCT_METADATA_CUSTOM_OPTIONS, SIZE_OPTION_NAME } from "~/constants";
 import { convertJsonToTypescript } from "~/jsonToTypescript";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
+import { updateVariantPrices } from "./updateVariantPrices";
 
 export async function saveCustomizations(admin: AdminApiContext, data: SerializedCustomizeForm) {
 
@@ -26,9 +26,9 @@ export async function saveCustomizations(admin: AdminApiContext, data: Serialize
   updatedProduct = await updateCustomOptionandValueNames(admin, data.product, data.sizeToNameUpdates,
     data.productMetadata.optionToName[SIZE_OPTION_NAME], data.optionToNameUpdates[SIZE_OPTION_NAME]);
 
-  // adjust variants to have the proper prices, tracking status and media
-  await updateVariantsPriceStatusMedia(admin, updatedProduct, updatedProduct.variants.nodes, data.productMetadata,
-    data.sizeToPriceUpdates, sizeEnumToName, data.flowerToPriceUpdates, paletteBackendIdToName, data.optionToNameUpdates);
+  // adjust variants to have the proper prices
+  await updateVariantPrices(admin, updatedProduct, updatedProduct.variants.nodes, data.productMetadata,
+    data.sizeToPriceUpdates, sizeEnumToName, data.flowerToPriceUpdates, data.optionToNameUpdates);
   
   updateMap(data.productMetadata.sizeToPrice, data.sizeToPriceUpdates);
   updateMap(data.productMetadata.flowerToPrice, data.flowerToPriceUpdates);
