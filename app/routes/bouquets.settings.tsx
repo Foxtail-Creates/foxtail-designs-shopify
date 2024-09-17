@@ -111,8 +111,7 @@ export async function action({ request }) {
           return { id: media.id, alt: media.alt } as ProductImage;
         });
 
-      await updateVariantMedia(admin, updatedProduct, updatedProduct.variants.nodes, data.productMetadata,
-        paletteBackendIdToName, {}, productImages);
+      await updateVariantMedia(admin, updatedProduct, updatedProduct.variants.nodes, paletteBackendIdToName, productImages);
     }
 
     return redirect(`/bouquets/customize`);
