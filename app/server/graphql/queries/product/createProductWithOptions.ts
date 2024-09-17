@@ -9,7 +9,12 @@ export const CREATE_PRODUCT_WITH_OPTIONS_QUERY= `#graphql
     $seoInput: SEOInput
   ) {
     productCreate(
-      input: {title: $productName, descriptionHtml: $productDescription, productType: $productType, status: ACTIVE,
+      input: {
+        title: $productName, 
+        descriptionHtml: $productDescription, 
+        productType: $productType, 
+        status: ACTIVE,
+        category: "gid://shopify/TaxonomyCategory/ae-3-1-3",
         productOptions: [
           {name: $sizeOptionName, position: $sizePosition, values: $sizeValues},
           {name: $paletteOptionName, position: $palettePosition, values: $paletteValues},
