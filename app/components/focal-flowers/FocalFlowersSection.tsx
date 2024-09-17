@@ -70,7 +70,10 @@ export const FocalFlowersSection = ({
         } else {
           clearValidationErrors();
         }
-        focalFlowersToAdd.add(selected);
+        // flower doesn't need to be added if previously selected
+        if (!formState.prevFlowersSelected.includes(selected)) {
+          focalFlowersToAdd.add(selected);
+        }
         focalFlowersToDelete.delete(selected);
       }
       setFormState({

@@ -149,6 +149,7 @@ const ByobSettingsForm = ({
     allPaletteOptionsSorted: byobCustomizer.palettesAvailableSorted.map(
       (palette) => palette.name,
     ),
+    prevPalettesSelected: byobCustomizer.palettesSelected,
     palettesSelected: byobCustomizer.palettesSelected,
     paletteOptionValuesToRemove: [],
     paletteOptionValuesToAdd: [],
@@ -156,6 +157,7 @@ const ByobSettingsForm = ({
     allFlowerOptionsSorted: byobCustomizer.flowersAvailableSorted.map(
       (flower) => flower.name,
     ),
+    prevFlowersSelected: byobCustomizer.flowersSelected,
     flowersSelected: byobCustomizer.flowersSelected,
     flowerOptionValuesToRemove: [],
     flowerOptionValuesToAdd: [],
