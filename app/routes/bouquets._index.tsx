@@ -32,6 +32,7 @@ type ManageProductProps = {
   isPublished: boolean;
   isEditLoading: boolean;
   isDeleteLoading: boolean;
+  isDisconnectLoading: boolean;
   isPublishLoading: boolean;
 };
 
@@ -328,15 +329,16 @@ const UnpublishButton = (
   )
 }
 
-const ConfirmDeleteModal = ({ onDeleteAction, shopify }) => {
+const ConfirmDeleteModal = ({ onDeleteAction, shopify, isDeleteLoading }) => {
   return (
     <Modal id="confirm-delete-modal">
       <Box padding="400">
         <Text as="p" variant="bodyLg" alignment="start">This will permanently delete your bouquet. It can't be undone.</Text>
       </Box>
       <TitleBar title="Delete Bouquet">
-        <button tone="critical" variant="primary" onClick={onDeleteAction}>Delete</button>
-        <button onClick={() => shopify.modal.hide('confirm-delete-modal')}>Cancel</button>
+        <button tone="critical" variant="primary" onClick={onDeleteAction}
+        loading={isDeleteLoading ? "" : undefined}>Delete</button>
+        <button onClick={() => shopify.modal.hide('confirm-delete-modal')}> Cancel</button>
       </TitleBar>
     </Modal>
   )
@@ -399,7 +401,7 @@ const LifeCycle = (
           </BlockStack>
         </Card>
 
-        <ConfirmDeleteModal onDeleteAction={onDeleteAction} shopify={shopify} />
+        <ConfirmDeleteModal onDeleteAction={onDeleteAction} shopify={shopify} isDeleteLoading={isDeleteLoading} />
 
         <ManageContainer
           header="Delete Bouquet"
@@ -450,7 +452,7 @@ const ManageContainer = (
   )
 }
 
-const ConfirmDisconnectModal = ({ onDisconnectAction, shopify }) => {
+const ConfirmDisconnectModal = ({ onDisconnectAction, shopify, isDisconnectLoading }) => {
   return (
     <Modal id="confirm-disconnect-modal">
       <Box padding="400">
@@ -462,7 +464,9 @@ const ConfirmDisconnectModal = ({ onDisconnectAction, shopify }) => {
           </Text>
       </Box>
       <TitleBar title="Disconnect Bouquet from template editor">
-        <button variant="primary" tone="critical" onClick={onDisconnectAction}>Disconnect</button>
+        <button variant="primary" tone="critical" onClick={onDisconnectAction}
+          loading={isDisconnectLoading ? "" : undefined}
+        >Disconnect</button>
         <button onClick={() => shopify.modal.hide('confirm-disconnect-modal')}>Cancel</button>
       </TitleBar>
     </Modal>
@@ -475,7 +479,8 @@ const Edit = (
     onDisconnectAction,
     productId,
     isEditLoading,
-    isDeleteLoading
+    isDeleteLoading,
+    isDisconnectLoading
   }: EditProps) => {
   const shopify = useAppBridge();
   return (
@@ -486,7 +491,7 @@ const Edit = (
       <Text as="h2" variant="headingMd">
         Edit product
       </Text>
-      <ConfirmDisconnectModal onDisconnectAction={onDisconnectAction} shopify={shopify} />
+      <ConfirmDisconnectModal onDisconnectAction={onDisconnectAction} shopify={shopify} isDisconnectLoading={isDisconnectLoading} />
 
       <InlineGrid gap="400" columns={2}>
         <ManageContainer
@@ -540,6 +545,7 @@ const ManageProduct = (
     isEditLoading,
     isDeleteLoading,
     isPublishLoading,
+    isDisconnectLoading,
     onPublishAction,
     onUnpublishAction
   }: ManageProductProps) => {
@@ -555,7 +561,8 @@ const ManageProduct = (
         <CurrentProduct productId={productId} isPublished={false} onPreviewAction={onPreviewAction} />
 
         {productId && <Edit onEditAction={onEditAction} onDisconnectAction={onDisconnectAction}
-          productId={productId} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading} />}
+          productId={productId} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading}
+          isDisconnectLoading={isDisconnectLoading} />}
 
         {productId && <LifeCycle productId={productId} isPublished={isPublished} isEditLoading={isEditLoading} isDeleteLoading={isDeleteLoading}
           isPublishLoading={isPublishLoading} onDeleteAction={onDeleteAction} onPublishAction={onPublishAction} onUnpublishAction={onUnpublishAction} />}
@@ -688,6 +695,7 @@ export default function Index() {
   const navigate = useNavigate();
   const deleteFetcher = useFetcher();
   const publishFetcher = useFetcher();
+  const disconnectFetcher = useFetcher();
 
   const appSettings: AppSettings = useLoaderData<typeof loader>();
   const nav = useNavigation();
@@ -698,6 +706,7 @@ export default function Index() {
 
   const isDeleting = deleteFetcher.state !== "idle";
   const isPublishing = publishFetcher.state !== "idle";
+  const isDisconnecting = disconnectFetcher.state !== "idle";
 
   const onEdit = () => {
     navigate(SETTINGS_PATH);
@@ -724,8 +733,9 @@ export default function Index() {
 
   const onDisconnect = () => {
     const productNumber = appSettings.productId?.substring(appSettings.productId?.lastIndexOf('/') + 1);
+    disconnectFetcher.submit({ action: "disconnect", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, metafieldId: appSettings.productMetafieldId, shopId: appSettings.shopId }, { method: "post" })
+    shopify.modal.hide('confirm-disconnect-modal');
     window.open(`shopify://admin/products/${productNumber}`, '_blank')?.focus();
-    publishFetcher.submit({ action: "disconnect", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, metafieldId: appSettings.productMetafieldId, shopId: appSettings.shopId }, { method: "post" })
   };
   const showBanner = !isBannerDismissed && appSettings.onlineStorePreviewUrl && nav.state === "idle";
 
@@ -775,6 +785,7 @@ export default function Index() {
                     isEditLoading={isEditing}
                     isDeleteLoading={isDeleting}
                     isPublishLoading={isPublishing}
+                    isDisconnectLoading={isDisconnecting}
                   />
                 </Layout.Section>
                 <Layout.Section>

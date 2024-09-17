@@ -361,7 +361,7 @@ const ByobSettingsForm = ({
                     {SETTINGS_FLOWER_SECTION_NAME}
                   </Text>
                   <Text as={"h3"} variant="bodyMd">
-                    Choose up to five (5) main flowers you want to offer. Your customers will choose one (1) main flower for their bouquet.
+                    Choose up to five (5) featured flowers you want to offer. Your customers will choose one (1) featured flower for their bouquet.
                   </Text>
                 </BlockStack>
               </Box>

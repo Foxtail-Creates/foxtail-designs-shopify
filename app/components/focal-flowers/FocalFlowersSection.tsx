@@ -212,7 +212,7 @@ export const FocalFlowersSection = ({
             labelHidden={true}
             value={value}
             suggestion={suggestion}
-            placeholder="Add main flowers"
+            placeholder="Add featured flowers"
             verticalContent={verticalContentMarkup}
             onChange={setValue}
           />

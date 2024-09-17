@@ -314,7 +314,7 @@ const ByobCustomizationForm = ({
               <Card roundedAbove="sm">
                 <BlockStack gap="400">
                   <Text as="h2" variant="bodyMd" tone="subdued">
-                    If the base price for a "Small" bouquet is $40 and the customer chooses a main flower with an add-on price of $5, the total bouquet price will be $45.
+                    If the base price for a "Small" bouquet is $40 and the customer chooses a featured flower with an add-on price of $5, the total bouquet price will be $45.
                   </ Text>
                   <CustomizationSection
                     optionKey={FLOWER_OPTION_NAME}

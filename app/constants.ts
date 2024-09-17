@@ -16,7 +16,7 @@ export const PALETTE_POSITION = 2;
 export const FLOWER_POSITION = 3;
 
 // option names for Shopify product
-export const FLOWER_OPTION_NAME = "Main Flower";
+export const FLOWER_OPTION_NAME = "Featured Flower";
 export const SIZE_OPTION_NAME = "Size";
 export const PALETTE_OPTION_NAME = "Palette";
 
@@ -29,7 +29,7 @@ export const SIZE_CUSTOMIZATION_SECTION_NAME = "sizes";
 export const SETTINGS_PRODUCT_SECTION_NAME = "Product Name And Description";
 export const SETTINGS_SIZE_SECTION_NAME = "Size Options";
 export const SETTINGS_PALETTE_SECTION_NAME = "Palette Options";
-export const SETTINGS_FLOWER_SECTION_NAME = "Main Flower Options";
+export const SETTINGS_FLOWER_SECTION_NAME = "Featured Flower Options";
 
 // default size values in different forms
 export const SIZE_OPTION_VALUES = Object.values(Size);
@@ -73,11 +73,11 @@ export const PRODUCT_MAIN_IMAGE_SOURCE = "https://lh3.googleusercontent.com/pw/A
 
 export const PRODUCT_NAME = "Build Your Own Bouquet";
 
-export const PRODUCT_DESCRIPTION = `Build your own custom bouquet! Choose a size and color palette, and one type of main flower that will be featured in your bouquet.
+export const PRODUCT_DESCRIPTION = `Build your own custom bouquet! Choose a size and color palette, and one type of featured flower that will be featured in your bouquet.
 We will create a beautiful bouquet based on your selections.
 <br/>
 <br/>
-Photos are for color palette reference only. We will choose blooms based on seasonal availability, your desired color palette, your main flower preference.`;
+Photos are for color palette reference only. We will choose blooms based on seasonal availability, your desired color palette, your featured flower preference.`;
 
 export const SEO_PRODUCT_NAME = "Custom Flower Arrangements | Build Your Own Bouquet";
 
