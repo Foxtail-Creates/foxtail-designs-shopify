@@ -191,4 +191,5 @@ export type OptionValue = {
 export type VariantInput = {
   optionValues: OptionValue [];
   price: string;
+  inventoryPolicy: String; // DENY or CONTINUE
 };

@@ -1,7 +1,7 @@
 import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { createVariants } from "../services/createVariants";
-import { VariantInput } from "../../types";
+import { ProductImage, VariantInput } from "../../types";
 
 export async function createVariantsFromSelectedValues(
   admin,
@@ -13,7 +13,8 @@ export async function createVariantsFromSelectedValues(
   flowerToPrice: { [key: string]: number },
   optionToName: { [key: string]: string },
   paletteBackendIdToName: TwoWayFallbackMap,
-  sizeEnumToName: TwoWayFallbackMap
+  sizeEnumToName: TwoWayFallbackMap,
+  productImages: ProductImage[] | undefined
 ) {
   const variants: VariantInput[] = [];
   for (let f = 0; f < flowerValues.length; f++) {
@@ -40,8 +41,16 @@ export async function createVariantsFromSelectedValues(
               name: paletteBackendIdToName.getValue(paletteValues[p])
             }
           ],
-          price: (sizePrice + flowerPrice).toString()
+          price: (sizePrice + flowerPrice).toString(),
+          inventoryPolicy: "CONTINUE"
         };
+        // update media 
+        const paletteId: string = paletteValues[p];
+        const mediaId: string = productImages?.find((media) => media.alt == paletteId)?.id;
+        if (mediaId) {
+          variant['mediaId'] = mediaId;
+        }
+
         variants.push(variant);
       }
 

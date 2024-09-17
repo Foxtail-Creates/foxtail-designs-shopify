@@ -1,11 +1,11 @@
 import { FLOWER_OPTION_NAME, FLOWER_POSITION, FLOWER_TO_PRICE_DEFAULT_VALUES, FOXTAIL_NAMESPACE, PRODUCT_METADATA_DEFAULT_VALUES_SERIALIZED, PALETTE_OPTION_NAME, PALETTE_POSITION, PRODUCT_METADATA_CUSTOM_OPTIONS, SIZE_OPTION_NAME, SIZE_OPTION_VALUES, SIZE_POSITION, SIZE_TO_PRICE_DEFAULT_VALUES, PRODUCT_METADATA_DEFAULT_VALUES, SIZE_TO_NAME_DEFAULT_VALUES, PRODUCT_DESCRIPTION, PRODUCT_NAME, SEO_PRODUCT_DESCRIPTION, SEO_PRODUCT_NAME } from "~/constants";
 import type {
   ByobCustomizerOptions,
+  ProductImage,
   ProductMetadata,
 } from "~/types";
 import invariant from "tiny-invariant";
 import { createProductOptions } from "../services/createProductOptions";
-import { createVariants } from "../services/createVariants";
 import { setProductMetadata } from "../services/setProductMetadata";
 import { createProductWithOptionsAndVariants } from "./createProductWithOptionsAndCreateVariants";
 import { setShopMetafield } from "../services/setShopMetafield";
@@ -15,6 +15,7 @@ import db from "../../db.server";
 import { getShopWithMetafield } from "../services/getShopMetafield";
 import { getProduct } from "../services/getProduct";
 import { ProductFieldsFragment } from "~/types/admin.generated";
+import { createVariantsFromSelectedValues } from "./createVariantsFromSelectedValues";
 
 let flowerCache: Flower[]; // flowers from db, sorted alphabetically by name
 let paletteCache: Palette[]; // palettes from db, sorted alphabetically by name
@@ -64,10 +65,10 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
     // if shop metadata has custom product id, retrieve it
     customProduct = await getProduct(admin, productId);
 
-    if (customProduct == null) {
+    if (!customProduct) {
       // if custom product is missing, create new custom product and add to store metadata
       customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, sizesSelected, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
-        paletteBackendIdToName, sizeEnumToName);
+        paletteBackendIdToName, sizeEnumToName, palettesAvailable);
       await setShopMetafield(admin, shopWithMetafield.id, customProduct.id);
     }
 
@@ -110,20 +111,25 @@ export async function getBYOBOptions(admin): Promise<ByobCustomizerOptions> {
 
     if (sizeOption == null || flowerOption == null || paletteOption == null) {
       // if option previously had no selections, create variants using new default selections
-      customProduct = await createVariants(admin, customProduct.id, flowersSelected, sizesSelected, palettesSelected, productMetadata.sizeToPrice, productMetadata.flowerToPrice,
-        productMetadata.optionToName, paletteBackendIdToName, sizeEnumToName);
+      const productImages = customProduct.media?.nodes
+        ?.filter((media) => media.mediaContentType === "IMAGE")
+        ?.map((media) => {
+          return { id: media.id, alt: media.alt } as ProductImage
+        });
+      customProduct = await createVariantsFromSelectedValues(admin, customProduct.id, flowersSelected, sizesSelected, palettesSelected, productMetadata.sizeToPrice, productMetadata.flowerToPrice,
+        productMetadata.optionToName, paletteBackendIdToName, sizeEnumToName, productImages);
     }
   } else {
     // otherwise create new custom product and add to store metadata
     customProduct = await createProductWithOptionsAndVariants(admin, flowersSelected, productMetadata.optionToName, palettesSelected, SIZE_OPTION_VALUES, SIZE_TO_PRICE_DEFAULT_VALUES, FLOWER_TO_PRICE_DEFAULT_VALUES,
-      paletteBackendIdToName, sizeEnumToName);
+      paletteBackendIdToName, sizeEnumToName, palettesAvailable);
     await setShopMetafield(admin, shopWithMetafield.id, customProduct.id);
   }
 
   const productImages = customProduct.media?.nodes
     ?.filter((media) => media.mediaContentType === "IMAGE")
     ?.map((media) => {
-      return { id: media.id, alt: media.alt }
+      return { id: media.id, alt: media.alt } as ProductImage
     });
 
   const byobOptions: ByobCustomizerOptions = {

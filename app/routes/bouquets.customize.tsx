@@ -41,7 +41,6 @@ import { sanitizeData } from "~/server/utils/sanitizeData";
 import { captureException } from "@sentry/remix";
 import { ServerErrorBanner } from "~/components/errors/ServerErrorBanner";
 import { CustomizationsFormSkeleton } from "~/components/skeletons/CustomizationsFormSkeleton";
-import { activateProduct } from "~/server/services/activateProduct";
 
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
@@ -62,7 +61,6 @@ export async function action({ request }) {
 
     sanitizeData(data);
     await saveCustomizations(admin, data);
-    await activateProduct(admin, data.product.id);
     return redirect(`/bouquets`);
   } catch (err) {
     console.error(err);

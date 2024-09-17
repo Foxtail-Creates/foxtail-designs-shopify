@@ -1,9 +1,9 @@
-import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, PALETTE_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
+import { DEFAULT_FLOWER_PRICE, FLOWER_OPTION_NAME, SIZE_OPTION_NAME, SIZE_TO_PRICE_DEFAULT_VALUES } from "~/constants";
 import { ProductMetadata } from "~/types";
 import { TwoWayFallbackMap } from "~/server/utils/TwoWayFallbackMap";
 import { bulkUpdateVariants } from "../services/bulkUpdateVariants";
 
-export async function updateVariantsPriceStatusMedia(
+export async function updateVariantPrices(
   admin,
   product,
   variantNodes,
@@ -11,29 +11,16 @@ export async function updateVariantsPriceStatusMedia(
   sizeToPriceUpdates: { [key: string]: number },
   sizeEnumToName: TwoWayFallbackMap,
   flowerToPriceUpdates: { [key: string]: number },
-  paletteIdToName: TwoWayFallbackMap,
   optionToNameUpdates: { [key: string]: string },
 ) {
   const productId: string = product.id;
-  // product images
-  const productImages = product.media?.nodes
-      ?.filter((media) => media.mediaContentType === "IMAGE")
-      ?.map((media) => {
-          return { id: media.id, alt: media.alt }
-      });
-
   const newVariants = [];
 
   const sizeOptionName = optionToNameUpdates[SIZE_OPTION_NAME] != null ? optionToNameUpdates[SIZE_OPTION_NAME] : productMetadata.optionToName[SIZE_OPTION_NAME];
   const flowerOptionName = optionToNameUpdates[FLOWER_OPTION_NAME] != null ? optionToNameUpdates[FLOWER_OPTION_NAME] : productMetadata.optionToName[FLOWER_OPTION_NAME];
-  const paletteOptionName = optionToNameUpdates[PALETTE_OPTION_NAME] != null ? optionToNameUpdates[PALETTE_OPTION_NAME] : productMetadata.optionToName[PALETTE_OPTION_NAME];
 
   variantNodes.forEach((variantNode) => {
     const variant = {};
-    // set inventory policy if variant needs it
-    if (variantNode.inventoryPolicy !== "CONTINUE") {
-      variant['inventoryPolicy'] = "CONTINUE";
-    }
 
     // if flower or size options are in the update maps, recalculate price
     const sizeEnum: string = sizeEnumToName.getReverseValue(variantNode.selectedOptions.find((option) => option.name == sizeOptionName).value);
@@ -52,14 +39,6 @@ export async function updateVariantsPriceStatusMedia(
       const sizePrice = shouldUpdateSizePrice ? sizeToPriceUpdates[sizeEnum] : defaultSizePrice;
       const flowerPrice = shouldUpdateFlowerPrice ? flowerToPriceUpdates[flowerName] : defaultFlowerPrice;
       variant['price'] = (sizePrice + flowerPrice).toString();
-    }
-
-    // update media 
-    const paletteId: string = paletteIdToName.getReverseValue(variantNode.selectedOptions.find((option) => option.name === paletteOptionName).value);
-    const mediaId: string = productImages.find((media) => media.alt == paletteId)?.id;
-    const doesExistingMediaMatch = variantNode.media.nodes?.find((media) => media.id == mediaId);
-    if (mediaId && !doesExistingMediaMatch) {
-        variant['mediaId'] = mediaId;
     }
 
     if (Object.entries(variant).length > 0) {

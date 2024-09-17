@@ -1,4 +1,3 @@
-import invariant from "tiny-invariant";
 import { CREATE_PRODUCT_MEDIA_QUERY } from "../graphql";
 import { AdminApiContext } from "@shopify/shopify-app-remix/server";
 import { FetchResponseBody } from "@shopify/admin-api-client";
@@ -32,4 +31,5 @@ export async function createProductMedia(
       + JSON.stringify(createProductMediaBody.data?.productCreateMedia?.mediaUserErrors)
       + " }");
   }
+  return createProductMediaBody.data?.productCreateMedia?.media;
 };

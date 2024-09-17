@@ -28,4 +28,5 @@ export async function createProductOptions(
       + "}"
     );
   }
+  return createProductOptionsBody.data?.productOptionsCreate.product;
 };

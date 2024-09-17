@@ -12,7 +12,7 @@ export async function updateOptionsAndCreateVariants(
   optionIdsToAdd: string[],
   optionIdsSelected: string[],
   getOptionValueName: (value: string) => string
-) {
+): Promise<ProductFieldsFragment | null | undefined> {
   const option = product.options.find(
     (o) => o.name === optionName,
   );
@@ -46,13 +46,13 @@ export async function updateOptionsAndCreateVariants(
   );
   if (option == null && optionIdsSelected.length > 0) {
     // if flower option is missing, recover by creating a new option and variants from all flowers selected
-    await createProductOptions(admin, product.id, optionPosition, optionName, optionValuesSelected);
+    return await createProductOptions(admin, product.id, optionPosition, optionName, optionValuesSelected);
   } else if (
     option != undefined &&
     optionIdsToRemove.length > 0 ||
     optionValuesToAdd.length > 0
   ) {
-    await updateProductOptionsAndVariants(admin, product.id, optionName, option.id,
+    return await updateProductOptionsAndVariants(admin, product.id, optionName, option.id,
       optionValuesToAdd, shopifyIdsToRemove, []);
   }
 }
