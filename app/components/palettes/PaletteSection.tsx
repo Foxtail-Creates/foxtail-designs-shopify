@@ -23,7 +23,7 @@ const PaletteChoice = ({
   return (
     <>
       <InlineStack gap="0" align="space-between">
-      
+
         <Checkbox
           id={paletteId}
           label={paletteName}
@@ -55,7 +55,10 @@ export const PaletteSection = ({
       const paletteOptionValuesToRemove = new Set([...formState.paletteOptionValuesToRemove]);
       if (newChecked) {
         nextSelectedPalettes.add(paletteId);
-        paletteOptionValuesToAdd.add(paletteId);
+        // palette doesn't need to be added if previously selected
+        if (!formState.prevPalettesSelected.includes(paletteId)) {
+          paletteOptionValuesToAdd.add(paletteId);
+        }
         paletteOptionValuesToRemove.delete(paletteId);
       } else {
         nextSelectedPalettes.delete(paletteId);

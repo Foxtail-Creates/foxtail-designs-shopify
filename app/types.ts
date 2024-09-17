@@ -39,12 +39,14 @@ export type BouquetSettingsForm = {
   sizeOptionValuesToRemove: string[];
   sizeOptionValuesToAdd: string[];
   allPaletteOptionsSorted: string[];
+  prevPalettesSelected: string[];
   palettesSelected: string[];
   paletteOptionValuesToRemove: string[];
   paletteOptionValuesToAdd: string[];
   paletteBackendIdToName: TwoWayFallbackMap;
   sizeEnumToName: TwoWayFallbackMap;
   allFlowerOptionsSorted: string[];
+  prevFlowersSelected: string[]
   flowersSelected: string[]
   flowerOptionValuesToRemove: string[];
   flowerOptionValuesToAdd: string[];
