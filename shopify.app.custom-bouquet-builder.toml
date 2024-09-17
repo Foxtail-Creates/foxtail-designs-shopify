@@ -2,8 +2,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "d8cfe2c468c475c4942b5f2d3dc47174"
-name = "Custom Bouquet Builder"
-handle = "custom-bouquet-builder"
+name = "Custom Bouquet Template"
+handle = "custom-bouquet-template"
 application_url = "https://bouquet.foxtailcreates.com"
 embedded = true
 
