@@ -133,12 +133,14 @@ type ByobCustomizationFormProps = {
   formOptions: ByobCustomizerOptions
   backendError: boolean
   isSaving: boolean
+  isDisabled: boolean
 }
 
 const ByobCustomizationForm = ({
   formOptions,
   backendError,
-  isSaving
+  isSaving,
+  isDisabled
 }: ByobCustomizationFormProps) => {
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
@@ -333,7 +335,7 @@ const ByobCustomizationForm = ({
               {
                 content: "Save and continue",
                 loading: isSaving,
-                disabled: isSaving,
+                disabled: isDisabled,
                 onAction: submitFormData,
               }}
           />
@@ -347,8 +349,8 @@ export default function LoadingCustomizationForm() {
   const { byobOptions } = useLoaderData<typeof loader>();
   const backendError: boolean = useActionData()?.backendError || false;
   const nav = useNavigation();
-  const isSaving =
-    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname == HOME_PATH;
+  const isSaving = nav.state === "submitting" || nav.formMethod === "POST";
+  const isDisabled = nav.state !== "idle"
 
   return (
     <Suspense fallback={<CustomizationsFormSkeleton />}>
@@ -359,6 +361,7 @@ export default function LoadingCustomizationForm() {
               formOptions={byobOptions}
               backendError={backendError}
               isSaving={isSaving}
+              isDisabled={isDisabled}
             />
         }
       </Await>
