@@ -28,7 +28,10 @@ const CustomizationOptions = (props: CustomizationOptionsProps) => {
 
   const updatePrice = useCallback(
     (value: string) => {
-      const parsedPrice: number = parseFloat(value);
+      let parsedPrice: number = parseFloat(value);
+      if (isNaN(parsedPrice)) {
+        parsedPrice = 0;
+      }
       const validPrice = parsedPrice >= 0;
       if (validPrice) {
         clearValidationErrors();

@@ -2,13 +2,28 @@ import type { SerializedCustomizeForm } from "~/types";
 
 export function sanitizeData(data: SerializedCustomizeForm) {
   for (const key in data.paletteToNameUpdates) {
-    data.paletteToNameUpdates[key] = data.paletteToNameUpdates[key].trim();
+    const newName = data.paletteToNameUpdates[key].trim();
+    if (newName.length > 0) {
+      data.paletteToNameUpdates[key] = newName;
+    } else {
+      delete data.paletteToNameUpdates[key];
+    }
   }
   for (const key in data.sizeToNameUpdates) {
-    data.sizeToNameUpdates[key] = data.sizeToNameUpdates[key].trim();
+    const newName = data.sizeToNameUpdates[key].trim();
+    if (newName.length > 0) {
+      data.sizeToNameUpdates[key] = data.sizeToNameUpdates[key].trim();
+    } else {
+      delete data.sizeToNameUpdates[key];
+    }
   }
   for (const key in data.optionToNameUpdates) {
-    data.optionToNameUpdates[key] = data.optionToNameUpdates[key].trim();
+    const newName = data.optionToNameUpdates[key].trim();
+    if (newName.length > 0) {
+      data.optionToNameUpdates[key] = newName;
+    } else {
+      delete data.optionToNameUpdates[key];
+    }
   }
   return data;
 }
