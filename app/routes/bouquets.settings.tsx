@@ -89,8 +89,10 @@ export async function action({ request }) {
 
     const data: SerializedSettingForm = JSON.parse(serializedData.get("data"));
 
-    if (data.productName != data.prevProductName || data.productDescription != data.prevProductDescription) {
-      await updateProduct(admin, data.product.id, data.productName, data.productDescription);
+    const resolvedProductName = data.productName == "" ? data.prevProductName : data.productName;
+
+    if (resolvedProductName != data.prevProductName || data.productDescription != data.prevProductDescription) {
+      await updateProduct(admin, data.product.id, resolvedProductName, data.productDescription);
     }
 
     const paletteBackendIdToName: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
@@ -103,7 +105,7 @@ export async function action({ request }) {
     updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, PALETTE_OPTION_NAME, PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
       data.palettesSelected, (paletteId) => paletteBackendIdToName.getValue(paletteId));
 
-    if (!!updatedProduct) {
+    if (updatedProduct) {
       const media = await updateProductMedia(admin, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd, data.productImages,
         data.product.id, data.allPaletteColorOptions, data.palettesSelected);
       const productImages = media
@@ -114,7 +116,7 @@ export async function action({ request }) {
       await updateVariantMedia(admin, updatedProduct, updatedProduct.variants.nodes, paletteBackendIdToName, productImages);
     }
 
-    return redirect(`/bouquets/customize`);
+    return redirect(CUSTOMIZE_PATH);
   } catch (err) {
     console.error(err);
     captureException(err);
@@ -127,12 +129,14 @@ type ByobSettingsFormProps = {
   byobCustomizer: ByobCustomizerOptions
   hasBackendError: boolean
   isSaving: boolean
+  isNavigating: boolean
 }
 
 const ByobSettingsForm = ({
   byobCustomizer,
   hasBackendError,
-  isSaving
+  isSaving,
+  isNavigating
 }: ByobSettingsFormProps) => {
   const byobCustomizerForm: BouquetSettingsForm = {
     destination: byobCustomizer.destination,
@@ -372,7 +376,7 @@ const ByobSettingsForm = ({
             primaryAction={{
               content: "Save and continue",
               loading: isSaving,
-              disabled: isSaving,
+              disabled: isNavigating,
               onAction: () => { submitFormData(setUserErrors) },
             }}
           />
@@ -387,12 +391,14 @@ export default function LoadingSettingsForm() {
   const backendError: boolean = useActionData()?.backendError || false;
   const nav = useNavigation();
 
-  const isSaving =
-    (nav.state === "submitting" || nav.state === "loading") && nav.location.pathname == CUSTOMIZE_PATH;
+  const isSaving = nav.state === "submitting";
+  const isNavigating = nav.state !== "idle";
+  const showCustomizationSkeleton = isSaving || (nav.state === "loading" && nav.location.pathname == CUSTOMIZE_PATH);
+  
   return (
     <>
-      {isSaving && <CustomizationsFormSkeleton />}
-      {!isSaving && (
+      {showCustomizationSkeleton && <CustomizationsFormSkeleton />}
+      {!isNavigating && (
         <Suspense fallback={<SettingsFormSkeleton />}>
           <Await resolve={byobOptions} >
             {
@@ -401,6 +407,7 @@ export default function LoadingSettingsForm() {
                   byobCustomizer={byobOptions}
                   backendError={backendError}
                   isSaving={isSaving}
+                  isNavigating={isNavigating}
                 />
             }
           </Await>
