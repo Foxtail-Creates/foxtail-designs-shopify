@@ -9,7 +9,7 @@ import { ProductImage } from "~/types";
 /**
  * Creates a new product
  */
-export async function createProductWithOptionsAndVariants(admin: AdminApiContext, selectedFlowers: string[], optionToName: { [key: string]: string },
+export async function createProductWithOptionsAndVariants(admin: AdminApiContext, selectedFlowers: string[],
   selectedPalettes: string[], selectedSizes: string[], sizeToPrice: { [key: string]: number }, flowerToPrice: { [key: string]: number },
   paletteBackendIdToName: TwoWayFallbackMap, sizeEnumToName: TwoWayFallbackMap, palettesAvailable: Palette[]) {
 
@@ -17,7 +17,7 @@ export async function createProductWithOptionsAndVariants(admin: AdminApiContext
   const sizeValues = selectedSizes.map((sizeEnum: string) => ({ "name": sizeEnumToName.getValue(sizeEnum) }));
   const paletteValues = selectedPalettes.map((id: string) => ({ "name": paletteBackendIdToName.getValue(id) }));
 
-  const product = await createProduct(admin, optionToName, flowerValues, sizeValues, paletteValues);
+  const product = await createProduct(admin, flowerValues, sizeValues, paletteValues);
 
   const media = await updateProductMedia(admin, [], selectedPalettes, [], product.id, palettesAvailable, selectedPalettes);
   const productImages = media
@@ -33,7 +33,6 @@ export async function createProductWithOptionsAndVariants(admin: AdminApiContext
     selectedPalettes,
     sizeToPrice,
     flowerToPrice,
-    optionToName,
     paletteBackendIdToName,
     sizeEnumToName,
     productImages

@@ -96,11 +96,11 @@ export async function action({ request }) {
     const paletteBackendIdToName: TwoWayFallbackMap = convertJsonToTypescript(data.paletteBackendIdToName, TwoWayFallbackMap);
     const sizeEnumToName: TwoWayFallbackMap = convertJsonToTypescript(data.sizeEnumToName, TwoWayFallbackMap);
 
-    let updatedProduct: ProductFieldsFragment | null | undefined = await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[FLOWER_OPTION_NAME], FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
+    let updatedProduct: ProductFieldsFragment | null | undefined = await updateOptionsAndCreateVariants(admin, data.product, FLOWER_OPTION_NAME, FLOWER_POSITION, data.flowerOptionValuesToRemove, data.flowerOptionValuesToAdd,
       data.flowersSelected, (x) => x);
-    updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[SIZE_OPTION_NAME], SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
+    updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, SIZE_OPTION_NAME, SIZE_POSITION, data.sizeOptionValuesToRemove, data.sizeOptionValuesToAdd,
       data.sizesSelected, (sizeEnum) => sizeEnumToName.getValue(sizeEnum));
-    updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, data.productMetadata.optionToName[PALETTE_OPTION_NAME], PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
+    updatedProduct = await updateOptionsAndCreateVariants(admin, data.product, PALETTE_OPTION_NAME, PALETTE_POSITION, data.paletteOptionValuesToRemove, data.paletteOptionValuesToAdd,
       data.palettesSelected, (paletteId) => paletteBackendIdToName.getValue(paletteId));
 
     if (!!updatedProduct) {
@@ -111,8 +111,7 @@ export async function action({ request }) {
           return { id: media.id, alt: media.alt } as ProductImage;
         });
 
-      await updateVariantMedia(admin, updatedProduct, updatedProduct.variants.nodes, data.productMetadata,
-        paletteBackendIdToName, {}, productImages);
+      await updateVariantMedia(admin, updatedProduct, updatedProduct.variants.nodes, paletteBackendIdToName, productImages);
     }
 
     return redirect(`/bouquets/customize`);

@@ -143,7 +143,7 @@ const ByobCustomizationForm = ({
   const form: BouquetCustomizationForm = {
     optionCustomizations: {
       [SIZE_OPTION_NAME]: {
-        optionName: formOptions.productMetadata.optionToName[SIZE_OPTION_NAME],
+        optionName: SIZE_OPTION_NAME,
         optionValueCustomizations: createSizeValueCustomizationsObject(
           formOptions.sizesAvailable,
           formOptions.sizesSelected,
@@ -152,7 +152,7 @@ const ByobCustomizationForm = ({
         ),
       },
       [PALETTE_OPTION_NAME]: {
-        optionName: formOptions.productMetadata.optionToName[PALETTE_OPTION_NAME],
+        optionName: PALETTE_OPTION_NAME,
         optionValueCustomizations: createPaletteValueCustomizationsObject(
           formOptions.palettesAvailableSorted,
           formOptions.palettesSelected,
@@ -160,7 +160,7 @@ const ByobCustomizationForm = ({
         ),
       },
       [FLOWER_OPTION_NAME]: {
-        optionName: formOptions.productMetadata.optionToName[FLOWER_OPTION_NAME],
+        optionName: FLOWER_OPTION_NAME,
         optionValueCustomizations: createFlowerValueCustomizationsObject(
           formOptions.flowersAvailableSorted,
           formOptions.flowersSelected,
@@ -169,7 +169,6 @@ const ByobCustomizationForm = ({
       }
     },
     productMetadata: formOptions.productMetadata,
-    optionToNameUpdates: {},
     sizeToPriceUpdates: {},
     flowerToPriceUpdates: {},
     paletteToNameUpdates: {},
@@ -191,7 +190,6 @@ const ByobCustomizationForm = ({
       productMetadata: formOptions.productMetadata,
       sizeToPriceUpdates: formState.sizeToPriceUpdates,
       flowerToPriceUpdates: formState.flowerToPriceUpdates,
-      optionToNameUpdates: formState.optionToNameUpdates,
       paletteToNameUpdates: formState.paletteToNameUpdates,
       paletteBackendIdToName: formOptions.paletteBackendIdToName,
       sizeToNameUpdates: formState.sizeToNameUpdates,

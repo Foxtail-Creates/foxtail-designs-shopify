@@ -38,7 +38,7 @@ export async function updateMediaForVariants(
   const newVariants = [];
 
   customProduct.variants.nodes.forEach((variantNode) => {
-    const palette: string = variantNode.selectedOptions.find((option) => option.name == productMetadata.optionToName[PALETTE_OPTION_NAME]).value;
+    const palette: string = variantNode.selectedOptions.find((option) => option.name == PALETTE_OPTION_NAME).value;
     const mediaId: string = productImages.find((media) => media.alt == palette)?.id;
     const doesExistingMediaMatch = variantNode.media.nodes?.find((media) => media.id == mediaId);
     if (mediaId && !doesExistingMediaMatch) {

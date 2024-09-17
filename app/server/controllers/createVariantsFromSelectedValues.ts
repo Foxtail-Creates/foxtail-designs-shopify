@@ -11,7 +11,6 @@ export async function createVariantsFromSelectedValues(
   paletteValues: string[],
   sizeToPrice: { [key: string]: number },
   flowerToPrice: { [key: string]: number },
-  optionToName: { [key: string]: string },
   paletteBackendIdToName: TwoWayFallbackMap,
   sizeEnumToName: TwoWayFallbackMap,
   productImages: ProductImage[] | undefined
@@ -29,15 +28,15 @@ export async function createVariantsFromSelectedValues(
         const variant: VariantInput = {
           optionValues: [
             {
-              optionName: optionToName[FLOWER_OPTION_NAME],
+              optionName: FLOWER_OPTION_NAME,
               name: flowerValues[f]
             },
             {
-              optionName: optionToName[SIZE_OPTION_NAME],
+              optionName: SIZE_OPTION_NAME,
               name: sizeEnumToName.getValue(sizeValues[s])
             },
             {
-              optionName: optionToName[PALETTE_OPTION_NAME],
+              optionName: PALETTE_OPTION_NAME,
               name: paletteBackendIdToName.getValue(paletteValues[p])
             }
           ],

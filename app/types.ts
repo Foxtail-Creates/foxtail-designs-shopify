@@ -87,7 +87,6 @@ export type SerializedCustomizeForm = {
   productMetadata: ProductMetadata;
   sizeToPriceUpdates: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
-  optionToNameUpdates: { [key: string]: string };
   paletteToNameUpdates: { [key: string]: string };
   paletteBackendIdToName: SerializedTwoWayFallbackMap;
   sizeToNameUpdates: { [key: string]: string };
@@ -142,7 +141,6 @@ export type BouquetCustomizationForm = {
   productMetadata: ProductMetadata;
   sizeToPriceUpdates: { [key: string]: number };
   flowerToPriceUpdates: { [key: string]: number };
-  optionToNameUpdates: { [key: string]: string };
   paletteToNameUpdates: { [key: string]: string };
   sizeToNameUpdates: { [key: string]: string };
 };
@@ -178,7 +176,6 @@ export type CustomizationProps = {
 export type ProductMetadata = {
   sizeToPrice: { [key: string]: number };
   flowerToPrice: { [key: string]: number };
-  optionToName: { [key: string]: string };
   paletteToName: { [key: string]: string }; // backend palette id (as string) to custom palette name
   sizeToName: { [key: string]: string }; // size enum to custom name
 }

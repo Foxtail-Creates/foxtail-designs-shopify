@@ -74,6 +74,7 @@ type EditProps = {
   productId: string | undefined | null;
   isEditLoading: boolean;
   isDeleteLoading: boolean;
+  isDisconnectLoading: boolean;
 }
 
 type LifeCycleProps = {
@@ -714,6 +715,7 @@ export default function Index() {
 
   const onDelete = () => {
     deleteFetcher.submit({ action: "delete", productId: appSettings.productId, shopMetafieldId: appSettings.shopMetafieldId, shopId: appSettings.shopId }, { method: "post" })
+    shopify.modal.hide('confirm-delete-modal');
   };
 
   const onPublish = () => {

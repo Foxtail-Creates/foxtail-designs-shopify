@@ -7,21 +7,17 @@ export async function updateVariantMedia(
   admin,
   product,
   variantNodes,
-  productMetadata: ProductMetadata,
   paletteIdToName: TwoWayFallbackMap,
-  optionToNameUpdates: { [key: string]: string },
   productImages: ProductImage[] | undefined
 ) {
   const productId: string = product.id;
   const newVariants = [];
 
-  const paletteOptionName = optionToNameUpdates[PALETTE_OPTION_NAME] != null ? optionToNameUpdates[PALETTE_OPTION_NAME] : productMetadata.optionToName[PALETTE_OPTION_NAME];
-
   variantNodes.forEach((variantNode) => {
     const variant = {};
 
     // update media 
-    const paletteId: string = paletteIdToName.getReverseValue(variantNode.selectedOptions.find((option) => option.name === paletteOptionName).value);
+    const paletteId: string = paletteIdToName.getReverseValue(variantNode.selectedOptions.find((option) => option.name === PALETTE_OPTION_NAME).value);
     const mediaId: string = productImages?.find((media) => media.alt == paletteId)?.id;
     if (mediaId) {
       variant['mediaId'] = mediaId;
