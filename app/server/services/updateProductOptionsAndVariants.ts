@@ -31,9 +31,15 @@ export async function updateProductOptionsAndVariants(
 
   const hasErrors: boolean = updateProductOptionNameBody.data?.productOptionUpdate?.userErrors.length != 0;
   if (hasErrors) {
-    throw new Error("Error updating variants.\n User errors: { "
-      + JSON.stringify(updateProductOptionNameBody.data?.productOptionUpdate?.userErrors)
-      + "}");
+    if (updateProductOptionNameBody.data?.productOptionUpdate?.userErrors.every(e => e.message === "Option value already exists.")) {
+      console.log("Product options not updated. User errors: {"
+        + JSON.stringify(updateProductOptionNameBody.data?.productOptionUpdate?.userErrors
+          + "}"));
+    } else {
+      throw new Error("Error updating variants.\n User errors: { "
+        + JSON.stringify(updateProductOptionNameBody.data?.productOptionUpdate?.userErrors)
+        + "}");
+    }
   }
   return updateProductOptionNameBody.data?.productOptionUpdate?.product;
 }
