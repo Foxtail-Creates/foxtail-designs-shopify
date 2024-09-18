@@ -69,7 +69,7 @@ export const PRODUCT_MAIN_IMAGE_SOURCE = "https://lh3.googleusercontent.com/pw/A
 
 export const PRODUCT_NAME = "Build Your Own Bouquet";
 
-export const PRODUCT_DESCRIPTION = `Build your own custom bouquet! Choose a size and color palette, and one type of featured flower that will be featured in your bouquet.
+export const PRODUCT_DESCRIPTION = `Build your own custom bouquet! Choose a size and color palette, and one type of flower that will be featured in your bouquet.
 We will create a beautiful bouquet based on your selections.
 <br/>
 <br/>

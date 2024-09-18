@@ -278,7 +278,8 @@ const ByobCustomizationForm = ({
               <Card roundedAbove="sm">
                 <BlockStack gap="400">
                   <Text as="h2" variant="bodyMd" tone="subdued">
-                    Customize the naming for your palette options. For example, rename "Pastel" to "Soft."
+                    Customize the names of your palette options. For example, rename "Pastel" to "Soft."
+                    The palette photos will used as product photos by default.
                   </Text>
                   <CustomizationSection
                     optionKey={PALETTE_OPTION_NAME}
