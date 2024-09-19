@@ -685,7 +685,7 @@ const Footer = () => {
     <FooterHelp>
       At Foxtail, we want to make it easy to design together.
       Learn more about {' '}
-      <Link url="https://www.foxtailcreates.com">
+      <Link url="https://www.foxtailcreates.com" target="_blank">
         Foxtail.
       </Link>
     </FooterHelp>
