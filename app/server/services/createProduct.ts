@@ -23,7 +23,7 @@ export async function createProduct(
       variables: {
         productName: PRODUCT_NAME,
         productDescription: PRODUCT_DESCRIPTION,
-        MetafieldStorefrontAccessInput: {
+        seoInput: {
           title: SEO_PRODUCT_NAME,
           description: SEO_PRODUCT_DESCRIPTION
         },
